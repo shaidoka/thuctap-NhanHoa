@@ -34,6 +34,6 @@ Mỗi tầng chỉ tương tác với tầng trên và tầng dưới, tầng Ap
  - Tầng Data-Link: kiểm tra lỗi, nếu có lỗi thì frame đó sẽ bị hủy. Sau đó kiểm tra địa chỉ MAC Address xem có đúng địa chỉ của máy nhận hay không, nếu đúng thì gỡ bỏ Header của Data-Link và chuyển tiếp lên tầng Network.
  - Tầng Network: kiểm tra địa chỉ IP  trong gói tin này xem có phải địa chỉ của máy nhận hay không, nếu đúng thì gỡ bỏ Header của nó và chuyển lên tầng Transport.
  - Tầng Transport: phục hồi và xử lý lỗi bằng cách gửi các gói tin ACK, NAK. Sau khi sửa lỗi, tầng này sắp xếp lại thứ tự của các Segment và chuyển dữ liệu lên tầng trên.
- - Tầng Session: đảm bảo dữ liệu trong gói tin nhận được toàn vẹn. Sau đó gỡ bỏ Header của tầng Session và gửi lên trê.n
+ - Tầng Session: đảm bảo dữ liệu trong gói tin nhận được toàn vẹn. Sau đó gỡ bỏ Header của tầng Session và gửi lên trên.
  - Tầng Presentation: chuyển đổi định dạng dữ liệu cho phù hợp. Sau khi hoàn thành thì gửi lên trên.
  - Tầng Application: gỡ bỏ Header cuối cùng. Khi đó ở máy nhận sẽ nhận được dữ liệu của gói tin được truyền đi.
