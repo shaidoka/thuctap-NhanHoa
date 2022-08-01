@@ -18,6 +18,7 @@ Mỗi tầng chỉ tương tác với tầng trên và tầng dưới, tầng Ap
  - Tầng Physical: quản lý truy nhập đường truyền. Chuyển đổi dữ liệu thành tín hiệu vật lý và phát trên đường truyền, chuyển tín hiệu vật lý nhận được thành frame dữ liệu và gửi lên trên.
 
 4. **Quy trình truyền gói tin trong mô hình OSI**
+ 
  a. Phía máy gửi
   - Tầng Application: user đưa thông tin cần gửi vào máy tính
   - Tầng Presentation: mã hóa và nén dữ liệu trên
