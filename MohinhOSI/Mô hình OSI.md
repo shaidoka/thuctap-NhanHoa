@@ -1,4 +1,5 @@
 # Mô hình OSI
+
 1. **Khái niệm cơ bản**
  
 Mô hình OSI (hay Open System Interconnection Reference Model) là một mô hình kiến trúc mạng chuẩn mang tính tham chiếu cho các hệ thống mạng. Mô hình OSI gồm 7 tầng, lý giải một cách trừu tượng kỹ thuật kết nối truyền thông giữa các máy tính và thiết kế giao thức mạng giữa chúng.
@@ -66,33 +67,39 @@ Hai giao thức chính trong TCP/IP phục vụ các chức năng cụ thể. TC
 
    - Giúp thiết lập kết nối giữa các loại máy tính
 
--- Hoạt động độc lập với HĐH
+   - Hoạt động độc lập với HĐH
 
--- Hỗ trợ nhiều giao thức định tuyến
+   - Hỗ trợ nhiều giao thức định tuyến
 
--- Sử dụng kiến trúc client-server cho khả năng mở rộng cao
+   - Sử dụng kiến trúc client-server cho khả năng mở rộng cao
 
--- Nhẹ và không gây áp lực không cần thiết cho mạng máy tính
+   - Nhẹ và không gây áp lực không cần thiết cho mạng máy tính
 
 - Nhược điểm:
 
--- Phức tạp để thiết lập và quản lý
+   - Phức tạp để thiết lập và quản lý
 
--- Lớp vận chuyển không đảm bảo việc phân phối các gói tin
+   - Lớp vận chuyển không đảm bảo việc phân phối các gói tin
 
--- Không dễ thay thế các giao thức trong TCP/IP
+   - Không dễ thay thế các giao thức trong TCP/IP
 
--- Không tách bạch rõ ràng các khái niệm dịch vụ, giao diện và giao thức nên không phù hợp để mô tả công nghệ mới trong mạng mới
+   - Không tách bạch rõ ràng các khái niệm dịch vụ, giao diện và giao thức nên không phù hợp để mô tả công nghệ mới trong mạng mới
 
--- Dễ bị tấn công DDOS
+   - Dễ bị tấn công DDOS
 
 5. **TCP/IP và OSI**
 - Giống nhau:
--- Cả 2 đều là mô hình logic
--- Đều là các tiêu chuẩn mạng
--- Chia quá trình tiếp nhận thành các lớp
--- Cung cấp các khuôn khổ để triển tạo và triển khai các tiêu chuẩn và thiết bị mạng
--- Cho phép một nsx tạo ra các thiết bị và thành phần mạng có thể cùng tồn tại và hoạt động với các thiết bị và thành phần do các nsx khác cung cấp
+
+   - Cả 2 đều là mô hình logic
+   
+   - Đều là các tiêu chuẩn mạng
+
+   - Chia quá trình tiếp nhận thành các lớp
+
+   - Cung cấp các khuôn khổ để triển tạo và triển khai các tiêu chuẩn và thiết bị mạng
+
+   - Cho phép một nsx tạo ra các thiết bị và thành phần mạng có thể cùng tồn tại và hoạt động với các thiết bị và thành phần do các nsx khác cung cấp
+
 - Khác nhau:
 
 |TCP/IP|OSI|
