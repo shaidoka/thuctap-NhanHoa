@@ -22,7 +22,7 @@ Mỗi tầng chỉ tương tác với tầng trên và tầng dưới, tầng Ap
 
 4. **Quy trình truyền gói tin trong mô hình OSI**
 
- ![](./images/trans_recv.png)
+ ![](./images/trans_recv.jpg)
  
  a. Phía máy gửi
   - Tầng Application: user đưa thông tin cần gửi vào máy tính
@@ -52,7 +52,7 @@ TCP/IP (hay Tranmission Control Protocol/ Internet Protocol) là một bộ các
 Bộ giao thức TCP/IP gồm một tập hợp các quy tắc và thủ tục, song TCP và IP là 2 giao thức chính.
 Hai giao thức chính trong TCP/IP phục vụ các chức năng cụ thể. TCP xác định cách các ứng dụng có thể tạo ra các kênh truyền thông qua mạng. Nó cũng quản lý cách một thông điệp được tập hợp thành các gói nhỏ hơn trước khi chúng được truyền qua Internet và tập hợp lại theo đúng thứ tự tại địa chỉ đích. Trong khi đó IP xác định địa chỉ và định tuyến từng gói để đảm bảo rằng nó đến đúng đích. 
 
-![](./image/osi_and_tcpip.png)
+![](./image/osi_and_tcpip.jpg)
 
 2. **Bốn lớp của mô hình TCP/IP**
  - Lớp Application: cung cấp cho ứng dụng sự trao đổi dữ liệu được chuẩn hóa.
