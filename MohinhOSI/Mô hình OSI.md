@@ -64,15 +64,24 @@ Hai giao thức chính trong TCP/IP phục vụ các chức năng cụ thể. TC
 4. **Ưu nhược điểm của TCP/IP**
  - Ưu điểm:
 -- Giúp thiết lập kết nối giữa các loại máy tính
+
 -- Hoạt động độc lập với HĐH
+
 -- Hỗ trợ nhiều giao thức định tuyến
+
 -- Sử dụng kiến trúc client-server cho khả năng mở rộng cao
+
 -- Nhẹ và không gây áp lực không cần thiết cho mạng máy tính
+
 - Nhược điểm:
- -- Phức tạp để thiết lập và quản lý
+-- Phức tạp để thiết lập và quản lý
+
 -- Lớp vận chuyển không đảm bảo việc phân phối các gói tin
+
 -- Không dễ thay thế các giao thức trong TCP/IP
+
 -- Không tách bạch rõ ràng các khái niệm dịch vụ, giao diện và giao thức nên không phù hợp để mô tả công nghệ mới trong mạng mới
+
 -- Dễ bị tấn công DDOS
 
 5. **TCP/IP và OSI**
