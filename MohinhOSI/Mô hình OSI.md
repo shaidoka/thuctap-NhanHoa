@@ -1,9 +1,11 @@
 # Mô hình OSI
 1. **Khái niệm cơ bản**
- Mô hình OSI (hay Open System Interconnection Reference Model) là một mô hình kiến trúc mạng chuẩn mang tính tham chiếu cho các hệ thống mạng. Mô hình OSI gồm 7 tầng, lý giải một cách trừu tượng kỹ thuật kết nối truyền thông giữa các máy tính và thiết kế giao thức mạng giữa chúng.
+ 
+Mô hình OSI (hay Open System Interconnection Reference Model) là một mô hình kiến trúc mạng chuẩn mang tính tham chiếu cho các hệ thống mạng. Mô hình OSI gồm 7 tầng, lý giải một cách trừu tượng kỹ thuật kết nối truyền thông giữa các máy tính và thiết kế giao thức mạng giữa chúng.
 
 2. **Nguyên tắc**
- OSI mô tả chức năng theo dạng phân tầng. Mỗi tầng có 1 vai trò riêng, mỗi vai trò có 1 tập chức năng chuyên biệt.
+ 
+OSI mô tả chức năng theo dạng phân tầng. Mỗi tầng có 1 vai trò riêng, mỗi vai trò có 1 tập chức năng chuyên biệt.
 Mỗi tầng chỉ tương tác với tầng trên và tầng dưới, tầng Application tương tác với user, tầng Physical tương tác với đường truyền vật lý.
 
 3. **Vai trò của từng tầng trong mô hình OSI**
@@ -44,7 +46,8 @@ Mỗi tầng chỉ tương tác với tầng trên và tầng dưới, tầng Ap
 
 # Bộ giao thức TCP/IP
 1. **Khái niệm cơ bản**
- TCP/IP (hay Tranmission Control Protocol/ Internet Protocol) là một bộ các giao thức truyền thông được sử dụng để kết nối các thiết bị với nhau trên Internet.
+ 
+TCP/IP (hay Tranmission Control Protocol/ Internet Protocol) là một bộ các giao thức truyền thông được sử dụng để kết nối các thiết bị với nhau trên Internet.
 Bộ giao thức TCP/IP gồm một tập hợp các quy tắc và thủ tục, song TCP và IP là 2 giao thức chính.
 Hai giao thức chính trong TCP/IP phục vụ các chức năng cụ thể. TCP xác định cách các ứng dụng có thể tạo ra các kênh truyền thông qua mạng. Nó cũng quản lý cách một thông điệp được tập hợp thành các gói nhỏ hơn trước khi chúng được truyền qua Internet và tập hợp lại theo đúng thứ tự tại địa chỉ đích. Trong khi đó IP xác định địa chỉ và định tuyến từng gói để đảm bảo rằng nó đến đúng đích. 
 
