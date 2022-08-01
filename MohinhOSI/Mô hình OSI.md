@@ -61,6 +61,24 @@ Hai giao thức chính trong TCP/IP phục vụ các chức năng cụ thể. TC
  - Lớp Network Interface: bao gồm các thiết bị mạng và các chương trình cung cấp các thông tin cần thiết cho hoạt động, truy nhập đường truyền vật lý qua các thiết bị mạng đó.
 
 3. **Quy trình bắt tay 3 bước (Three-way handshake)**
+
+![](./images/threewayhandshake.png)
+
+- Thiết lập phiên TCP: Quy trình bắt tay 3 bước
+
+   - Khi một máy A muốn khởi tạo phiên làm việc với máy tính B, máy A sẽ gửi tín hiệu với SYN = 1 và SEQ#10 đến máy B
+
+   - B khi nhận được tín hiệu và chấp nhận kết nối sẽ gửi trả lại tín hiệu phản hồi với SYN = 1, ACK = 1 cùng ACK#11
+
+   - Khi nhận được tín hiệu trên, A sẽ đáp lại bằng việc gửi tín hiệu ACK = 1 và SEQ#11. Lúc này phiên làm việc giữa 2 máy sẽ được thiết lập
+
+- Ngừng phiên làm việc TCP:
+
+   - Sau khi máy A gửi dữ liệu xong cho máy B, máy A muốn ngắt kết nối sẽ gửi tín hiệu với FIN = 1 và SEQ#50
+
+   - Khi nhận được tín hiệu trên, máy B sẽ gửi phản hồi lại với ACK = 1, ACK#51, SEQ#170. Sau khi máy B nhận được đầy đủ dữ liệu từ máy A, B sẽ gửi tín hiệu FIN = 1 và SEQ#171
+
+   - A nhận được phản hồi và gửi trả lại tín hiệu kết thúc với ACK = 1, ACK#172, SEQ#51
  
 4. **Ưu nhược điểm của TCP/IP**
  - Ưu điểm:
