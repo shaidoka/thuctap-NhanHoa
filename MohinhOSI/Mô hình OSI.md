@@ -64,7 +64,7 @@ Hai giao thức chính trong TCP/IP phục vụ các chức năng cụ thể. TC
 4. **Ưu nhược điểm của TCP/IP**
  - Ưu điểm:
 
-- - Giúp thiết lập kết nối giữa các loại máy tính
+  - Giúp thiết lập kết nối giữa các loại máy tính
 
 -- Hoạt động độc lập với HĐH
 
