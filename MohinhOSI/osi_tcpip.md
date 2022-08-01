@@ -27,6 +27,7 @@ Mỗi tầng chỉ tương tác với tầng trên và tầng dưới, tầng Ap
   - Tầng Network: tách các Segment thành nhiều Package, bổ sung thêm thông tin về định tuyến
   - Tầng Data-Link: băm nhỏ các Package thành nhiều Frame, bổ sung thêm thông tin để máy nhận kiểm tra dữ liệu
   - Tầng Physical: các frame sẽ được chuyển thành một chuỗi các bit nhị phân và truyền đến máy nhận qua đường truyền vật lý
+  
   **Mỗi gói dữ liệu khi gửi giữa các tầng đều được gắn header của tầng đó, với tầng Data-Link thì có thêm FCS để check lỗi**
  
  b. Phía máy nhận
