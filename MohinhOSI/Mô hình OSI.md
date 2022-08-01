@@ -47,12 +47,16 @@ Mỗi tầng chỉ tương tác với tầng trên và tầng dưới, tầng Ap
  TCP/IP (hay Tranmission Control Protocol/ Internet Protocol) là một bộ các giao thức truyền thông được sử dụng để kết nối các thiết bị với nhau trên Internet.
 Bộ giao thức TCP/IP gồm một tập hợp các quy tắc và thủ tục, song TCP và IP là 2 giao thức chính.
 Hai giao thức chính trong TCP/IP phục vụ các chức năng cụ thể. TCP xác định cách các ứng dụng có thể tạo ra các kênh truyền thông qua mạng. Nó cũng quản lý cách một thông điệp được tập hợp thành các gói nhỏ hơn trước khi chúng được truyền qua Internet và tập hợp lại theo đúng thứ tự tại địa chỉ đích. Trong khi đó IP xác định địa chỉ và định tuyến từng gói để đảm bảo rằng nó đến đúng đích. 
+
+![](./image/osi_and_tcpip.png)
+
 2. **Bốn lớp của mô hình TCP/IP**
  - Lớp Application: cung cấp cho ứng dụng sự trao đổi dữ liệu được chuẩn hóa.
  - Lớp Transport: chịu trách nhiệm duy trì thông tin liên lạc end-to-end trên mạng. TCP xử lý thông tin liên lạc giữa các máy chủ, các giao thức truyền tải bao gồm TCP và UDP.
  - Lớp Internet: xử lý các gói tin và kết nối các mạng độc lập để vận chuyển các gói tin trên mạng. Giao thức của lớp mạng là IP, ARP, ICMP và IGMP.
  - Lớp Network Interface: bao gồm các thiết bị mạng và các chương trình cung cấp các thông tin cần thiết cho hoạt động, truy nhập đường truyền vật lý qua các thiết bị mạng đó.
- 3. **Quy trình bắt tay 3 bước (Three-way handshake)**
+
+3. **Quy trình bắt tay 3 bước (Three-way handshake)**
  
 4. **Ưu nhược điểm của TCP/IP**
  - Ưu điểm:
