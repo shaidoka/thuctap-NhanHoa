@@ -7,6 +7,7 @@
 Mỗi tầng chỉ tương tác với tầng trên và tầng dưới, tầng Application tương tác với user, tầng Physical tương tác với đường truyền vật lý.
 
 3. **Vai trò của từng tầng trong mô hình OSI**
+ 
  ![](./images/osi.png)
  - Tầng Application: giao tiếp với user thông qua giao diện. Cung cấp các chức năng truyền thông đáp ứng nhu cầu của user.
  - Tầng Presentation: mã hóa, định dạng các bản tin dữ liệu cho phù hợp.
@@ -26,6 +27,7 @@ Mỗi tầng chỉ tương tác với tầng trên và tầng dưới, tầng Ap
   - Tầng Data-Link: băm nhỏ các Package thành nhiều Frame, bổ sung thêm thông tin để máy nhận kiểm tra dữ liệu
   - Tầng Physical: các frame sẽ được chuyển thành một chuỗi các bit nhị phân và truyền đến máy nhận qua đường truyền vật lý
   **Mỗi gói dữ liệu khi gửi giữa các tầng đều được gắn header của tầng đó, với tầng Data-Link thì có thêm FCS để check lỗi**
+ 
  b. Phía máy nhận
  - Tầng Physical: kiểm tra quá trình đồng bộ, đưa dữ liệu nhận được vào vùng đệm, thông báo với tầng Data-Link là đã nhận được dữ liệu.
  - Tầng Data-Link: kiểm tra lỗi, nếu có lỗi thì frame đó sẽ bị hủy. Sau đó kiểm tra địa chỉ MAC Address xem có đúng địa chỉ của máy nhận hay không, nếu đúng thì gỡ bỏ Header của Data-Link và chuyển tiếp lên tầng Network.
