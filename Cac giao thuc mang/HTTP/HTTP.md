@@ -24,7 +24,7 @@ HTTP là giao thức "stateless" (không lưu trạng thái): Server không lưu
 
 Minh họa 1 phiên làm việc:
 
-![](./images/nonpersistent_http.jpg)
+![](../images/nonpersistent_http.jpg)
 
 - HTTP client khởi tạo kết nối TCP đến HTTP Server qua cổng 80, Server lúc này đang trong trạng thái lắng nghe sẽ chấp nhận kết nối TCP với Client
 - HTTP client gửi HTTP request message (gồm cả URL) qua kết nối TCP socket chỉ ra rằng Client muốn tải đối tượng /index.html
@@ -36,7 +36,7 @@ Minh họa 1 phiên làm việc:
 
 Minh họa 1 phiên làm việc:
 
-![](./images/persistent_http.jpg)
+![](../images/persistent_http.jpg)
 
 # Cú pháp bản tin HTTP request
 
@@ -53,7 +53,7 @@ Accept-language: VN
 
 Cú pháp tổng quát:
 
-![](./images/http_request_format.jpg)
+![](../images/http_request_format.jpg)
 
 **Các kiểu method trong http:**
 - HTTP/1.0:
@@ -83,7 +83,7 @@ data data data data data ...
 
 Cú pháp tổng quát:
 
-![](./images/http_response_format.png)
+![](../images/http_response_format.png)
 
 **Một vài status code trong HTTP**
 - 200 OK: yêu cầu được đáp ứng và dữ liệu được yêu cầu nằm trong thông điệp
