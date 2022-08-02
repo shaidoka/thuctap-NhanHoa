@@ -27,6 +27,7 @@ Lệnh trong FTP được gửi dưới dạng text qua kết nối điều khi�
 - **CWD**: lệnh này cho phép người dùng làm việc với một tập dữ liệu hay 1 kho dữ liệu khác mà không phải thay đổi tài khoản
 - **MKD**: lệnh này giúp tạo directory được chỉ định trong pathname
 - **LIST**: trả về một danh sách các tệp tin trong thư mục hiện tại hoặc đường dẫn được chỉ định
+- **RETR**: dùng để Server gửi 1 bản copy của tệp tin được chỉ định trong pathname cho Client
 - **STOR**: lệnh này giúp Server chấp nhận dữ liệu được truyền qua kết nối dữ liệu (cổng 20) và lưu trữ nó thành tệp ở phía Server
 
 Một số mã phản hồi thường gặp:

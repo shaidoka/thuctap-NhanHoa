@@ -38,12 +38,14 @@ Như hình trên, khi một máy tính muốn phân giải tên miền *ktht.nuc
    - [tên-miền] IN NS [tên-server-dns]
    - VD:
 > ktht.nuce.edu.vn IN NS server1.ktht.nuce.edu.vn
+
 > ktht.nuce.edu.vn IN NS server2.ktht.nuce.edu.vn
 
 - Bản ghi **host A**: dùng để ánh xạ tên máy thành địa chỉ IP
    - Cú pháp: [tên-máy-tính] IN A [địa-chỉ-IP]
    - VD:
 > server1 IN A 10.0.0.1
+
 > server2 IN A 10.0.0.2
 
 - Bản ghi **PTR**: dùng để ánh xạ địa chỉ ip thành tên máy
@@ -60,6 +62,7 @@ Như hình trên, khi một máy tính muốn phân giải tên miền *ktht.nuc
    - Cú pháp: [tên-miền] IN MX [thứ-tự-ưu-tiên] [tên-máy-chủ-mail]
    - VD:
 > ktht.nuce.edu.vn IN MX 1 server1.ktht.nuce.edu.vn
+
 > ktht.nuce.edu.vn IN MX 2 server2.ktht.nuce.edu.vn
 
 #### Các Zone trong DNS
