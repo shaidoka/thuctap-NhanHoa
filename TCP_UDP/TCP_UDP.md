@@ -52,5 +52,20 @@ Trong khi đó, giao thức User Datagram Protocol (UDP) được các ứng d�
  - Các router không bao giờ truyền lại nếu xảy ra xung đột
  - UDP không có congestion control và tính năng kiểm soát luồng, vì vậy việc triển khai là của ứng dụng người dùng
  
- 
+## Tổng hợp
+
+ ||TCP|UDP|
+ |:-|:-|:-|
+ |Loại dịch vụ|Hướng kết nối|Hướng dữ liệu|
+ |Độ tin cậy|Đảm bảo tính toàn vẹn của dữ liệu|Không đảm bảo|
+ |Kiểm tra lỗi|Cung cấp khả năng kiểm tra và sửa lỗi nhờ khả năng điều khiển luồng|UDP chỉ kiểm tra lỗi cơ bản bằng checksums|
+ |Phân đoạn|Thực hiện phân đoạn dữ liệu, giúp dữ liệu được gửi đúng thứ tự cho bên nhận|Dữ liệu được gửi có thể không theo thứ tự|
+ |Tốc độ|Chậm hơn nhiều khi so với UDP|Nhanh, đơn giản và hiệu quả hơn TCP|
+ |Gửi lại|TCP hỗ trợ gửi lại gói tin bị mất|Không gửi lại gói tin|
+ |Độ dài Header|20-60 bytes|8 byte|
+ |Độ nặng|Nặng|Nhẹ|
+ |Kỹ thuật bắt tay|Bắt tay 3 bước sử dụng SYN, ACK, SYN-ACK|Không kết nối - Không bắt tay|
+ |Broadcast|Không hỗ trợ|Hỗ trợ|
+ |Giao thức|Sử dụng bởi HTTP, HTTPS, FTP, SMTP, Telnet|Sử dụng bởi DNS, DHCP, TFTP, SNMP, RIP|
+ |Loại luồng|Liên kết TCP là luồng byte|UDP là luồng bản tin|
  
