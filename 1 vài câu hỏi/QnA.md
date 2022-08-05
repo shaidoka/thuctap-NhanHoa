@@ -12,10 +12,19 @@ Các tín hiệu điện tử có thể truyền dưới dạng số hoặc dạ
 
 ### 2. POP3 và IMAP
 
+- [Một vài điều về POP3 và IMAP]
 
+ [Một vài điều về POP3 và IMAP]: <https://github.com/shaidoka/thuctap-NhanHoa/blob/main/Cac%20giao%20thuc%20mang/POP3_IMAP/POP3_IMAP.md>
 
 ### 3. DNS, SSL, Nameserver và tên miền
 
-- DNS, tên miền: https://github.com/shaidoka/thuctap-NhanHoa/blob/main/Cac%20giao%20thuc%20mang/DNS/DNS.md
+- DNS, tên miền: [Tổng hợp về dns và tên miền] 
 
-- 
+ [Tổng hợp về dns và tên miền]: <https://github.com/shaidoka/thuctap-NhanHoa/blob/main/Cac%20giao%20thuc%20mang/DNS/DNS.md>
+
+- SSL
+
+
+
+- Nameserver
+
