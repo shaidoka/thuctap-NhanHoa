@@ -6,24 +6,11 @@ NameServer là hệ thống có chức năng điều phối quá trình hoạt �
 
 Nhìn chung, địa chỉ IP là 1 dãy số khó nhớ, nên khi cần truy cập trang web sẽ phải gõ tên miền vào thanh trình duyệt. Tuy nhiên, tên miền không phải là yếu tố dùng để truy cập trang web mà phải có 1 hệ thống trung gian để chuyển đổi từ tên miền sang địa chỉ IP
 
-## Một số đặc điểm của NameServer
+## Các loại NameServer
 
-NameServer có 1 số đặc điểm cơ bản sau:
-- Lưu trữ tên miền tương ứng với địa chỉ IP
-- Chuyển đổi tên miền thành địa chỉ IP 
-- Thời gian truy cập thông tin lên đến 8 tiếng
+Việc tập trung cơ sở dữ liệu trên 1 nameserver duy nhất là không hợp lý, do đó để giải quyết vấn đề này, DNS triển khai cơ sở dữ liệu phân tán trên Internet. DNS sử dụng nhiều nameserver tổ chức phân cấp và phân tán trên toàn cầu. Không có nameserver nào chứa tất cả tên và địa chỉ của tất cả các máy tính trên Internet, những thông tin này được phân tán trên nhiều nameserver. 
 
-**Lưu trữ tên miền tương ứng với địa chỉ IP và giúp chuyển đổi giữa tên miền và địa chỉ IP**
-
-Nameserver được xem như một hệ thống danh bạ khổng lồ. Trong đó lưu trữ 1 thư mục lớn tên miền tương ứng với địa chỉ IP và tập hợp tại 1 trung tâm đăng ký. Do đó, chỉ cần người dùng gõ tên miền mình muốn truy cập vào thanh trình duyệt, hệ thống này sẽ tìm ra địa chỉ IP tương ứng đã được lưu trữ ở trung tâm
-
-**Thời gian truy cập thông tin lên đến 8 tiếng**
-
-Khoảng thời gian cho việc cập nhật thông tin giữa các NameServer với nhau có thể lên đến 8 tiếng. Điều này nghĩa là các NameServer có thể truy cập thông tin của các tên miền có đuôi .com và .net trong thời gian tối đa là 8 tiếng sau khi đăng ký. Và thời gian dành cho các tên miền mở rộng (sub-domain) lên đến 48h.
-
-## Thay đổi NameServer cho tên miền
-
-Có 3 cách để thay đổi NameServer cho tên miền:
-- Chuyển tên miền sang nhà cung cấp mới
-- Đổi bản ghi A của dịch vụ DNS
-- Đổi NameServer của tên miền
+Có 3 loại nameserver:
+- Local nameserver: Thường gần với client, có thể là cơ quan hoặc tổ chức, nó có thể ở cùng mạng LAN với máy tính client
+- Root nameserver: Trên thế giới có 13 root nameserver. Khi các local nameserver không thể trả lời truy vấn DNS của một máy tính thì local nameserver sẽ đóng vai trò client DNS và gửi câu hỏi truy vấn tới 1 trong số các root nameserver. Nếu root nameserver có thông tin truy vấn được hỏi, nó sẽ gửi một thông điệp DNS hồi âm tới local nameserver và sau đó thông tin này được local nameserver gửi trả lời cho máy tính yêu cầu
+- Authoriative nameserver: Mỗi máy tính phải đăng ký tới 1 Authoriative nameserver. Tức là Authoriative nameserver luôn lưu trữ bản ghi DNS cho phép xác định địa chỉ IP của máy tính từ tên miền
