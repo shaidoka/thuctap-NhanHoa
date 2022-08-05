@@ -22,9 +22,9 @@ Các tín hiệu điện tử có thể truyền dưới dạng số hoặc dạ
 
  [Tổng hợp về dns và tên miền]: <https://github.com/shaidoka/thuctap-NhanHoa/blob/main/Cac%20giao%20thuc%20mang/DNS/DNS.md>
 
-- SSL
+- SSL: [Cơ bản về SSL]
 
-
+ [Cơ bản về SSL]: <https://github.com/shaidoka/thuctap-NhanHoa/blob/main/Cac%20giao%20thuc%20mang/SSL/SSL.md>
 
 - Nameserver
 
