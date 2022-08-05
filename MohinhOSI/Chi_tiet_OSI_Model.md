@@ -12,7 +12,7 @@ Khi xây dựng mô hình OSI, ISO xuất phát từ kiến trúc phân lớp nh
 |Liên kết dữ liệu(tầng 2)|Kết hợp bit thành byte và byte thành khung đữ liệu. Truy nhập vào truyền thông sử dụng địa chỉ MAC. Phát hiện và sửa lỗi|802.3/802.2, HDLC|
 |Vật lý(tầng 1)|Truyền tải thông tin qua đường truyền vật lý, truy nhập đường vật lý dựa trên các giao diện cơ điện|EIA/TIA-232, V.35|
 
-## Lớp vật lý
+## 1. Lớp vật lý
 
 Lớp vật lý cung cấp phương tiện diện, cơ, chức năng và thủ tục để thiết lập, duy trì và giải phóng liên kết vật lý giữa các hệ thống
 
@@ -40,7 +40,7 @@ Có thể chia đường truyền thành 2 loại: có dây và không dây
 - Có dây: cáp đồng trục, cáp xoắn, cáp sợi quang
 - Không dây: hồng ngoại, âm tần, cao tần, siêu cao tần
 
-## Lớp liên kết dữ liệu
+## 2. Lớp liên kết dữ liệu
 
 Lớp liên kết dữ liệu cung cấp phương tiện để truyền thông qua liên kết vật lý, đảm bảo độ tin cậy nhờ các cơ chế đồng bộ, kiểm soát lỗi, kiểm soát luồng dữ liệu, điều khiển truy nhập đường truyền vật lý
 
@@ -90,7 +90,7 @@ Phát hiện lỗi không có nghĩa là phục hồi lỗi, nhìn chung lớp l
 
 Mỗi tiêu đề khung bao gồm một hoặc 1 vài trường để nhận dạng các giao thức lớp trên (IP, IPX,...) nhằm chuyển dữ liệu của khung đến đúng lớp tương ứng
 
-## Lớp mạng
+## 3. Lớp mạng
 
 Lớp mạng có nhiệm vụ truyền gói tin qua các tuyến khác nhau để đi đến đích. Để thực hiện chức năng đó, lớp mạng cần biết thông tin về các nút mạng và chọn tuyến đường thích hợp qua mạng. Việc chọn tuyến phải đảm bảo phân phối lưu lượng hợp lý giữa các tuyến. Ngoài ra lớp mạng còn có một số nhiệm vụ khác như thiết lập, duy trì và hủy bỏ liên kết logic lớp mạng, kiểm soát luồng dữ liệu, ghép và phân kênh...
 
@@ -112,7 +112,7 @@ Xem thêm về định tuyến tại [đây]
 
 [đây]: <https://github.com/shaidoka/thuctap-NhanHoa/blob/main/Routing/Routing.md>
 
-## Lớp giao vận
+## 4. Lớp giao vận
 
 Chức năng quan trọng nhất của lớp giao vận là phục hồi lỗi và điều khiển luồng
 
@@ -161,7 +161,7 @@ Tại mọi thời điểm. Bên gửi phải ghi nhớ một danh sách chứa 
 
 ![](./images/send_window.png)
 
-## Lớp phiên
+## 5. Lớp phiên
 
 **Chức năng** của lớp phiên là cung cấp cho người dùng đầu cuối phương tiện để quản trị và đồng bộ các phiên ứng dụng của họ
 
@@ -178,7 +178,7 @@ Một phiên ứng dụng (session) là một cuộc trao đổi thông tin gi�
 - Bán song công (HALF DUPLEX - 2 chiều luân phiên): 2 bên luân phiên gửi dữ liệu. Điển hình cho các ứng dụng hỏi đáp. Phần quản trị tương tác báo cáo cho mỗi bên khi đến phiên gửi dữ liệu
 - Đơn công (SIMPLEX): Chỉ truyền dữ liệu 1 chiều, bên nhận chỉ có nhiệm vụ nhận dữ liệu và lưu trữ (thí dụ các ứng dụng phim, radio, video)
 
-## Lớp trình diễn
+## 6. Lớp trình diễn
 
 **Chức năng** của lớp phiên là đảm bảo cho các hệ thống đầu cuối liên lạc trao đổi được với nhau trực tiếp ngay cả khi chúng sử dụng các cách biểu diễn khác nhau
 
@@ -190,7 +190,7 @@ Có 3 dạng cú pháp: cú pháp dùng trong thực thể ứng dụng của m�
 
 Ngữ cảnh (Semantic): là bối cảnh được dùng để trao đổi dữ liệu. Lớp trình diễn là ranh giới giữa 2 lớp ứng dụng và lớp phiên. Phía lớp ứng dụng, dữ liệu được biểu diễn dưới góc độ người dùng, còn lớp phiên, dữ liệu ở dạng các giá trị nhị phân (các chuỗi byte)
 
-## Lớp ứng dụng
+## 7. Lớp ứng dụng
 
 Đây là nơi cung cấp phương tiện để truy nhập môi trường OSI. Lớp ứng dụng là một thành phần trong môi trường OSI gồm các thực thể thực hiện việc xử lý thông tin cho các ứng dụng cụ thể. Nó chỉ xử lý các vấn đề ngữ nghĩa chứ không xử lý cú pháp như ở lớp trình diễn
 
