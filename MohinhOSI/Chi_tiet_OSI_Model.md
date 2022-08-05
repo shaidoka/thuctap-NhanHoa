@@ -30,7 +30,7 @@ Môi trường truyền tin: đường truyền vật lý
 
 Đường truyền vật lý dùng để truyền các tín hiệu điện tử giữa các máy tính. Tín hiệu biểu diễn giá trị nhị phân 0 và 1 trong máy tính
 
-Các tín hiệu điện tử có thể truyền dưới dạng số hoặc dạng tương tự. Với khoảng cách gần, tns hiệu số có thể truyền trên cáp nối giữa các máy tính. Tuy nhiên với quãng đường dài, tín hiệu số bị suy giảm nhanh chóng tương ứng với khoảng cách truyền
+Các tín hiệu điện tử có thể truyền dưới dạng số hoặc dạng tương tự. Với khoảng cách gần, tín hiệu số có thể truyền trên cáp nối giữa các máy tính. Tuy nhiên với quãng đường dài, tín hiệu số bị suy giảm nhanh chóng tương ứng với khoảng cách truyền
 
 Để truyền xa tín hiệu, tín hiệu số thường được chuyển sang các loại mã đường dây hoặc sóng điện từ
 
