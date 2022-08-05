@@ -26,5 +26,7 @@ Các tín hiệu điện tử có thể truyền dưới dạng số hoặc dạ
 
  [Cơ bản về SSL]: <https://github.com/shaidoka/thuctap-NhanHoa/blob/main/Cac%20giao%20thuc%20mang/SSL/SSL.md>
 
-- Nameserver
+- Nameserver: [Máy chủ quản lý tên miền]
+
+ [Máy chủ quản lý tên miền]: <>
 
