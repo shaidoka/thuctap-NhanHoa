@@ -28,5 +28,5 @@ Các tín hiệu điện tử có thể truyền dưới dạng số hoặc dạ
 
 - Nameserver: [Máy chủ quản lý tên miền]
 
- [Máy chủ quản lý tên miền]: <>
+ [Máy chủ quản lý tên miền]: <https://github.com/shaidoka/thuctap-NhanHoa/blob/main/Nameserver/Nameserver.md>
 
