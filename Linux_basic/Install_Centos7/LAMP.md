@@ -22,7 +22,7 @@ MariaDB được định hướng để duy trì khả năng tương thích cao 
 
  Tạo file /etc/yum.repo.d/mariadb.repo
 
- ```vi /etc/yum.repo.d/mariadb.repo```
+ ```vi /etc/yum.repos.d/mariadb.repo```
 
  Thêm vào đó nội dung như sau:
 
@@ -136,7 +136,7 @@ Nhập password đã tạo cho MariaDB server đã tạo trước đó
 
 Tạo user cho database đó:
 
-```CREATE USER trungvb@locahost IDENTIFIED BY '123456';```
+```CREATE USER trungvb@localhost IDENTIFIED BY '123456';```
 
 Cấp quyền cho user vừa tạo được phép truy cập vào database:
 

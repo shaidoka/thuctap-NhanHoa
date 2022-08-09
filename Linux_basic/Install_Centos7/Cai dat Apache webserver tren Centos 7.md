@@ -115,7 +115,27 @@ sudo ln -s /etc/httpd/sites-available/www.trungweb1.com.conf /etc/httpd/sites-en
 sudo ln -s /etc/httpd/sites-available/www.trungweb2.com.conf /etc/httpd/sites-enabled/www.trungweb2.com.conf
 ```
 
-6. Cuối cùng, restart lại dịch vụ httpd
+6. Chặn truy cập IP VPS tự động redirect về website trên VPS
+
+Theo mặc định thì khi truy cập IP của VPS hoặc khi trỏ 1 tên miền về VPS mà tên miền này không được cấu hình vhost thì bạn sẽ được redirect tới một website bất kỳ trên VPS, điều này là không nên và để hạn chế thì có thể thêm rule vào file cấu hình của apache
+
+Mở file httpd.conf và thêm vào cuối file:
+
+```sh
+vi /etc/httpd/conf/httpd.conf
+
+<VirtualHost *:80>
+	DocumentRoot /var/www/html
+	ServerName www.trungweb.com
+	<Directory "/var/www/html">
+		AllowOverride All
+                Options None
+                Require method GET POST OPTIONS
+	</Directory>
+</VirtualHost>
+```
+
+7. Cuối cùng, restart lại dịch vụ httpd
 
 ```sh
 systemctl reload httpd.conf
