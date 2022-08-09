@@ -122,6 +122,8 @@ systemctl reload httpd.conf
 systemctl restart httpd.conf
 ```
 
+![](./images/host.png)
+
 ![](./images/vhost1.png)
 
 ![](./images/vhost2.png)
