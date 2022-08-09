@@ -91,7 +91,7 @@ disable_function = exec,system,passthru,shell_exec,proc_close,proc_open,dl,popen
 
 3. Cấu hình chạy PHP-FPM
 
-Mở file /etc/httpd/conf.d/php.conf tìm dòng ```SetHandler applipcation/x-httpd-php``` sửa thành ```proxy:fcgi://128.0.0.1:9000```
+Mở file /etc/httpd/conf.d/php.conf tìm dòng ```SetHandler applipcation/x-httpd-php``` sửa thành ```proxy:fcgi://127.0.0.1:9000```
 
 4. Khởi động lại apache
 
