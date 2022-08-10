@@ -55,6 +55,14 @@ Chọn **Thực hiện** để tải file .sql về
 
 Chọn database muốn thực hiện restore, tiến hành drop toàn bộ table (đánh dấu tất cả -> xóa)
 
-Vào phần **import** để nhập database trước đó đã backup
+Vào phần **Nhập** để tải lên database trước đó đã backup
+
+Chọn **Choose File** và dẫn đến tập tin .sql 
+
+Chọn **Thực hiện** để Restore lại database
 
 ![](./images/bnr_w_phpmyadmin_import.png)
+
+6. Kiểm tra xem dữ liệu đã quay trở lại chưa bằng giao diện của wordpress
+
+![](./images/bnr_w_phpmyadmin_after.png)
