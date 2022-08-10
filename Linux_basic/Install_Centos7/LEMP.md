@@ -43,7 +43,7 @@ config-manager --enable remi-php[74]
 yum install -y php php-fpm php-gd php-json php-mbstring php-mysqlnd php-xml php-xmlrpc php-opcache php-mysql
 ```
 
-2. Chỉnh sửa lại tệp cấu hình của php têm www.conf
+2. Chỉnh sửa lại tệp cấu hình của php tên www.conf
 
 ```vi /etc/php-fpm.d/www.conf```
 
