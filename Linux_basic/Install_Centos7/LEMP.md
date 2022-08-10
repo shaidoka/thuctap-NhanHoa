@@ -199,3 +199,4 @@ Truy cập vào đường dẫn ```http://ip-address/phpmyadmin```
 chown -R nginx:nginx /var/lib/php/session/
 chmod 700 /var/lib/php/session
 ```
+

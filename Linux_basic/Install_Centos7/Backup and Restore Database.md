@@ -1,5 +1,7 @@
 # Backup và Restore database
 
+## Backup và Restore sử dụng câu lệnh
+
 1. Tạo thư mục lưu trữ file backup
 
 ```sh
@@ -23,3 +25,36 @@ Sau khi restore bằng lệnh
 
 ![](./images/after_restore_wp.png)
 
+## Backup và Restore sử dụng phpMyAdmin
+
+1. Tạo 1 vài bài viết trước khi Backup dữ liệu
+
+![](./images/bnr_w_phpmyadmin_before.png)
+
+2. Đăng nhập vào phpmyadmin, chọn database mà ta muốn backup ở cửa sổ bên trái
+
+![](./images/bnr_w_phpmyadmin_database.png)
+
+3. Xuất dữ liệu của database về máy
+
+Có 2 phương thức xuất dữ liệu là **Nhanh** và **Tùy chỉnh**:
+- Nhanh: sao lưu toàn bộ database
+- Tùy chỉnh: sao lưu các bảng tự chọn trong database
+
+Chọn định dạng file xuất ra là **SQL**
+
+Chọn **Thực hiện** để tải file .sql về
+
+![](./images/bnr_w_phpmyadmin_export.png)
+
+4. Trước khi thực hiện Restore, xóa thử 1 bài viết bất kỳ
+
+![](./images/bnr_w_phpmyadmin_deleted.png)
+
+5. Ở giao diện phpMyAdmin
+
+Chọn database muốn thực hiện restore, tiến hành drop toàn bộ table (đánh dấu tất cả -> xóa)
+
+Vào phần **import** để nhập database trước đó đã backup
+
+![](./images/bnr_w_phpmyadmin_import.png)
