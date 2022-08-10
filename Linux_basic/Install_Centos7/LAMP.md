@@ -29,7 +29,7 @@ MariaDB được định hướng để duy trì khả năng tương thích cao 
 ```sh
 [mariadb]
 name = MariaDB
-baseurl = http://yum.mariadb.org/10.7.1/rhel7-amd64/
+baseurl = http://yum.mariadb.org/10.7.4/rhel7-amd64/
 gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
 gpgcheck=1
 ```
