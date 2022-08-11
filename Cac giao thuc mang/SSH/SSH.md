@@ -16,7 +16,7 @@ SSH giúp hoạt động các chức năng tương tự (hoặc tốt hơn) và 
 
 SSH chạy ở mô hình client-server, có nghĩa là kết nối được khởi tạo bởi client tới server. Client SSH điều khiển tiến trình thiết lập kết nối và sử dụng mã hóa public key để xác thực danh tính của Server SSH. Sau phiên thiết lập, SSH sử dụng mã hóa đối xứng và thuật toán băm để đảm bảo tính bảo mật và tính toàn vẹn của dữ liệu được truyền tải giữa client và server
 
-Dưới đây là thể hiện quá trình thiết lập ccuar ssh
+Dưới đây là thể hiện quá trình thiết lập của ssh
 
 ![](../images/ssh_protocol.png)
 
