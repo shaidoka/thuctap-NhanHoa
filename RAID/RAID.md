@@ -88,3 +88,36 @@ Khi lựa chọn RAID level, cân nhắc các yếu tố sau:
     - Có thể chịu lỗi 2 đĩa trở lên nếu 2 đãi mirrored không bị cùng lỗi
     - Tận dụng dung lượng: 50%
     - Sử dụng khi cần tăng hiệu năng và khả năng chịu lỗi, chi phí cho các dự phòng chấp nhận được
+
+
+## RAID trong Linux
+
+RAID được quản lý bằng gói ```mdadm``` trong hầu hết các bản Linux, để cài đặt ```mdadm``` ta sử dụng lệnh sau
+
+```yum -y install mdadm```
+
+1. Cách tạo RAID 0
+
+Sử dụng lệnh:
+
+```mdadm --create --verbose /dev/md0 --level=0 --raid-devices=2 /dev/sdb /dev/sdc```
+
+hoặc: ```mdadm -C /dev/md0 -l raid0 -n 2 /dev/sd[b-c]```
+
+2. Cách tạo RAID 1
+
+Với 2 đĩa ghi dữ liệu, 1 đĩa dự phòng:
+
+```mdadm --create --verbose /dev/md0 --level=1 --raid-devices=2 /dev/sd[b-c] --spare-devices=/dev/sdd```
+
+3. Cách tạo RAID 4
+
+Với 4 đĩa ghi dữ liệu và 1 đĩa dự phòng:
+
+```mdadm --create --verbose /dev/md0 --level=4 --raid-devices=4 /dev/sdb /dev/sdc /dev/sdd /dev/sde spare-devices = /dev/sdf```
+
+4. Cách tạo RAID 5
+
+Với 3 đĩa và 1 đĩa dự phòng:
+
+```mdadm --create --verbose /dev/md0 --level=5 --raid-devices=3 /dev/sd[b-d] --spare-devices=/dev/sde```
