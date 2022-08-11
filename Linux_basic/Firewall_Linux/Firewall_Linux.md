@@ -9,20 +9,27 @@ Trong FirewallD, zone là 1 nhóm các quy tắc nhằm chỉ ra những luồng
 Các zone được xác định theo mức độ tin cậy, theo thứ tự từ: ít tin cậy nhất đến đáng tin cậy nhất
 
 ```drop```: ít tin cậy nhất - toàn bộ các kết nối đến sẽ bị từ chối mà không phản hồi, chỉ cho phép duy nhất kết nối đi ra
+
 ```block```: tương tự nhưng các kết nối đến bị từ chối và phản hồi bằng tin nhắn từ icmp-host-prohibited (hoặc icmp6-adm-prohibited)
+
 ```public```: đại diện cho mạng công cộng, không đáng tin cậy. Các máy tính/ services khác không được tin tưởng trong hệ thống nhưng vẫn cho phép các kết nối đến cơ sở trong từng trường hợp cụ thể
 
 ```external```: hệ thống mạng bên ngoài trong trường hợp bạn sử dụng tường lửa làm gateway, được cấu hình giả lập NAT để giữ bảo mật mạng nội bộ mà vẫn có thể truy cập
+
 ```internal```: đối lập với external zone, sử dụng cho phần nội bộ của gateway. Các máy tính/services thuộc zone này thì khá đáng tin cậy
+
 ```dmz```: sử dụng cho các máy tính/ services trong khi vực DMZ - cách ly không cho phép truy cập vào phần còn lại của hệ thống mạng, chỉ cho phép 1 số kết nối nhất định
 
 ```work```: sử dụng trong công việc, tin tưởng hầu hết các máy tính và 1 vài services được cho phép hoạt động
+
 ```home```: môi trường gia đình - tin tưởng hầu hết các máy tính khác và thêm 1 vài services được cho phép hoạt động
+
 ```trusted```: đáng tin cậy nhất - tin tưởng toàn bộ thiết bị trong hệ thống
 
 Trong FirewallD, các quy tắc được cấu hình thời gian hiệu lực
 
 ```Runtime```: có tác dụng ngay lập tức, mất hiệu lực khi reboot hệ thống
+
 ```Permanent```: không áp dụng cho hệ thống đang chạy, cần reload lại mới có hiệu lực, áp dụng cho đến khi bị xóa đi
 
 
