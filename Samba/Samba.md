@@ -30,12 +30,62 @@ Cả **winbindd** và **smbd** đều được đóng gói với các bản phâ
 
 ### Cài đặt Samba server
 
-Sử dụng lệnh sau để cài đặt Samba
+1. Sử dụng lệnh sau để cài đặt Samba
 
 ```yum -y install samba```
 
 ```sh
 systemctl enable smb
+systemctl enable nmb
+systemctl start smb
 systemctl start nmb
 ```
+
+2. Cấu hình firewall trên server cho phép samba thông qua
+
+```sh
+firewall-cmd --permanent --zone=public --add-service=samba
+firewall-cmd --reload
+```
+
+3. Chia sẻ 1 thư mục public 
+
+File cấu hình mặc định của samba lưu tại /etc/samba/smb.conf, ta backup file này lại và tạo file cấu hình mới như sau:
+
+```sh
+mv /etc/samba/smb.conf /etc/samba/cmb.conf.bak
+vi /etc/samba/smb.conf
+```
+
+Copy paste đoạn nội dung này vào:
+
+```sh
+[global]
+workgroup = WORKGROUP
+server string = My Samba Server
+netbios name = centos
+security = user
+map to guest = bad user
+dns proxy = no
+
+[PublicShare]
+path = /samba/publicshare
+browsable = yes
+writable = yes
+guest ok = yes
+read only = no
+```
+
+Tiếp đến, tạo 1 thư mục để chia sẻ:
+
+```sh
+mkdir -p /samba/publicshare/
+chmod -R 755 /samba/publicshare/
+chown -R nobody:nobody /samba/publicshare/
+```
+
+Sau khi hoàn tất thiết lập thì khởi động lại samba server
+
+4. Kết nối đến Samba server bằng Windows
+
 
