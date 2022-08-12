@@ -9,6 +9,8 @@
 - Bản ghi CNAME: tạo bí danh khác cho 1 máy chủ
 - Bản ghi MX: dùng cho việc chuyển mail
 
+*Chi tiết về DNS xem ở [đây](https://github.com/shaidoka/thuctap-NhanHoa/blob/main/Cac%20giao%20thuc%20mang/DNS/DNS.md)
+
 ## Swap và cách tạo swap
 
 ### 1. Giới thiệu chung
