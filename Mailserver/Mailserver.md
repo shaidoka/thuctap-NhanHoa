@@ -62,3 +62,9 @@ Kerio Mailserver là 1 email server an toàn và hiện đại cho phép các c�
 
 **Khả năng mở rộng**: Kerio Mail server có thể mở rộng server gởi tin hỗ trợ 20 người sử dụng tại bất kỳ nơi nào trong mạng nội bộ nhỏ, cho đến hàng ngàn người sử dụng hoạt động chỉ với 1 server. 1 server dễ dàng hỗ trợ cùng lúc 500 người sử dụng IMAP với các bộ lọc chống thư rác và chống virus mà không ảnh hưởng đến hiệu quả hoạt động của nó
 
+## Gmail
+
+### Giới thiệu chung
+
+Gmail là dịch vụ email miễn phí của Google. Người dùng có thể đăng ký, tạo tài khoản Gmail tại địa chỉ mail.google.com. Hiện nay, Gmail là địa chỉ được nhiều người sử dụng nhất vì tính tiện dụng của nó và vì càng ngày càng nhiều người biết đến Gmail
+
