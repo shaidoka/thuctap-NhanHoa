@@ -68,3 +68,38 @@ Kerio Mailserver là 1 email server an toàn và hiện đại cho phép các c�
 
 Gmail là dịch vụ email miễn phí của Google. Người dùng có thể đăng ký, tạo tài khoản Gmail tại địa chỉ mail.google.com. Hiện nay, Gmail là địa chỉ được nhiều người sử dụng nhất vì tính tiện dụng của nó và vì càng ngày càng nhiều người biết đến Gmail
 
+### Tính năng chính của Gmail
+
+**Lọc thư rác**: Hầu hết các dịch vụ email đều cung cấp chức năng lọc và loại bỏ thư rác tuy nhiên chức năng này của Gmail hiệu quả hơn hết. Gmail có thể loại bỏ hầu hết những thư quảng cáo, thư dính virus hay thư rác. Mặc dù không hẳn là hoàn hảo nhưng Gmail làm tốt hơn Yahoo rất nhiều
+
+**Kết nối với những ứng dụng khác**: Một tiện ích khác của Gmail chính là nó có thể tự động kết nối hoặc giúp bạn đăng ký nhanh chóng ở các ứng dụng, dịch vụ khác bằng tài khoản của mình như Google Hangouts, Google Analytics, hay những dịch vụ, phần mềm khác được cung cấp bởi bên thứ 3
+
+**Dung lượng lớn**: Gmail trở nên nổi tiếng nhờ vào dung lượng lưu trữ lớn của mình. 1 tài khoản miễn phí có dung lượng 15GB, kể cả khi bộ nhớ đầy thì bạn vẫn có thể lựa chọn lưu trữ chúng, giúp giải phóng dung lượng mà vẫn không phải xóa hoàn toàn email cũ
+
+**Chức năng tìm kiếm hiệu quả**: So với Yahoo mail hay Hotmail thì Gmail có bộ tìm kiếm email nhanh chóng và chính xác hơn cả
+
+**Truy cập offline**: Gmail có thể truy cập vào dù đang offline bằng Extension Google Offline của Chrome. Tuy nhiên, vẫn cần Internet để cập nhật thư mới về
+
+## Outlook
+
+### Giới thiệu chung
+
+Outlook là một ứng dụng mail hỗ trợ người dùng email quản lý thời gian, dung lượng của email. Ứng dụng này giúp người dùng có thể sắp xếp, quản lý vào tìm kiếm thông tin dễ dàng, nhanh chóng
+
+Outlook cũng hỗ trợ người dùng trong việc quản lý liên lạc, tài liệu, công việc,... với các chức năng như phân loại thư, gửi thư theo nhóm,...
+
+Outlook có thể được xem là một phần mềm quản lý cá nhân tối ưu nhất cho người sử dụng. Tuy vậy, vẫn còn nhiều người chưa thành thạo và biết cách sử dụng Outlook hiệu quả để có thể áp dụng nó vào cuộc sống 1 cách dễ dàng
+
+### Tính năng chính của Outlook
+
+**Tốc độ truy cập nhanh, không gian lưu trữ rộng**: Outlook cung cấp cho người dùng tốc độ truy cập không giới hạn, email được sắp xếp theo dung lượng/ thời gian nhận/ thời gian gửi...để dễ dàng tra cứu
+
+**Hỗ trợ gửi mail đính kèm tệp tin dung lượng lớn**: Kết hợp với OneDrive, Skype Drive, Outlook còn hỗ trợ khôi phục email đã xóa ngay cả khi nó không còn trong thùng rác
+
+**Cho phép sử dụng HTML và CSS**: người dùng có thể custom email của mình bằng những lệnh HTML và CSS riêng
+
+**Bảo mật và chống spam tốt**: Outlook có tính bảo mật cao, khả năng chống spam bằng việc chặn theo địa chỉ hoặc tên miền
+
+**Đa dạng kết nối**: Tích hợp với các mạng xã hội phổ biến hiện nay và cả ứng dụng trò chuyện từ xa Skype
+
+
