@@ -27,6 +27,8 @@ Kiểm tra ở địa chỉ [SSL Checker](https://www.sslshopper.com/ssl-checker
 Với Nginx, chúng ta thực hiện tương tự, chỉ khác ở 2 lệnh:
 
 ```sh
+#Cài đặt certbot
 yum install -y cerbot-nginx
+#Cài đặt SSL Let't Encrypt
 certbot --nginx -d tubui.xyz -d www.tubui.xyz
 ```
