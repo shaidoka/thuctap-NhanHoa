@@ -24,7 +24,7 @@ sudo firewall-cmd --reload
 3. Kiểm tra file cấu hình chính của Apache có tên httpd.conf tại đường dẫn /etc/http/conf
 
 ```sh
-cd /etc/http/conf
+cd /etc/httpd/conf
 vi httpd.conf
 ```
 
