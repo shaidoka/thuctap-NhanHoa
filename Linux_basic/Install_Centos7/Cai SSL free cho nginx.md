@@ -8,7 +8,7 @@
 
 2. Cài đặt certbot cho apache
 
-```yum -y install certbot python2-certbot-apache modssl```
+```yum -y install certbot python2-certbot-apache mod_ssl```
 
 3. Cài đặt SSL Let's Encrypt
 
