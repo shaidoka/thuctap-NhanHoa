@@ -76,7 +76,7 @@ sudo vi /var/www/www.trungweb1.com/html/index.html
 
 ```sh
 sudo vi /var/www/www.trungweb2.com/html/index.html
-<h1>Hello World from Web 2</h1>
+<h1>Hello World from Web 1</h1>
 ```
 
 3. Tạo thư mục để lưu trữ virtual server và nơi chứa symlink cho chúng
@@ -138,8 +138,8 @@ vi /etc/httpd/conf/httpd.conf
 7. Cuối cùng, restart lại dịch vụ httpd
 
 ```sh
-systemctl reload httpd.conf
-systemctl restart httpd.conf
+systemctl reload httpd
+systemctl restart httpd
 ```
 
 ![](./images/host.png)
