@@ -88,4 +88,12 @@ Sau khi hoàn tất thiết lập thì khởi động lại samba server
 
 4. Kết nối đến Samba server bằng Windows
 
+Chuột phải vào **This PC** ở máy Windows, chọn **Map network drive**, điền địa chỉ IP của máy chủ samba và đường dẫn tới share folder
+
+![](./images/map_network_drives.png)
+
+Kết nối thành công:
+
+![](./images/connect_success.png)
+
 
