@@ -28,3 +28,10 @@ Nhận thư thành công
 
 ![](./images/mail_recv.png)
 
+**Lưu ý:** Để gửi được mail phải thêm những bản ghi sau
+
+- Host ```mail```, type ```A```, value ```103.170.123.26```
+- Host ```@```, type ```MX```, value ```mail.tubui.xyz```
+- Host ```_dmarc```, type ```TXT```, value ```"v=DMARC1; p=none; rua=mailto:mailauth-reports@mail.tubui.xyz"```
+- Host ```@```, type ```TXT```, value ```"v=spf1 +a +mx +ip4:103.170.123.26 ~all"```
+
