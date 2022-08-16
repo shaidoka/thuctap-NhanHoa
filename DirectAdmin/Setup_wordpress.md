@@ -23,3 +23,5 @@ Select all -> ```Add to Clipboard``` -> Về thư mục ```public_html``` -> ```
 ![](./images/wp_config_edit.png)
 
 8. Đăng nhập trang quản trị WordPress bằng đường dẫn ```tên-miền-user/wp-admin```
+
+![](./images/wp_admin.png)
