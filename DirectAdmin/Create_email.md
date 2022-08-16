@@ -24,3 +24,7 @@ Gửi thư kiểm tra
 
 ![](./images/test_mail.png)
 
+Nhận thư thành công
+
+![](./images/mail_recv.png)
+
