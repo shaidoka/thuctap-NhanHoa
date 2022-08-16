@@ -20,7 +20,7 @@ Sau khi lựa chọn xong, nhấn ```Create``` để hoàn tất tạo tài kho�
 
 Ở giao diện chính của FileZilla, chọn ```File``` -> ```Site Manager```
 
-Thông tin điền như sau:
+Thông tin điền như sau (với user và password đã tạo ở bước 2):
 
 ![](./images/site_manager.png)
 
