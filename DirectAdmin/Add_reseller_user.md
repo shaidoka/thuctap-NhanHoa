@@ -29,7 +29,7 @@ Chọn ```Create Reseller``` từ màn hình menu chính
 
 Thiết lập thông tin Reseller
 
-![](./images/manager_reseller_package.png)
+![](./images/reseller_setting.png)
 
 ## Add User
 
