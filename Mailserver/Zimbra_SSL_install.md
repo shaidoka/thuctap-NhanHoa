@@ -1,6 +1,8 @@
 # Cài đặt chứng chỉ SSL có trả phí cho Zimbra mailserver
 
-1. Đầu tiên, vào trang ssls.com để đăng ký 1 chứng chỉ
+### Đăng ký chứng chỉ
+
+- Truy cập trang https://www.ssls.com/
 
 - Chọn 1 chứng chỉ bất kỳ, ```try for free```
 
@@ -48,4 +50,57 @@
 
 ![](./images/zimbra_cname_record.png)
 
-- 
+- Chờ đợi và tải file .zip về
+
+![](./images/zimbra_certificate.png)
+
+- Tạo file commercial.crt và copy nội dung chứng chỉ vào
+
+```sh
+cd /opt/zimbra/ssl/zimbra/commercial/
+vi commercial.crt
+```
+
+![](./images/zimbra_commercial_crt.png)
+
+- Tạo file commercial_ca.crt và copy nội dung chứng chỉ vào
+
+```sh
+vi commercial_ca.crt
+```
+
+![](./images/zimbra_commercial_ca_crt.png)
+
+- Tạo file commercial.key lấy nội dung từ file mail_tubui_xyz.pem
+
+```sh
+cp mail_tubui_xyz.pem commercial.key
+```
+
+![](./images/zimbra_commercial_key.png)
+
+- Verify chứng chỉ
+
+```sh
+chown zimbra:zimbra * -R
+su zimbra
+/opt/zimbra/bin/zmcertmgr verifycrt comm
+```
+
+![](./images/zimbra_verify.png)
+
+- Deploy chứng chỉ
+
+```sh
+/opt/zimbra/bin/zmcertmgr deploycrt comm commercial.crt ./commercial_ca.crt
+```
+
+- Khởi động lại Zimbra
+
+```sh
+zmcontrol restart
+```
+
+- Kiểm tra chứng chỉ
+
+![](./images/zimbra_done_ssl.png)
