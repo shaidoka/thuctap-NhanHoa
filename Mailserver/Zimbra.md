@@ -121,4 +121,6 @@ The system will be modified.  Continue? [N] Y
 /opt/zimbra/bin/zmprov ms zmhostname zimbraMemcachedClientServerList 127.0.0.1
 ```
 
-- Cuối cùng, truy cập đường dẫn https://mail.tubui.xyz:7071/zimbraAdmin để vào trang quản trị của Zimbra 
+- Cuối cùng, truy cập đường dẫn https://mail.tubui.xyz:7071/zimbraAdmin để vào trang quản trị của Zimbra
+
+![](./images/done_setup.png)
