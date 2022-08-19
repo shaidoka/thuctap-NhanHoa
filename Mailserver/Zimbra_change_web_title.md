@@ -30,5 +30,39 @@ zmmailboxdctl restart
 
 ### 2. Thay đổi title của mailbox webapp
 
+![](./images/zimbra_mailbox_title_before.png)
 
+- Tiếp tục tìm đến file ```ZmMsg.properties``` và chỉnh sửa trường ```zimbraTitle```
+
+![](./images/zimbra_title.png)
+
+- Khởi động lại ```mailboxd```
+
+```sh
+su zimbra
+zmmailboxdctl restart
+```
+
+- Title của mailbox sau khi sửa:
+
+![](./images/zimbra_mailbox_title_after.png)
+
+### 3. Thay đổi title của trang quản trị Zimbra
+
+![](./images/zimbra_admin_title_before.png)
+
+- Chỉnh sửa file ```ZabMsg.properties```
+
+```sh
+cd /opt/zimbra/jetty_base/webapps/zimbraAdmin/WEB-INF/classes/messages
+vi ZabMsg.properties
+```
+
+- Tìm trường ```zimbraAdminTitle``` và chỉnh sửa
+
+![](./images/zimbra_admin_title.png)
+
+- Title của trang quản trị sau khi sửa:
+
+![](./images/zimbra_admin_title_after.png)
 
