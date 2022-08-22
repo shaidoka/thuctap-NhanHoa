@@ -17,3 +17,11 @@ zmprov -l renameDomain renametubui.xyz
 ```
 
 ![](./images/zimbra_rename_domain.png)
+
+3. Xóa domain
+
+```sh
+zmprov dd renametubui.xyz
+```
+
+**Lưu ý:** cần phải xóa hết các tài khoản thuộc domain trước khi xóa domain đó
