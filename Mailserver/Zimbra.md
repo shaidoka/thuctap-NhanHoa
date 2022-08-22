@@ -124,3 +124,19 @@ The system will be modified.  Continue? [N] Y
 - Cuối cùng, truy cập đường dẫn https://mail.tubui.xyz:7071/zimbraAdmin để vào trang quản trị của Zimbra
 
 ![](./images/done_setup.png)
+
+### 3. Thêm bản ghi DKIM
+
+- Đầu tiên, active dkim cho domain tubui.xyz
+
+```sh
+su zimbra
+/opt/zimbra/libexec/zmdkimkeyutil -a -d tubui.xyz
+```
+
+![](./images/zimbra_dkim_active.png)
+
+- Tạo bản ghi DKIM với host là phân đoạn đầu tiên, loại bản ghi là ```TXT```, giá trị là phần trong ngoặc đơn
+
+
+
