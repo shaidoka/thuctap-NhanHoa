@@ -76,6 +76,23 @@ vi /etc/csf/csf.conf
 
 ![](./images/kerio_enter_key.png)
 
+- Để mặc định cho phép Kerio thu thập dữ liệu ẩn danh
+
+![](./images/kerio_anonymous_statistics.png)
+
+- Nhấn ```Finish``` để hoàn tất thiết lập
+
+![](./images/kerio_finish_configuration.png)
+
+- Đăng nhập vào trang quản trị với tài khoản Admin vừa tạo
+
+![](./images/kerio_admin_login.png)
+
+- Giao diện quản lý chính của Kerio
+
+![](./images/kerio_dashboard.png)
+
+
 
 
 
