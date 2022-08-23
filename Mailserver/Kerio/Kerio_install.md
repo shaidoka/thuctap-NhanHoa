@@ -10,6 +10,8 @@ systemctl stop postfix
 systemctl disable postfix
 systemctl stop sendmail
 systemctl disable sendmail
+systemctl stop httpd
+systemctl disable httpd
 ```
 
 2. Tải file RPM của Kerio-connect
