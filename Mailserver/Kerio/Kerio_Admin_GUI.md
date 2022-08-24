@@ -176,13 +176,13 @@
 
 Để thiết lập 1 số tùy chọn cho Kerio Connect Client ta làm như sau:
 
-    - Trong giao diện quản trị, vào ```Configuration``` -> ```Advanced options``` -> ```Kerio Connect Client```
-    - Trong phần ```Maximum size limit```, thiết lập kích cỡ tin nhắn có thể được gửi từ ```Kerio Connect Client```
-    - Trong phần ```Session security```, hãy đặt thời gian chờ cho:
-        - ```Session expiration timeout```: là thời gian không có bất kỳ hoạt động nào trong giao diện mà sau đó Kerio Connect kết thúc phiên. Thời gian chờ được đặt lại mỗi khi người dùng thực hiện 1 hành động
-        - ```Maximum session duration```: là thời gian mà sau đó người dùng bị đăng xuất ngay cả khi họ vẫn đang hoạt động
-        - Để bảo vệ, chống lại việc chiếm quyền điều khiển phiên, ta có thể thiết lập buộc đăng xuất sau khi người dùng Kerio Connect thay đổi địa chỉ IP của họ, chọn ```Force logout from Kerio Connect Client```
-        - Trong phần thiết lập ```Custom logo```, ta có thể thiết lập logo cho Kerio Connect Clients
+- Trong giao diện quản trị, vào ```Configuration``` -> ```Advanced options``` -> ```Kerio Connect Client```
+- Trong phần ```Maximum size limit```, thiết lập kích cỡ tin nhắn có thể được gửi từ ```Kerio Connect Client```
+- Trong phần ```Session security```, hãy đặt thời gian chờ cho:
+    - ```Session expiration timeout```: là thời gian không có bất kỳ hoạt động nào trong giao diện mà sau đó Kerio Connect kết thúc phiên. Thời gian chờ được đặt lại mỗi khi người dùng thực hiện 1 hành động
+    - ```Maximum session duration```: là thời gian mà sau đó người dùng bị đăng xuất ngay cả khi họ vẫn đang hoạt động
+    - Để bảo vệ, chống lại việc chiếm quyền điều khiển phiên, ta có thể thiết lập buộc đăng xuất sau khi người dùng Kerio Connect thay đổi địa chỉ IP của họ, chọn ```Force logout from Kerio Connect Client```
+    - Trong phần thiết lập ```Custom logo```, ta có thể thiết lập logo cho Kerio Connect Clients
 
 #### i. Security
 
