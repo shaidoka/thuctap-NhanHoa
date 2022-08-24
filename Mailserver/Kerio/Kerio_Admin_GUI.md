@@ -175,6 +175,7 @@
     - Kerio Connect Client dành cho người dùng
 
 Để thiết lập 1 số tùy chọn cho Kerio Connect Client ta làm như sau:
+
     - Trong giao diện quản trị, vào ```Configuration``` -> ```Advanced options``` -> ```Kerio Connect Client```
     - Trong phần ```Maximum size limit```, thiết lập kích cỡ tin nhắn có thể được gửi từ ```Kerio Connect Client```
     - Trong phần ```Session security```, hãy đặt thời gian chờ cho:
