@@ -175,3 +175,8 @@
 
 ![](./images/aapanel_wordpress_in4.png)
 
+- Truy cập
+
+![](./images/aapanel_wordpress_done.png)
+
+![](./images/aapanel_wordpress_home.png)
