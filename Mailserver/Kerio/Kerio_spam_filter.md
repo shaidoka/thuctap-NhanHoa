@@ -26,7 +26,7 @@ Kerio antispam sử dụng dịch vụ quét trực tuyến của Bitdefender v�
     - Kerio Connect tính toán điểm thư rác bằng 1 thuật toán đặc biệt và thêm điểm vào ```Spam Rating```
     - Nếu Bitdefender nhận ra phần mềm độc hại hoặc tin nhắn lừa đảo, Kerio Connect sẽ tự động chặn tin nhắn bất kể các cài đặt trên Kerio như nào
 
-### 3. Blaclists
+### 3. Blacklists
 
 Trong Kerio Connect, ta có thể tự động chặn các máy chủ (địa chỉ IP) được cho là đang gửi tin nhắn rác. Để tạo blacklist, trước hết ta phải có địa chỉ IP của máy chủ mà mình muốn chặn
 - ```Configuration``` -> ```IP address Groups``` và tạo một group mới với địa chỉ IP của máy chủ thư rác
