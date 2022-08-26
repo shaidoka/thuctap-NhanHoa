@@ -68,6 +68,10 @@ Ghi lại tiến trình xử lý Email bao gồm:
 
 - Mailing list: [25/Aug/2022 15:31:37] Recv: Queue-ID: 63073369-00000003, Service: SMTP, From: <shaidokun@gmail.com>, To: <shaiorike@tubui.xyz>, Size: 3687, Sender-Host: 209.85.208.180, SSL: yes, Subject: Fwd: gjbasebgarjb, Msg-Id: <CAOmjrtRRy5Sv5E8U1s1nTYApW0gPb+jeKSwTa5QmWzHhny5qjA@mail.gmail.com>
 
+Quá trình gửi/nhận mail qua Kerio Connect server:
+- Gửi mail: Kerio Connect Client đưa email được gửi vào hàng đợi mail, với đầy đủ thông tin về địa chỉ người gửi, địa chỉ người nhận, tên người thực hiện thao tác, tiêu đề email và ID của email -> Sau đó, Kerio Connect server kiểm tra thiết lập relay xem email đó có được phép thông qua hay không, nếu có thì chuyển tiếp nó đến máy chủ POP3/IMAP để người dùng nhận thư về
+- Nhận mail: dịch vụ SMTP đưa email nhận được vào hàng đợi mail, với các thông tin về người gửi, người nhận, tiêu đề, địa chỉ IP người gửi và ID email -> Kerio mailserver sau đó kiểm tra địa chỉ người nhận và chuyển thư về hòm thư của người này
+
 #### 5. Operations Log
 
 Lưu lại những thay đổi như xóa và di chuyển các email/danh bạ/sự kiện/nhiệm vụ/ghi chú trong hộp thư của người dùng. Trong trường hợp các email bị đánh dấu spam và di chuyển vào hòm thư spam cũng sẽ được ghi log tại đây
