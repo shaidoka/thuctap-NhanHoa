@@ -12,6 +12,10 @@
 
 ![](./images/pl_domain_in4.png)
 
+- Vào thử để kiểm tra
+
+![](./images/pl_tubui_xyz.png)
+
 ### Add User
 
 - Tại giao diện quản trị, vào phần ```Users``` -> ```Create User Account```
