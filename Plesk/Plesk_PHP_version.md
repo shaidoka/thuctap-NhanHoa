@@ -72,4 +72,15 @@ cp php-ini-development /usr/local/php.ini
 - Đăng ký phiên bản PHP mới vừa cài đặt bằng câu lệnh ```/usr/local/psa/bin/php_handler --add -displayname <NN> -path <path to php cgi> -phpini <path to php.ini> -type <php handler> -id <NN-custom>```
 
 ```sh
-/usr/local/psa/bin/php_handler --add -displayname php-8.1.8 -path /usr/local/php-8.1.8
+/usr/local/psa/bin/php_handler --add -displayname php-8.1.8 -path /usr/local/php-8.1.8/bin/php-cgi -phpini /usr/local/php-8.1.8/php.ini -type fastcgi -id fastcgi-8.1.8 -clipath /usr/local/php-8.1.8/bin/php
+```
+
+- Sau khi đăng ký thành công, chạy lệnh sau để kiểm tra các phiên bản php của hệ thống
+
+```sh
+/usr/local/psa/bin/php_handler --list
+```
+
+- Trên Plesk:
+
+![](./images/pl_php_custom.png)
