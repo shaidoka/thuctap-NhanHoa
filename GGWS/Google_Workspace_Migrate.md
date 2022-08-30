@@ -1,4 +1,4 @@
-# Hướng dẫn các bước chuyển dữ liệu bằng Google Workspace Migration
+# Hướng dẫn các bước chuyển dữ liệu bằng Google Workspace Migrate
 
 Nếu bạn muốn di chuyển dữ liệu của mình tới Google Workspace (hay còn biết tới là G-Suite). Hay bạn muốn chuyển dữ liệu cá nhân từ Office 365 đến GGWS, hoặc đơn giản là bạn muốn di chuyển email giữa các miền G-Suite.
 

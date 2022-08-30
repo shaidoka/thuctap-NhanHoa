@@ -27,4 +27,11 @@ Thêm vào đó, Google Workspace Migrate hỗ trợ Microsoft Exchange, Microso
 
 ### Cách thức sử dụng
 
-- Quản trị viên: tham khảo [Hướng dẫn các bước chuyển dữ liệu bằng Google Workspace Migration]()
+- Quản trị viên: tham khảo [Hướng dẫn các bước chuyển dữ liệu bằng Google Workspace Migrate](https://github.com/shaidoka/thuctap-NhanHoa/blob/main/GGWS/Google_Workspace_Migrate.md)
+
+- Người dùng cuối: không cần thao tác
+
+### Phiên bản tích hợp
+
+- GGWS Migrate nay đã có thể sử dụng với các phiên bản Google Workspace Business Standard, Business Plus, Enterprise Standard, Enterprise Plus, Education Standard, Education Plus, và bản legacy G-Suite Business
+- GGWS Migrate không có sẵn trong GGWS Essentials, Business Starter, Enterprise Essentials, Education Fundamentals, the Teaching and Learning Upgrade, Frontline, và bản phi thương mại cũng như bản legacy G-Suite Basic
