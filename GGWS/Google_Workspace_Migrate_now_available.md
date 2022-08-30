@@ -9,7 +9,7 @@ Google Workspace Migrate được công bố vào năm 2019, nay đã sẵn sàn
 Google Workspace Migrate đặc biệt thích hợp với những khách hàng của GGWS mà có lượng lớn dữ liệu và người dùng, bởi nó cho phép họ di dời số lượng lớn dữ liệu của tổ chức của họ và thiết lập cơ sở hạ tầng 1 cách an toàn ngay tại chỗ. Cụ thể, nó cung cấp sự hỗ trợ với:
 - **Khả năng đánh giá:** nhanh chóng quét môi trường nguồn để giúp việc lên kế hoạch chính xác cho các cột mốc quan trọng của dự án và các điểm nhìn
 - **Sự di chuyển:** di chuyển những dữ liệu có giá trị từ nhiều nguồn khác nhau 1 cách hiệu quả
-- **Track:** dễ dàng xác định tiến độ và tình trạng của dự án với tính năng theo dõi và ghi log chi tiết
+- **Theo dõi:** dễ dàng xác định tiến độ và tình trạng của dự án với tính năng theo dõi và ghi log chi tiết
 
 Thêm vào đó, Google Workspace Migrate hỗ trợ Microsoft Exchange, Microsoft SharePoint, Microsoft OneDrive, chia sẻ tệp tin, di chuyển Box, G-Suite Business cũ và môi trường Google Workspace. Cho phép bạn:
 - Tùy chọn di chuyển gmail, calendar, drive và nhiều dữ liệu khác giữa môi trường GGWS
