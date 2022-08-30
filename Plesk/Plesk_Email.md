@@ -28,3 +28,26 @@
 
 ![](./images/pl_email_test_send.png)
 
+- Thử nhận 1 email
+
+![](./images/pl_email_test_recv.png)
+
+### Tạo bản ghi DKIM trong Plesk
+
+- Vào mục ```Mail Settings```, tích chọn ```Use DKIM spam protection system to sign outgoing email messages```
+
+![](./images/pl_dkim_active.png)
+
+- Sau khi active xong, truy cập vào phần ```DNS Settings``` của Host sẽ xuất hiện 2 bản ghi TXT như sau:
+
+![](./images/pl_dkim_record.png)
+
+![](./images/pl_dkim_record_2.png)
+
+- Thêm 2 bản ghi trên vào máy chủ quản lý tên miền
+
+![](./images/pl_add_dkim.png)
+
+- Kiểm tra
+
+![](./images/pl_dkim_check.png)

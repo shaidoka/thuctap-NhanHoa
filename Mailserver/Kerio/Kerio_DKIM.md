@@ -8,7 +8,7 @@
 
 ![](./images/kerio_dkim_value.png)
 
-- Tạo bản ghi với DKIM trên
+- Tạo DNS bản ghi với DKIM trên
 
 ![](./images/kerio_dkim_record.png)
 
