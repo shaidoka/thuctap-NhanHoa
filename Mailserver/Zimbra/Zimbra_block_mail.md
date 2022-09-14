@@ -6,14 +6,14 @@
 
 ```sh
 cd /opt/zimbra/conf/
-vi postfix_reject_render
+vi postfix_reject_sender
 ```
 
 - Thêm vào IP/domain cần block
 
 ```sh
 shaizabrim@tubui.xyz REJECT
-mail.tubui.xyz
+mail.tubui.xyz REJECT
 ```
 
 - Truy cập vào user Zimbra và thực hiện lệnh:
