@@ -86,3 +86,6 @@
 
 ![](./images/hyper_step_20.png)
 
+- Cài CentOS 7 lên máy ảo
+
+![](./images/hyper_step_21.png)
