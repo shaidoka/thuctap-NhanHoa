@@ -181,7 +181,9 @@ File XML tổ chức theo khối lệnh, có nhiều khối lệnh cùng trong 1
 **Bước 2:** Install KVM
 
 ```sh
-yum install -y qemu-kvm libvirt libvirt-python libguestfs-tools virt-install bridge-utils
+yum install -y qemu-kvm libvirt libvirt-python libguestfs-tools virt-install bridge-utils libvirt-clients libvirt-daemon-system virtinst virt-manager
+systemctl enable libvirtd
+systemctl start libvirtd
 ```
 
 **Bước 3:** Tạo disk 
@@ -357,3 +359,35 @@ systemctl enable NetwokManager
   </devices>
 </domain>
 ```
+
+**Bước 7:** Tạo máy ảo
+
+```sh
+virsh define /var/lib/libvirt/baotrung.xml #define nhung ko start
+virsh create /var/lib/libvirt/baotrung.xml #create va start
+```
+
+**Bước 8: Cài hđh cho máy ảo**
+
+- Đối với host dùng bản Minimal, để dùng được công cụ đồ họa virt-manager thì người dùng phải cài x-window
+
+```sh
+yum install "@X Window System" xorg-x11-xauth xorg-x11-fonts-* xorg-x11-utils -y
+```
+
+- Truy cập Vir-manager 
+
+![](./images/KVM_install_step_4.png)
+
+- ```Open```
+
+![](./images/KVM_install_step_5.png)
+
+- Cài đặt OS như bình thường
+
+![](./images/KVM_install_step_6.png)
+
+![](./images/KVM_install_step_7.png)
+
+*Lưu ý: để boot được vào OS thì ta phải thêm dòng ```<boot dev='hd'/>``` vào trong tag ```<os>```*
+
