@@ -31,38 +31,50 @@ apt-get install bridge-ultils -y
 yum install bridge-ultils -y
 ```
 
+### Hạn chế
+
+- Linux Bridge là cơ chế ảo hóa mặc định trong KVM. Nó rất dễ cấu hình và quản lý, tuy nhiên lại không thường được dùng cho mục đích ảo hóa vì bị hạn chế 1 số các tính năng
+- Linux Bridge không hỗ trợ Tunneling và OpenFlow protocols. Điều này khiến nó bị hạn chế trong việc mở rộng các chức năng. Đó cũng là lý do vì sao Open vSwitch xuất hiện
+
 ### Bridge management commandline
 
 |Hành động|BRCTL|BRIDGE|
 |:-|:-|:-|
-|Tạo 1 bridge|brctl addbr <bridge>||
-|Xóa đi 1 bridge|brctl delbr <bridge>||
-|Thêm 1 interface (port) vào bridge|brctl addif <bridge> <ifname>||
-|Xóa đi một interface (port) trên bridge|brctl delbr <bridge>||
+|Tạo 1 bridge|```brctl addbr <bridge>```||
+|Xóa đi 1 bridge|```brctl delbr <bridge>```||
+|Thêm 1 interface (port) vào bridge|```brctl addif <bridge> <ifname>```||
+|Xóa đi một interface (port) trên bridge|```brctl delbr <bridge>```||
 
 ### FDB management commandline
 
 |Hành động|BRCTL|BRIDGE|
 |:-|:-|:-|
-|Hiển thị danh sách địa MAC trong FDB|brctl showmacs <bridge>|bridge fdb show|
-|Thiết lập thời gian ageing của fdb|brctl setageingtime <bridge> <time>||
-|Sets FDB garbage collector interval|brctl setgcint <brname> <time>||
-|Thêm FDB entry||bridge fdb add dev <interface> [dst, vni, port, via]|
-|Gắn FDB entry||bridge fdb append (tham số giống với thêm entry)|
-|Xóa FDB entry||bridge fdb delete (tham số giống thêm entry)|
+|Hiển thị danh sách địa MAC trong FDB|```brctl showmacs <bridge>```|```bridge fdb show```|
+|Thiết lập thời gian ageing của fdb|```brctl setageingtime <bridge> <time>```||
+|Sets FDB garbage collector interval|```brctl setgcint <brname> <time>```||
+|Thêm FDB entry||```bridge fdb add dev <interface> [dst, vni, port, via]```|
+|Gắn FDB entry||```bridge fdb append (tham số giống với thêm entry)```|
+|Xóa FDB entry||```bridge fdb delete (tham số giống thêm entry)```|
 
 ### STP management commandline
 
 |Hành động|BRCTL|BRIDGE|
 |:-|:-|:-|
-|Bật/tắt STP|brctl stp <bridge> <state>||
-|Cài đặt độ ưu tiên bridge|brctl setbridgeprio <bridge> <priority>||
-|Cài đặt thời gian trễ forward|brctl setfd <bridge> <time>||
-|Cài đặt thời gian bridge 'hello'|brctl sethello <bridge> <time>||
-|Cài đặt tuổi tối đa của tin nhắn bridge|brctl setmaxage <bridge> <time>||
-|Cài đặt giá trị cost của cổng trên bridge|brctl setpathcost <bridge> <port> <cost>|bridge link set dev <port> cost <cost>|
-|Cài đặt độ ưu tiên cổng của bridge|brctl setportprio <bridge> <port> <priority>|bridge link set dev <port> priority <priority>|
-|Thiết lập cho phép cổng thực hiện STP BDPUs||bridge link set dev <port> guard [on,off]|
-|Thiết lập cho phép bridge phản hồi lại cổng mà nó nhận được gói tin||bridge link set dev <port> hairpin [on,off]|
-|Bật/tắt tùy chọn fastleave trên cổng||bridge lin set dev <port> fastleave [on,off]|
-|Setting FTP port state||bridge link set dev <port> state <state>|
+|Bật/tắt STP|```brctl stp <bridge> <state>```||
+|Cài đặt độ ưu tiên bridge|```brctl setbridgeprio <bridge> <priority>```||
+|Cài đặt thời gian trễ forward|```brctl setfd <bridge> <time>```||
+|Cài đặt thời gian bridge 'hello'|```brctl sethello <bridge> <time>```||
+|Cài đặt tuổi tối đa của tin nhắn bridge|```brctl setmaxage <bridge> <time>```||
+|Cài đặt giá trị cost của cổng trên bridge|```brctl setpathcost <bridge> <port> <cost>```|```bridge link set dev <port> cost <cost>```|
+|Cài đặt độ ưu tiên cổng của bridge|```brctl setportprio <bridge> <port> <priority>```|```bridge link set dev <port> priority <priority>```|
+|Thiết lập cho phép cổng thực hiện STP BDPUs||```bridge link set dev <port> guard [on,off]```|
+|Thiết lập cho phép bridge phản hồi lại cổng mà nó nhận được gói tin||```bridge link set dev <port> hairpin [on,off]```|
+|Bật/tắt tùy chọn fastleave trên cổng||```bridge lin set dev <port> fastleave [on,off]```|
+|Setting FTP port state||```bridge link set dev <port> state <state>```|
+
+### VLAN management commandline
+
+|Hành động|BRCTL|BRIDGE|
+|Creating new VLAN filter entry||```bridge vlan add dev <dev> [vid, pvid, untagged, self, master]```|
+|Delete VLAN filter entry||```bridge vlan delete dev <dev>``` (tham số như bên trên)|
+|List VLAN configuration||```bridge vlan show```|
