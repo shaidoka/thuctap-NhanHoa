@@ -25,7 +25,7 @@ Ngoài ra khi tìm hiểu Linux bridge còn có 1 số thuật ngữ như:
 - Linux bridge được hỗ trợ từ version nhân kernel 2.4 trở lên. Để sử dụng và quản lý các tính năng của Linux bridge, cần cài đặt gói bridge-utilities
 
 ```sh
-#Ubuntu
+# Ubuntu
 apt-get install bridge-ultils -y
 # CentOS
 yum install bridge-ultils -y
