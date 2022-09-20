@@ -38,6 +38,8 @@ Xen là công nghệ ảo hóa được AWS (Amazon Web Services) và Alibaba Cl
 
 ### 4. VMware vSphere
 
+![](./images/VMware_vSphere_logo.png)
+
 vSphere là nền tảng ảo hóa của VMware - công ty lớn nhất và nổi tiếng nhất trong thế giới ảo hóa. vSphere là 1 bộ sản phẩm gồm nhiều tính năng giúp xây dựng và quản lý hạ tầng ảo hóa dành cho doanh nghiệp: ESXi hypervisor, vCompute, vCenter, vStorage, vNetwork,... Nó là nền tảng ảo hóa được sử dụng phổ biến nhất thế giới
 
 Thành phần cốt lõi của vSphere là ESXi hypervisor - được cài đặt trực tiếp lên máy chủ vật lý để thiết lập máy ảo. ESXi có thể được dùng thử trong 60 ngày với đầy đủ tính năng. Sau thời gian này, bạn cần phải nhập key miễn phí để tiếp tục sử dụng, nhưng sẽ bị hạn chế tính năng
