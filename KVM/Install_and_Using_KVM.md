@@ -40,6 +40,20 @@ yum install -y qemu-kvm libvirt libvirt-python libguestfs-tools virt-install bri
 yum install "@X Window System" xorg-x11-xauth xorg-x11-fonts-* xorg-x11-utils -y
 ```
 
+- Nếu sau đó vẫn không mở được virt-manager thì kiểm tra trong file ```/etc/ssh/sshd_config``` xem 3 dòng sau đã được config đúng hay chưa
+
+```sh
+X11Forwarding yes
+X11DisplayOffset 10
+X11UseLocalhost yes
+```
+
+- Sau đó restart lại dịch vụ sshd
+
+```sh
+systemctl restart sshd
+```
+
 - Start dịch vụ libvirt và cho nó khởi động cùng hệ thống
 
 ```sh
