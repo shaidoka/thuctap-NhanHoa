@@ -42,6 +42,8 @@ sh latest
 
 #### 8. Kích hoạt quyền dùng thử
 
+![](./images/cp_trial_license.png)
+
 #### 9. Trang chính của WHM
 
 - WHM tại cổng 2087
