@@ -100,3 +100,65 @@ virt-clone --original=testVM1 --name=VMtemplate1 --file=/var/lib/libvirt/images/
 virsh snapshot-create-as --domain kvm1 --name "kvm1-snapshot" --description "khoi tao"
 ```
 
+- Để xem thông tin về bản Snapshot đã tạo
+
+```sh
+virsh snapshot-list kvm1
+```
+
+- Có thể thêm tùy chọn ```--parent``` vào lệnh trên để hiển thị ra danh sách snapshot cha của snapshot được chỉ định
+
+```sh
+virsh snapshot-list --parent kvm1
+```
+
+- Để xem thông tin chi tiết của bản Snapshot đã tạo
+
+```sh
+virsh snapshot-info kvm1 --snapshotname "kvm1-snapshot"
+```
+
+- Để Reverse lại 1 bản internal snapshot đã tạo:
+
+```sh
+virsh snapshot-revert kvm1 --snapshotname "kvm1-snapshot"
+```
+
+### Tạo và quản lý External Snapshot
+
+- Tiến hành kiểm tra ổ đĩa mà máy ảo muốn tạo snapshot đang sử dụng bằng câu lệnh 
+
+```sh
+virsh domblklist <vm_name> --details
+```
+
+- Tiến hành tạo snapshot bằng câu lệnh
+
+```sh
+virsh snapshot-create-as --domain VMcustom --name "VMcustom-snapshot-external" --disk-only --description "khoi tao"
+```
+
+- Trong đó ```--disk only``` dùng để tạo snapshot cho riêng ổ đĩa
+
+- Check lại danh sách bằng câu lệnh
+
+```sh
+virsh snapshot-info VMcustom --snapshotname "VMcustom-snapshot-external"
+```
+
+- Lúc này ổ đĩa cũ đã biến thành trạng thái ```read-only```, VM dùng ổ đĩa mới để lưu dữ liệu và ```backingfile``` sẽ là ổ đĩa ban đầu
+
+- Để Reverse trạng thái external snapshot, ta phải cấu hình file SML bằng tay bởi libvirt vẫn chưa hỗ trợ cho việc này:
+    - Lấy đường dẫn tới ổ đĩa được tạo ra khi snapshot
+    ```sh
+    virsh snapshot-dumpxml VMcustom --snapshotname "VMcustom-snapshot-external" | grep 'source file' | head -1
+    ```
+    - Kiểm tra để đảm bảo nó còn nguyên vẹn và được kết nối với backing file
+    ```sh
+    qemu-img info /var/lib/libvirt/images/VMcustom.VMcustom-snapshot-external | grep backing
+    ```
+    - Vào file XML sửa bỏ ổ đĩa hiện tại và thay bằng ổ đĩa snapshot (thẻ "source file" trong "devices" )
+    - Kiểm tra xem máy ảo đã dùng đúng ổ chưa
+    ```sh
+    virsh domblklist VMcustom
+    ```

@@ -181,9 +181,5 @@ systemctl enable nginx && systemctl enable supervisord
 
 - Truy cập vào trang quản trị WebVirtCloud bằng địa chỉ ip của server
 
-![](./images/)
-
 - Đăng nhập bằng tài khoản và mật khẩu đều là admin
-
-![](./images/)
 

@@ -40,14 +40,14 @@ sh latest
 
 ![](./images/cp_license_1.png)
 
-
-
 #### 8. Kích hoạt quyền dùng thử
 
-
-
-
-
-
-
 #### 9. Trang chính của WHM
+
+- WHM tại cổng 2087
+
+![](./images/WHM.png)
+
+- cPanel tại cổng 2083
+
+![](./images/cPanel.png)
