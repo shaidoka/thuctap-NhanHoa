@@ -37,6 +37,7 @@ phpinfo();
 ```
 
 *(test không thành công :v)*
+*(có thể do .htaccess không cho khai báo php_value như vậy, thêm vào php.ini thử xem ?)*
 
 ## Reset Password Admin WordPress bằng phpMyAdmin
 
