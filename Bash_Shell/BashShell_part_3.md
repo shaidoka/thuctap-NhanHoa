@@ -67,3 +67,37 @@ cat file1\&2
 #### a. Biến môi trường (environment variable)
 
 Khi Shell khởi động, nó cung cấp 1 số biến được khai báo và có giá trị mặc định. Chúng được gọi là các biến môi trường. Các biến này thường được viết hoa để phân biệt với các biến do người dùng đặt ra (thường là các ký tự không hoa). Nội dung của các biến này thường tùy vào thiết lập của hệ thống. Một số biến môi trường phổ biến là:
+- ```$HOME```: chứa nội dung của thư mục home
+- ```$PATH```: chứa đường dẫn tới các trình thực thi
+- ```PS1```: dấu nhắc hiển thị trên dòng lệnh. Thông thường là $user không phải user root
+- ```PS2```: dấu nhắc thứ cấp, thông báo người dùng nhập thêm thông tin trước khi lệnh thực hiện. Thông thường là dấu ```>```
+- ```IFS```: dấu phân cách các trường trong chuỗi. Biến này chứa các ký tự mà shell dùng tách chuỗi (thường là tham số trên dòng lệnh). Ví dụ $IFS thường chứa ký tự Tab, ký tự trắng hoặc ký tự xuống dòng
+- ```$o```: chứa tên chương trình gọi trên dòng lệnh
+- ```$#```: số tham số truyền trên dòng lệnh
+
+#### b. Biến tham số (parameter variable)
+
+Nếu cần tiếp nhận tham số trên dòng lệnh để xử lý, có thể dùng thêm các biến môi trường sau:
+- ```$1```, ```$2```, ```$3```,...: vị trí và nội dung của các tham số trên dòng lệnh theo thứ tự từ trái sang phải
+- ```$*```: danh sách shell của tất cả các tham số trên dòng lệnh. Chúng được lưu trong chuỗi duy nhất phân cách bằng ký tự đầu tiên quy định trong $IFS
+- ```$@```: các tham số được chuyển thành chuỗi. Không sử dụng dấu phân cách của biến IFS
+
+![](./images/bash_8.png)
+
+Ta thấy lệnh ```set``` tiếp nhận 3 tham số trên dòng lệnh lần lượt là ```1```,```2```,```3```. Chúng sẽ ảnh hưởng tới các biến môi trường ```$*``` và ```$@```. Khi IFS được quy định là ký tự ```A```, ```$*``` cho ra kết quả là các tham số đc phân tách vs nhau bởi ```A```. Khi ```unset IFS``` về null thì ```$*``` lại trả về là các tham số cách nhau bởi khoảng trắng giống ```$@``
+
+VD sau sẽ minh họa 1 số cách đơn giản về việc xử lý và truy xuất biến môi trường. Ta có script ```try_variables.sh```
+
+![](./images/bash_9.png)
+
+### 3. Điều kiện trong Shell
+
+Một nền tảng cơ bản trong tất cả các ngôn ngữ lập trình đó chính là khả năng kiểm tra điều kiện và đưa ra quyết định thích hợp tùy theo điều kiện đúng hay sai. Trước khi tìm hiểu cấu trúc điều khiển của ngôn ngữ script, ta hãy xem qua cách kiểm tra điều kiện
+
+Một script của shell có thể kiểm tra mã lỗi trả về của bất kỳ lệnh nào có khả năng gọi từ dòng lệnh, bao gồm cả những tập tin lệnh của script khác. Đó là lý do vì sao chúng ta thường sử dụng lệnh ```exit``` ở cuối script mỗi khi kết thúc
+
+#### a. Lệnh ```test``` hoặc ```[]```
+
+Thực tế, các script sử dụng lệnh ```[]``` hoặc ```test``` để kiểm tra điều kiện boolean 1 cách thường xuyên. Trong hầu hết các hệ thống UNIX và Linux thì ```[]``` và ```test``` đều có ý nghĩa tương đương nhau
+
+Ví dụ, dùng lệnh test để kiểm tra file ```hello.c``` có tồn tại trong hệ thống hay không. Cú pháp của lệnh test

@@ -111,7 +111,7 @@ systemctl restart httpd
 
 ```sh
 cd /usr/share/doc/zabbix-server-mysql-4.0.43
-zcar create.sql.gz | mysql -u zabbixuser -p forzabbix
+zcat create.sql.gz | mysql -u zabbixuser -p forzabbix
 ```
 
 - Mở file zabbix_server.conf tại đây
