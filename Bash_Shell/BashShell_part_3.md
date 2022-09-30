@@ -101,3 +101,58 @@ Một script của shell có thể kiểm tra mã lỗi trả về của bất k
 Thực tế, các script sử dụng lệnh ```[]``` hoặc ```test``` để kiểm tra điều kiện boolean 1 cách thường xuyên. Trong hầu hết các hệ thống UNIX và Linux thì ```[]``` và ```test``` đều có ý nghĩa tương đương nhau
 
 Ví dụ, dùng lệnh test để kiểm tra file ```hello.c``` có tồn tại trong hệ thống hay không. Cú pháp của lệnh test
+
+```sh
+test -f <file_name>
+```
+
+Trong script, ta có thể dùng lệnh test theo cách sau
+
+```sh
+if test -f hello.c
+then 
+...
+fi 
+```
+
+hoặc dùng ```[]``` để thay thế cho ```test```
+
+```sh
+if [ -f hello.c ]
+then
+...
+fi
+```
+
+Mã lỗi và giá trị trả về của lệnh mà ```test``` kiểm tra sẽ quyết định điều kiện kiểm tra là đúng hay sai
+
+**Lưu ý:** phải đặt khoảng trắng giữa lệnh ```[]``` và biểu thức kiểm tra
+
+Điều kiện mà lệnh ```test``` cho phép kiểm tra có thể rơi vào 1 trong 3 kiểu sau:
+
+- So sánh chuỗi:
+    - ```string1 = string2```: ```true``` nếu 2 chuỗi bằng nhau
+    - ```string1 != string2```: ```true``` nếu 2 chuỗi ko bằng nhau
+    - ```-n string1```: ```true``` nếu string1 ko rỗng
+    - ```-z string1```: ```true``` nếu string1 rỗng
+
+- So sánh toán học:
+    - ```expression1 -eq expression2```: ```true``` nếu 2 biểu thức bằng nhau
+    - ```expression1 -ne expression2```: ```true``` nếu 2 biểu thức không bằng nhau
+    - ```expression1 -gt expression2```: ```true``` nếu biểu thức expression1 lớn hơn
+    - ```expression1 -ge expression2```: ```true``` nếu biểu thức expression1 lớn hơn hoặc bằng expression2
+    - ```expression1 -lt expression2```: ```true``` nếu ex1 nhỏ hơn ex2
+    - ```expression1 -le expression2```: ```true``` nếu ex1 nhỏ hơn hoặc bằng ex2
+    - ```!expression```: ```true``` nếu biểu thức ex là false (toán tử not)
+
+- Kiểm tra điều kiện trên tập tin
+    - ```-d file```: ```true``` nếu file là thư mục
+    - ```-e file```: ```true``` nếu file tồn tại trên đĩa
+    - ```-f file```: ```true``` nếu file là tập tin thông thường
+    - ```-g file```: ```true``` nếu set-group-id được thiết lập trên file 
+    - ```-s file```: ```true``` nếu file có kích thước khác 0
+    - ```-u file```: ```true``` nếu set-ser-id được áp đặt trên file
+    - ```-w file```: ```true``` nếu file cho phép ghi
+    - ```-x file```: ```true``` nếu file được phép thực thi
+
+**Lưu ý:** tất cả lệnh kiểm tra tập tin đều yêu cầu file phải tồn tại trước đó
