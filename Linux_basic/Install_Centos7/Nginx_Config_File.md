@@ -143,6 +143,249 @@ http {
         #}
 
         # deny access to .htaccess files, if Apache's document root
-        # concurs with nginx's
+        # concurs with nginx's one
+        #
+        #location ~ /\.ht {
+        #    deny    all;
+        #}
+    }
+
+    # another virtual host using mix of IP-, name-, and port-based configuration
+    #
+    #server {
+    #    listen      8000;
+    #    listen      somename:8000;
+    #    server_name somename    alisas  another.alias;
+
+    #    location / {
+    #        root    html;
+    #        index   index.html  index.htm;
+    #    }
+    #}
+
+    # HTTPS server
+    #
+    #server {
+    #    listen      443 ssl;
+    #    server_name localhost;
+
+    #    ssl_certificate     cert.pem;
+    #    ssl_certificate_key cert.key;
+
+    #    ssl_session_cache   share:SSL:1m;
+    #    ssl_session_timeout 5m;
+
+    #    ssl_ciphers HIGH:!aNULL:!MD5;
+    #    ssl_prefer_server_ciphers   on;
+
+    #    location / {
+    #        root    html;
+    #        index   index.html  index.htm;
+    #    }
+    #}
+}
+```
+
+- File bắt đầu cùng với 4 directives: user, worker_precesses, error_log, và pid. Chúng nằm ngoài bất kỳ block hay context cụ thể nào do đó nằm trong main context (bối cảnh chính). Các event và http block là khu vực cho các directives bổ sung do đó chúng cũng nằm trong main context. Xem NGINX docs để xem giải thích cụ thể về những directive này và các giá trị directive khác trong main context
+- Giải thích cụ thể:
+    - ````user````: định nghĩa cho biết người dùng hệ thống Linux nào sẽ có quyền chạy các máy chủ Nginx. Có những trường hợp sử dụng nhất định mà được hưởng lợi từ việc thay đổi người dùng. Ví dụ, bạn chạy 2 máy chủ web cùng 1 lúc, hoặc cần người sử dụng của 1 chương trình khác để có thể kiểm soát Nginx
+    - ```worker_precess```: có giá trị mặc định là 1. Nó định nghĩa số lượng worker process nên được set bằng giá trị với số core của CPU. Ví dụ với các webserver hay sử dụng về SSL, gzip thì ta nên đặt chỉ số worker_processes này lên cao hơn. Nếu website của bạn có số lượng các tên tin tĩnh nhiều, và dung lượng của chúng lớn hơn bộ nhớ RAM thì việc tăng worker_processes sẽ tối ưu băng thông đĩa của hệ thống. Để xác định số cores của CPU của hệ thống ta có thể thực hiện lệnh: ```cat /proc/cpuinfo | grep processor```
+    - ```access_log``` & ```error_log```: những file mà Nginx sử dụng để log lại toàn bộ error và access request. Phần log này thường được sử dụng để debug
+    - ```pid```: xác định nơi nginx sẽ ghi lại master process ID, hoặc PID. PID được sử dụng bởi hđh để theo dõi và gửi tín hiệu đến Nginx process. Có thể xác định thông tin về PID (master process và worker process) của nginx bằng câu lệnh ```ps -ax | grep nginx```
+    - ```worker_connections```: cho biết số lượng connection mà mỗi worker_process có thể xử lý. Mặc định, số lượng connection này được thiết lập là 1024. Để xem về mức giới hạn sử dụng của hệ thống, bạn có thể sử dụng lệnh ```ulimi -n```. Con số thiết lập của worker_connections nên nhỏ hơn hoặc bằng giới hạn này
+    - ```max clients``` = ```worker_connections``` + ```worker_processes```
+
+**Event Context**
+
+```sh
+events {
+    worker_connections  1024;
+}
+```
+
+- Nginx sử dụng mô hình xử lý kết nối dựa trên sự kiện nên các directive được định nghĩa trong context này sẽ ảnh hưởng đến connection processing được chỉ định. VD ở trên là cấu hình số worker connection mà mỗi worker process có thể xử lý được
+
+**HTTP Context**
+
+- Khi cấu hình Nginx như 1 webserver hoặc reverse proxy, http context sẽ giữ phần lớn cấu hình. Context này sẽ chứa tất cả các directive và những context (block directive) cần thiết khác để xác định cách chương trình sẽ xử lý các kết nối HTTP và HTTPS
+- Giải thích 1 số directive:
+    - ```include```: chỉ thị include (include /etc/nginx/mime.types) của nginx có vai trò trong việc thêm nội dung từ 1 file khác vào trong cấu hình nginx. Điều này có nghĩa là bất cứ điều gì được viết trong tập tin mime.types sẽ được hiểu là nó được viết bên trong khối http {} mà không gây lộn xộn lên các tập tin cấu hình chính. Và nó giúp tránh quá nhiều dòng mã cho mục đích dễ đọc. Bạn luôn có thể bao gồm (include) tất cả các tập tin trong 1 thư mục nhất định với các chỉ thị: ```include /etc/nginx/conf/*```. Bạn cũng có thể bao gồm tất cả các file theo 1 định dạng nào đó, như ```include /etc/nginx/conf/*.conf``` -> Nó sẽ bao gồm các tập tin có đuôi .conf
+    - ```gzip```: chỉ thị gzip sẽ giúp nén các dữ liệu trước khi chuyển chúng tới Client, hạn chế số lượng băng thông sử dụng và tăng tốc độ dịch chuyển dữ liệu. Điều này tương đương với mod_deflate của Apache. 1 số chỉ thị sau đây có thể thêm vào để tăng hiệu quả của gzip:
+
+```sh
+gzip_vary       on;
+gzip_proxied    any;
+gzip_comp_level 6;
+gzip_buffers    116 8k;
+gzip_http_version   1.1;
+gzip_types  text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript;
+```
+
+**Server Context**
+
+- Được khai báo trong http context. Đây cũng là 1 ví dụ về context lồng nhau được đặt trong ngoặc. Đây cũng là context đầu tiên cho phép khai báo nhiều lần
+- Định dạng chung của server context có thể trông như này:
+
+```sh
+# main context
+http {
+    # http context
+    server {
+        # first server context
+    }
+    server {
+        # second server context
     }
 }
+```
+
+- Dựa vào yêu cầu từ phía client, nginx sẽ sử dụng thuật toán lựa chọn để quyết định server context nào được sử dụng. Các directive được sử dụng để quyết định server context nào được sử dụng là:
+    - ```listen```: tổng hợp các IP/port mà server block này được thiết kế để đáp ứng. Nếu 1 yêu cầu từ phía client phù hợp với giá trị này, block này có thể được lựa chọn để xử lý kết nối 
+    - ```server_name```: nếu có nhiều server block đáp ứng được yêu cầu của directive, nginx sau đó sẽ tiến hành phân tích cú pháp tiêu đề "Host" của yêu cầu và lựa chọn block phù hợp
+
+**Location Context**
+
+- Được đặt trong server context
+- Sau khi đã chọn được server context nào sẽ tiếp nhận request này thì nginx sẽ tiếp tục phân tích URI của request để tìm ra hướng xử lí của request dựa vào các location context có syntax như sau:
+
+```sh
+location optional_modifier location_match {
+    ...
+}
+```
+
+- Trong đó:
+    - ```optional_modifier```: có thể hiểu là kiểu so sánh để tìm và đối chiếu với ```location_match```
+    - ```location_match```: có vài loại location_match sau
+        - ```(none)```: nếu không khai báo gì thì nginx sẽ hiểu là tất cả các request có URI bắt đầu bằng phần location_match sẽ được chuyển cho location block này xử lí
+        - ```=```: khai báo này chỉ ra rằng URI phải có chính xác giống như location_match
+        - ```~```: sử dụng regular expression cho các URI
+        - ```~*```: sử dụng regular expression cho các URI không phân biệt chữ hoa chữ thường
+
+- VD:
+
+```sh
+location /site {
+    ...
+}
+```
+
+- Các request có URI dạng như sau ```/site```, ```/site/page/1```, ```site/index.html``` sẽ được xử lí thông qua location này
+
+```sh
+location = /site {
+    ...
+}
+```
+
+- Với khai báo như bên trên thì chỉ có ```/site``` sẽ có thể được xử lí, còn ```/site/page/1``` hay ```site/index.html``` thì không
+
+```sh
+location ~ \.(jpe?g|png|gif|ico)$ {
+    ...
+}
+```
+
+- Các request có đuôi .jpg, .jpeg, .png, .png, .gif, .ico có thể pass qua location này nhưng .PNG thì không
+
+```sh
+location ~* \.(jpe?g|png|gif|ico)$ {
+    ...
+}
+```
+
+- Giống bên trên nhưng pass cả chữ hoa vs chữ thường
+
+- Thông thường khi mà location block được dùng để phục vụ 1 request nào đó thì action sẽ hoàn toàn nằm trong context của nó (bên trong dấu {}). Và nó sẽ chỉ nhảy sang các block khác hay chuyển hướng xử lí request khi có yêu cầu từ chính bên trong context của nó. 1 vài directive có thể redirective request như:
+    - index
+    - try_files
+    - rewrite
+    - error_page
+
+**index directive**
+
+index direct nằm bên trong location luôn được nginx trỏ tới đầu tiên khi xử lí điều hướng request. Định nghĩa trang mặc định mà nginx sẽ phục vụ nếu không có tên tập tin được chỉ rõ trong yêu cầu (nói cách khác, trang chỉ mục). Chúng ta có thể chỉ rõ nhiều tên tập tin và tập tin đầu tiên được tìm thấy sẽ được sử dụng. Nếu không có tập tin cụ thể nào được tìm thấy, nginx sẽ hoặc là tự động sinh 1 chỉ mục 
+
+```sh
+location = / {
+    index index.html;
+}
+```
+
+**try_files directive**
+
+Cố gắng phục vụ các tập tin được chỉ rõ (các tham số từ 1 đến N-1 trong chỉ thị), nếu không có tập tin nào tồn tại, nhảy đến khối location được khai báo (tham số cuối cùng trong chỉ thị) hoặc phục vụ 1 URI được chỉ định
+
+```sh
+location / {
+    try_files $uri $uri.html $uri/ /fallback/index.html;
+}
+```
+
+**rewrite directive**
+
+Khác với Apache, nginx không sử dụng file .htaccess nên khi bạn cần rewrite url sẽ phải convert qua rule của nginx. VD:
+
+```sh
+location /download/ {
+    rewrite ^(/download/.*)/media/(.*)\..*$ $1/mp3/$2.mp3 break;
+    rewrite ^(/download/.*)/audio/(.*)\..*$ $1/mp3/$2.ra break;
+    return 403;
+}
+```
+
+**error_page directive**
+
+Chỉ thị khi không tìm thấy file tham chiếu
+
+```sh
+location / {
+    error_page 404 = @fallback;
+}
+
+location @fallback {
+    proxy_pass http://backend;
+}
+```
+
+- Xử lý trong location context:
+    - Nginx sẽ đọc root directive để xác định thư mục chứa trang client yêu cầu. Thứ tự các trang được ưu tiên sẽ được khai báo trong index directive
+    - Nếu không tìm được nội dung mà client yêu cầu, nginx sẽ điều hướng sang location context khác và thông báo lỗi cho người dùng
+
+- VD1:
+
+```sh
+location / {
+    root html;
+    index index.html index.htm;
+}
+```
+
+- Trong ví dụ này, document root là thư mục ```html/```. Trong cài đặt mặc định của nginx, đường dẫn đầy đủ đến thư mục này là ```/etc/nginx/html/```. Do đó nếu Request đến là ```http://example.com/blog/includes/style.css``` thì nginx sẽ tìm đến tệp tin ```/etc/nginx/html/blog/includes/style.css```
+
+- VD2:
+
+```sh
+location / {
+    root /srv/www/example.com/public_html;
+    index index.html index.htm;
+}
+location ~ \.pl$ {
+    gzip off;
+    include /etc/nginx/fastcgi_params;
+    fastcgi_pass unix:/var/run/fcgiwrap.socket;
+    fastcgi_index index.pl;
+    fastcgi_param SCRIPT_FILENAME
+    /srv/www/example.com/public_html$fastcgi_script_name;
+}
+```
+
+- Trong ví dụ này, tất cả các yêu cầu tài nguyên kết thúc bằng phần mở rộng .pl được xử lý bởi location context thứ 2, chỉ định trình xử lý fastcgi cho các yêu cầu này. Mặt khác, nginx sử dụng chỉ thị vị trí đầu tiên. Tài nguyên được đặt trên hệ thống tệp tại thư mục ```/srv/www/example.com/public_html/```. Nếu không tìm thấy tệp chỉ mục, máy chủ sẽ trả về lỗi 404. Cụ thể:
+    - **Request**: ```http://example.com/```
+    -> **Return**: ```/srv/www/example.com/public_html/index.html``` nếu nó tồn tại. Nếu file .html không tồn tại, file ```/srv/www/example.com/public_html/index.htm``` sẽ được sử dụng. Nếu cả 2 file không tồn tại thì trả về 404 error
+    - **Request**: ```http://example.com/blog/```
+    -> **Return**: ```/srv/www/example.com/public_html/blog/index.html``` nếu nó tồn tại. Nếu file ```.html``` không tồn tajim nó sẽ sử dụng ```srv/www/example.com/public_html/blog/index.htm```. Nếu cả 2 không tồn tại thì trả về 404 error
+    - **Request**: ```http://example.com/tasks.pl```
+    -> **Return**: nginx sẽ sử dụng FastCGI handler để thực thi file có tại ```/srv/www/example.com/public_html/tasks.pl``` và trả về kết quả
+    - **Request**: ```http://example.com/username/roster.pl```
+    -> **Return**: nginx sẽ sử dụng FastCGI handler để thực thi file có tại ```/srv/www/example.com/public_html/username/roster.pl``` và trả về kết quả
