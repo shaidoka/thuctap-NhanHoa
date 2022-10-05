@@ -130,13 +130,13 @@ print("Hello_World!")
 
 |Tên|Ký hiệu|Giải thích|
 |:-|:-|:-|
-|Alert|\a|Phát ra tiếng bíp|
-|Backspace|\b|Đưa con trỏ về lại 1 ký tự|
-|Newline|\n|Đưa con trỏ tới dòng tiếp theo|
-|Horizontal tab|\t|In 1 tab ngang|
-|Single quote|\'|In ra ký tự '|
-|Double quote|\"|In ra ký tự "|
-|Blackslash|\\|In ra ký tự \|
+|Alert|```\a```|Phát ra tiếng bíp|
+|Backspace|```\b```|Đưa con trỏ về lại 1 ký tự|
+|Newline|```\n```|Đưa con trỏ tới dòng tiếp theo|
+|Horizontal tab|```\t```|In 1 tab ngang|
+|Single quote|```\'```|In ra ký tự '|
+|Double quote|```\"```|In ra ký tự "|
+|Blackslash|```\\```|In ra ký tự \|
 
 - 1 số toán tử với chuỗi
 
