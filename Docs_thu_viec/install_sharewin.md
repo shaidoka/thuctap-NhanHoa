@@ -87,3 +87,60 @@ virsh create /home/kvm/kvm1332/kvm1332.xml
 - Đã vào Win
 
 ![](./images/Screenshot_13.png)
+
+## Update Driver + Tạo rule firewall
+
+- Chọn "Tool"
+
+![](./images/Screenshot_14.png)
+
+- Chọn "Computer Management"
+
+![](./images/Screenshot_15.png)
+
+- "Device Manager" -> "Ethernet Controller" -> "Update Driver"
+
+![](./images/Screenshot_16.png)
+
+- Browse
+
+![](./images/Screenshot_17.png)
+
+- Browse đến file như trong hình "E:\NetKVM\2k16\amd64"
+
+![](./images/Screenshot_18.png)
+
+- "Install"
+
+![](./images/Screenshot_19.png)
+
+- Mạng đã về bản
+
+![](./images/Screenshot_20.png)
+
+- Enable Remote Desktop: "This PC" -> "Properties"
+
+![](./images/Screenshot_21.png)
+
+- "Remote Setting"
+
+![](./images/Screenshot_22.png)
+
+- "Allow" -> Apply và OK
+
+![](./images/Screenshot_23.png)
+
+- Check status firewall
+
+![](./images/Screenshot_24.png)
+
+- "Advanced settings"
+
+![](./images/Screenshot_25.png)
+
+- Tạo rule
+
+![](./images/Screenshot_26.png)
+
+- Sau đó reboot lại server và Remote Desktop vào thôi
+
