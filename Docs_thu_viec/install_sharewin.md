@@ -64,4 +64,26 @@ virsh create /home/kvm/kvm1332/kvm1332.xml
 
 ## Cài Win
 
+- Tua nhanh vì cài nhiều lần rồi
 
+![](./images/Screenshot_6.png)
+
+![](./images/Screenshot_7.png)
+
+- Chọn "Load driver"
+
+![](./images/Screenshot_8.png)
+
+- Browse đến file như sau rồi ấn next
+
+![](./images/Screenshot_9.png)
+
+![](./images/Screenshot_10.png)
+
+![](./images/Screenshot_11.png)
+
+![](./images/Screenshot_12.png)
+
+- Đã vào Win
+
+![](./images/Screenshot_13.png)
