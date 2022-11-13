@@ -144,3 +144,50 @@ virsh create /home/kvm/kvm1332/kvm1332.xml
 
 - Sau đó reboot lại server và Remote Desktop vào thôi
 
+## Install IIS
+
+- ```Add Roles and Feature``` -> Chọn IIS, .NET và ASP như yêu cầu
+
+![](./images/Screenshot_27.png)
+
+![](./images/Screenshot_28.png)
+
+- Install thôi
+
+![](./images/Screenshot_29.png)
+
+- Ok
+
+![](./images/Screenshot_30.png)
+
+- Để cài PHP, ta mở ```IIS Manager``` -> Chọn ```Get New Web Platform Components```
+
+![](./images/Screenshot_31.png)
+
+![](./images/Screenshot_32.png)
+
+![](./images/Screenshot_33.png)
+
+- Mở Web Platform Installer
+
+![](./images/Screenshot_34.png)
+
+- Cài đặt các bản PHP cần thiết
+
+![](./images/Screenshot_35.png)
+
+![](./images/Screenshot_36.png)
+
+## Cài đặt SQL Server
+
+- Lên trang chủ của Oracle download JDK về www.oracle.com
+
+- Cài đặt trang wordpress
+
+![](./images/Screenshot_37.png)
+
+
+
+## Plesk
+
+- Plesk: https://get.plesk.com/
