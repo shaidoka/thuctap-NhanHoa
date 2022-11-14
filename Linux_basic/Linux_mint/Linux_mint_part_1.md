@@ -33,7 +33,28 @@ Ngoài trải nghiệm người dùng cực tốt trên Software Manager của L
 
 ![]()
 
-3. Software Source sở hữu đa dạng tính năng
+3. Hỗ trợ Themes, Applets và Desklets linh hoạt
 
+Khác với Ubuntu, người dùng không cần phải cài đặt một công cụ nào đó để thay đổi Themes trong Linux Mint, tính năng này được tích hợp và có thể dễ dàng thay đổi thông qua System Settings. Ngoài ra, cộng đồng Linux Mint cũng hỗ trợ rất nhiều Themes khác trong tùy chọn ```Get more online```
+
+![]()
+
+4. Các gói cài đặt đơn giản
+
+Nếu bạn là 1 người đã quen và thường xuyên làm việc với giao diện dòng lệnh thì cho dù là Ubuntu hay Linux Mint đều giống nhau.
+
+Tuy nhiên, nếu bạn là 1 người mới với Linux thì hẳn việc quản lý và cài đặt các package với Software manager của Linux Mint sẽ dễ dàng hơn nhiều so với Ubuntu Software Center
+
+5. Đa dạng lựa chọn Desktop
+
+Đối với máy tính chạy Linux Mint, có đến 3 lựa chọn giao diện desktop với tốc độ và mức sử dụng tài nguyên khác nhau. Trong khi Ubuntu thì không cho bạn sự lựa chọn.
+
+Đối với VPS hay server sử dụng Linux để hoạt động, ngay cả khi không sử dụng giao diện desktop thì Linux Mint cũng mượt mà hơn Ubuntu rất nhiều
+
+6. Nhiều ứng dụng đặc biệt hữu ích được cài đặt sẵn
+
+Linux Mint cài đặt sẵn rất nhiều những phần mềm tiện ích để hỗ trợ người dùng. Có thể kể ra ví dụ điển hình như Update Manager - 1 phần mềm giúp người dùng nhận những thông tin và kiểm tra các bản cập nhật mới. Hay Timeshift với cơ chế hoạt động gần như tương đồng với tính năng Snapshot của VMware.
+
+![]()
 
 ## Cài đặt Linux Mint
