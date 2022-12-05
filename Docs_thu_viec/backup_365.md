@@ -74,3 +74,28 @@ r1soft-setup --get-key http://45.117.82.8:8282
 
 3. Restore
 
+- Open Revovery Points
+
+![](./images/r1_14.png)
+
+![](./images/r1_15.png)
+
+- Restore theo từng tệp hoặc restore hết cả directory
+
+![](./images/r1_16.png)
+
+![](./images/r1_17.png)
+
+- OK
+
+![](./images/r1_18.png)
+
+- Restore database
+
+![](./images/r1_19.png)
+
+![](./images/r1_20.png)
+
+- Để default hết
+
+![](./images/r1_21.png)
