@@ -237,7 +237,7 @@ DNS1=8.8.8.8
 ```sh
 systemctl disable NetworkManager && systemctl stop NetworkManager
 systemctl restart network.service
-systemctl enable NetwokManager
+systemctl enable NetworkManager
 ```
 
 **Bước 6:** Khởi tạo máy ảo copy file XML đã chỉnh sửa vào node KVM
