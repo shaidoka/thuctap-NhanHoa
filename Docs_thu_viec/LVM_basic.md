@@ -100,16 +100,108 @@ echo "UUID=<UUID_here>  /kvmdata    ext4    defaults    0   0" >> /etc/fstab
 
 ![](../KVM/images/LVM_5.png)
 
-- Thực hiện lần lượt các bước như sau:
+![](./images/LVM_1.png)
+
+- Boot VM
 
 ```sh
-fdisk /dev/vdb
-mkfs.etx4 /dev/vdb1
-pvcreate /dev/vdb1
-vgextend centos /dev/vdb1
-lvextend -L +80G /dev/centos/root
-xfs_growfs /dev/centos/root
-df -h #kiểm tra thông số ổ cứng
+virsh start vmvlan660
 ```
 
-- Done
+- Check xem VM nhận ổ mới chưa:
+
+```sh
+lsblk
+```
+
+![](./images/LVM_2.png)
+
+- Tạo phân vùng cho ổ mới
+
+```sh
+fdisk /dev/sdb
+```
+
+![](./images/LVM_3.png)
+
+- Sử dụng option ```n``` để tạo phân vùng mới
+
+![](./images/LVM_4.png)
+
+- Tiếp theo option ```p``` để tạo loại phân vùng cơ bản -> Chọn 1 số theo như màn hình ghi, ở đây chọn 1 -> Về phần sector thì chọn default để tạo phân vùng từ sector đầu đến cuối của ổ
+
+![](./images/LVM_5.png)
+
+- Cuối cùng gõ ```w``` để lưu và thoát
+
+![](./images/LVM_6.png)
+
+- Lúc này lsblk lên ta sẽ thấy như này
+
+![](./images/LVM_7.png)
+
+- Định dạng lại ổ thành ```ext4``` để ta có thể dùng LVM với nó
+
+```sh
+mkfs.ext4 /dev/sdb1
+```
+
+![](./images/LVM_8.png)
+
+- Tạo physical volume
+
+```sh
+pvcreate /dev/sdb1
+```
+
+![](./images/LVM_9.png)
+
+- Add thêm physical volume vào volume group có sẵn (đầu tiên phải kiểm tra volume group đang có trước)
+
+```sh
+pvs
+vgs
+vgextend centos /dev/sdb1
+```
+
+![](./images/LVM_10.png)
+
+![](./images/LVM_11.png)
+
+- Mở rộng logical volume
+
+```sh
+lvextend -L +80G /dev/centos/root
+```
+
+![](./images/LVM_12.png)
+
+- Cuối cùng, reszie lại ổ, trước hết phải kiểm tra filesystem, sử dụng lệnh
+
+```sh
+file -sL /dev/sda1
+```
+
+![](./images/LVM_13.png)
+
+- Vì là xfs nên sử dụng lệnh sau để resize:
+
+```sh
+xfs_growfs /dev/centos/root
+```
+
+![](./images/LVM_14.png)
+
+- Nếu là ext4 thì ta sử dụng lệnh
+
+```sh
+resize2fs /dev/centos/root
+```
+
+- Kiểm tra lại dung lượng ổ
+
+```sh
+df -h
+```
+
+![](./images/LVM_15.png)
