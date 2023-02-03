@@ -25,8 +25,10 @@ setenforce 0
 ```sh
 yum -y install epel-release
 yum -y install git python-pip libvirt-python libxml2-python-websockify supervisor nginx cyrus-sasl-md5
-yum -y install gcc python-devel
-pip install --upgrade pip
+yum -y install gcc python-devel wget
+wget https://bootstrap.pypa.io/pip/2.7/get-pip.py
+python get-pip.py
+pip install --upgrade setuptools
 pip install numpy
 ```
 
@@ -35,13 +37,13 @@ pip install numpy
 ```sh
 git clone https://github.com/retspen/webvirtmgr.git
 cd webvirtmgr
-pip install -r requrements.txt
+pip install -r requirements.txt
 ```
 
 - Sau đó ta chạy lệnh để thiết lập môi trường Django và tạo ra 1 tài khoản để đăng nhập Webvirtmgr
 
 ```sh
-./manager.py syncdb
+./manage.py syncdb
 ```
 
 - Sau đó tiếp tục chạy lệnh
