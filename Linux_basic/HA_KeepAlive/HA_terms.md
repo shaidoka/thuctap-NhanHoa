@@ -60,7 +60,7 @@ Thuật toán cân bằng tải được sử dụng nhằm định nghĩa các 
 
 Một số ứng dụng yêu cầu người dùng phải giữ kết nối tới cùng 1 server thuộc backend, để giữ kết nối giữa client với 1 backend server, bạn có thể sử dụng tùy chọn ```sticky sessions```
 
-Thông tin chi tiết về sticky sessions được tổng hợp ở: [đây]()
+Thông tin chi tiết về sticky sessions được tổng hợp ở: [đây](https://github.com/shaidoka/thuctap-NhanHoa/blob/main/Linux_basic/HA_KeepAlive/HA_Sticky_Session.md)
 
 ## Health Check
 
