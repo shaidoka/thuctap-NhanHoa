@@ -332,4 +332,6 @@ Giờ chúng ta hãy chạy nó bằng ```ansible-playbook```
 ansible-playbook -o /etc/ansible/hosts playbook-wordpress.yml
 ```
 
-![]()
+![](./images/ansible_installing_wordpress.png)
+
+![](./images/ansible_installed_wp.png)
