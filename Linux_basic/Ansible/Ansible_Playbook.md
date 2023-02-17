@@ -293,4 +293,3 @@ ansible-playbook -i <path_to_inventory_file> <path_to_playbook>
 Trong đó option ```-i``` để chỉ định đường dẫn file inventory
 
 ![](./images/ansible_run_playbook.png)
-

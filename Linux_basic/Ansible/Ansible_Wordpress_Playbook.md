@@ -198,7 +198,6 @@ tasks:
 Sau khi đã hoàn tất, playbook sẽ nhìn như sau:
 
 ```sh
----
 - hosts: centos7
   remote_user: root
   tasks:
@@ -222,6 +221,9 @@ Sau khi đã hoàn tất, playbook sẽ nhìn như sau:
     with_items:
     - mariadb
     - httpd
+  - name: Collect facts about system services
+    service_facts:
+    register: service_status
   - name: Ensure HTTP and HTTPS can pass the firewall
     firewalld:
       service: '{{item}}'
@@ -232,6 +234,7 @@ Sau khi đã hoàn tất, playbook sẽ nhìn như sau:
     with_items:
     - http
     - https
+    when: service_status.ansible_facts.services['firewalld.service'].state == "active"
 
   - name: Install php-gd,rsync
     yum:
