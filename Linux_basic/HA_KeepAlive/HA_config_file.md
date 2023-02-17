@@ -165,4 +165,4 @@ listen web-backend
 Trong đó:
 - ```inter```: khoảng thời gian giữa 2 lần check liên tiếp
 - ```rise```: số lần kiểm tra backend server thành công trước khi HA đánh giá nó đang hoạt động bình thường và bắt đầu điều hướng request tới
-- ```fall```: số lần kiểm tra backend server bị tính là thất bại trước khi HA đánh giá nó xảy ra sự cố và không điều hướng request tới
+- ```fall```: số lần kiểm tra backend server bị tính là thất bại trước khi HA đánh giá nó xảy ra sự cố và không điều hướng request tới 

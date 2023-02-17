@@ -67,3 +67,4 @@ Thông tin chi tiết về sticky sessions được tổng hợp ở: [đây](ht
 HAProxy sử dụng ```health check``` để phát hiện các backend server sẵn sàng xử lý request. Kỹ thuật này sẽ tránh việc loại bỏ server khỏi backend thủ công khi backend server không sẵn sàng. ```health check``` sẽ cố gắng thiết lập kết nối TCP tới server để kiểm tra backend server có sẵn sàng xử lý request
 
 Nếu ```health check``` không thể kết nối tới server, nó sẽ tự động loại bỏ server khỏi backend, các traffic tới sẽ không được forward đến server cho đến khi ```health check``` thành công. Nếu tất cả server thuộc backend đều xảy ra vấn đề, dịch vụ sẽ trở nên không khả dụng. 
+
