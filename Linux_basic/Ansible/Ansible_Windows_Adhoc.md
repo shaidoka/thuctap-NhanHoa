@@ -108,3 +108,5 @@ Trong đó:
         category_names: '*'
         reboot: yes
 ```
+
+![](./images/ansible_update_done.png)
