@@ -78,7 +78,7 @@ Sử dụng tùy chọn mở rộng cho phép định nghĩa cách cluster quả
 Các tham số cần chú ý:
 - ```priority``` (default = 0): Nếu tất cả resource không thể sẵn sàng, cluster sẽ ngừng các resource có độ ưu tiên thấp, bảo đảm resource có độ ưu tiên cao sẵn sàng
 - ```target-role``` (default = started): trạng thái mong muốn, cluster sẽ cố gắng giữ trạng thái này trên resource
-  - ```Stopped```: Cho phép tài nguyên hoạt động
+  - ```Stopped```: Buộc tài nguyên dừng hoạt động
   - ```Started```: Cho phép tài nguyên hoạt động (Trong trường hợp cấu hình multistate dạng Active - Passive)
   - ```Master```: Cho phép tài nguyên hoạt động nếu trong trạng thái thích hợp
 - ```is-managed``` (default = TRUE): Cluster cố gắng start hoặc stop dịch vụ (mặc định tự start)

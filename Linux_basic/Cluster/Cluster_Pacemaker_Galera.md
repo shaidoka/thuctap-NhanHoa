@@ -18,6 +18,8 @@ Mô hình
 
 ## Thiết lập Galera trên 3 node CentOS 7
 
+**MariaDB Galera Cluster** là giải pháp sao chép đồng bộ nâng cao tính sẵn sàng cho MariaDB. Galera hỗ trợ chế độ Active-Active tức có thể truy cập, ghi dữ liệu đồng thời trên tất các node MariaDB thuộc Galera Cluster.
+
 ### Thiết lập ban đầu
 
 Trên cả 3 node, cấu hình như sau:
@@ -147,3 +149,307 @@ mysql -u root -e "SHOW STATUS LIKE 'wsrep_cluster_size'"
 
 ![](./images/Cluster_check_size.png)
 
+## Cài đặt HAProxy 1.8
+
+Các bước sau thực hiện trên tất cả các node
+
+```sh
+sudo yum install wget socat -y
+wget http://cbs.centos.org/kojifiles/packages/haproxy/1.8.1/5.el7/x86_64/haproxy18-1.8.1-5.el7.x86_64.rpm
+yum install haproxy18-1.8.1-5.el7.x86_64.rpm -y
+```
+
+Tạo bản backup cho cấu hình mặc định và chỉnh sửa cấu hình HAProxy
+
+```sh
+cp /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.bak
+```
+
+Cấu hình HAProxy
+
+```sh
+echo 'global
+    log         127.0.0.1 local2
+    chroot      /var/lib/haproxy
+    pidfile     /var/run/haproxy.pid
+    maxconn     4000
+    user        haproxy
+    group       haproxy
+    daemon
+    stats socket /var/lib/haproxy/stats
+defaults
+    mode                    http
+    log                     global
+    option                  httplog
+    option                  dontlognull
+    option http-server-close
+    option forwardfor       except 127.0.0.0/8
+    option                  redispatch
+    retries                 3
+    timeout http-request    10s
+    timeout queue           1m
+    timeout connect         10s
+    timeout client          1m
+    timeout server          1m
+    timeout http-keep-alive 10s
+    timeout check           10s
+    maxconn                 3000
+
+listen stats
+    bind :8080
+    mode http
+    stats enable
+    stats uri /stats
+    stats realm HAProxy\ Statistics
+
+listen galera
+    bind 172.16.7.160:3306
+    balance source
+    mode tcp
+    option tcpka
+    option tcplog
+    option clitcpka
+    option srvtcpka
+    timeout client 28801s
+    timeout server 28801s
+    option mysql-check user haproxy
+    server node1 172.16.7.153:3306 check inter 5s fastinter 2s rise 3 fall 3
+    server node2 172.16.7.154:3306 check inter 5s fastinter 2s rise 3 fall 3 backup
+    server node3 172.16.7.155:3306 check inter 5s fastinter 2s rise 3 fall 3 backup' > /etc/haproxy/haproxy.cfg
+```
+
+Cấu hình log cho HAProxy
+
+```sh
+sed -i "s/#\$ModLoad imudp/\$ModLoad imudp/g" /etc/rsyslog.conf
+sed -i "s/#\$UDPServerRun 514/\$UDPServerRun 514/g" /etc/rsyslog.conf
+echo '$UDPServerAddress 127.0.0.1' >> /etc/rsyslog.conf
+echo 'local2.*  /var/log/haproxy.log' > /etc/rsyslog.d/haproxy.conf
+systemctl restart rsyslog
+```
+
+Bổ sung cấu hình cho phép kernel có thể binding tới IP VIP
+
+```sh
+echo 'net.ipv4.ip_nonlocal_bind = 1' >> /etc/sysctl.conf
+```
+
+Tắt dịch vụ HAProxy
+
+```sh
+systemctl stop haproxy
+systemctl disable haproxy
+```
+
+Tạo user ```haproxy``` phục vụ plugin health check của HAProxy (```option mysql-check user haproxy```)
+
+```sh
+CREATE USER 'haproxy'@'node1';
+CREATE USER 'haproxy'@'node2';
+CREATE USER 'haproxy'@'node3';
+CREATE USER 'haproxy'@'%';
+```
+
+**Lưu ý:** Do đã cấu hình Galera nên việc create user chỉ cần thực hiện trên 1 node
+
+## Triển khai Cluster Pacemaker
+
+### Bước 1: Cài đặt pacemaker corosync
+
+Các bước sau cũng thưc hiện trên tất cả các node
+
+Cài đặt gói pacemaker pcs
+
+```sh
+yum -y install pacemaker pcs
+systemctl start pcsd
+systemctl enable pcsd
+```
+
+Thiết lập mật khẩu user ```hacluster```
+
+```sh
+passwd hacluster
+```
+
+**Lưu ý:** mật khẩu hacluster cần đồng bộ trên tất cả các node
+
+### Bước 2: Tạo cluster
+
+Chứng thực cluster (chỉ thực hiện trên cấu hình một node duy nhất, trong bài sẽ thực hiện trên ```node1```), nhập chính xác tài khoản uer hacluster:
+
+```sh
+pcs cluster auth node7153 node7154 node7155
+
+Username: hacluster
+Password: ***************
+```
+
+![](./images/Cluster_authorization.png)
+
+Khởi tạo cấu hình ban đầu
+
+```sh
+pcs cluster setup --name ha_cluster node7153 node7154 node7155
+```
+
+![](./images/Cluster_pcs_setup.png)
+
+**Lưu ý:**
+- ```ha_cluster```: Tên của cluster khởi tạo
+- ```node7153```,...: hostname các node thuộc cluster, yêu cầu khai báo trong /etc/hosts
+
+Khởi động Cluster
+
+```sh
+pcs cluster start --all
+```
+
+Cho phép cluster khởi động cùng OS
+
+```sh
+pcs cluster enable --all
+```
+
+![](./images/Cluster_cluster_start.png)
+
+### Bước 3: Thiết lập Cluster
+
+Bỏ qua cơ chế STONITH
+
+```sh
+pcs property set stonith-enabled=false
+```
+
+Cho phép Cluster chạy kể cả khi mất quorum
+
+```sh
+pcs property set no-quorum-policy=ignore
+```
+
+Hạn chế Resource trong cluster chuyển node sau khi Cluster khởi động lại
+
+```sh
+pcs property set default-resource-stickiness="INFINITY"
+```
+
+Kiểm tra thiết lập cluster
+
+```sh
+pcs property list
+```
+
+![](./images/Cluster_property_list.png)
+
+Tạo resource IP VIP Cluster
+
+```sh
+pcs resource create Virtual_IP ocf:heartbeat:IPaddr2 ip=172.16.7.160 cidr_netmask=24 op monitor interval=30s
+```
+
+Tạo resource quản trị dịch vụ HAProxy
+
+```sh
+pcs resource create Loadbalancer_HaProxy systemd:haproxy op monitor timeout="5s" interval="5s"
+```
+
+Ràng buộc thứ tự khởi động dịch vụ: khởi động dịch vụ Virtual_IP sau đó khởi động dịch vụ Loadbalancer_HaProxy
+
+```sh
+pcs constraint order start Virtual_IP then Loadbalancer_HaProxy kind=Optional
+```
+
+Ràng buộc resource Virtual_IP phải khởi động cùng node với resource Loadbalancer_HaProxy
+
+```sh
+pcs constraint colocation add Virtual_IP Loadbalancer_HaProxy INFINITY
+```
+
+Kiểm tra trạng thái Cluster
+
+```sh
+pcs status
+```
+
+![](./images/Cluster_pcs_status.png)
+
+Nếu bị lỗi như trên thì ta chỉ cần cleanup đi là được
+
+```sh
+pcs resource cleanup
+```
+
+![](./images/Cluster_pcs_cleanup.png)
+
+Kiểm tra cấu hình resource
+
+```sh
+pcs resource show --full
+```
+
+![](./images/Cluster_show_resource.png)
+
+Kiểm tra ràng buộc trên resource
+
+```sh
+pcs constraint
+```
+
+![](./images/Cluster_pcs_constraints.png)
+
+## Kiểm tra
+
+Kiểm tra trạng thái dịch vụ: Truy cập <IP_VIP>:8080/stats
+
+![](./images/Cluster_stats.png)
+
+Kết nối tới database MariaDB thông qua IP VIP
+
+![](./images/Cluster_login_mariadb.png)
+
+Thử tắt node1, kiểm tra lại pcs status trên các node còn lại
+
+![](./images/Cluster_init0.png)
+
+Như vậy resources đã được chuyển qua cho node2, node1 chuyển trạng thái qua OFFLINE. Đồng thời Cluster Galera sẽ vẫn hoạt động bình thường dù 1 node trong cluster xảy ra sự cố
+
+![](./images/Cluster_init0_2.png)
+
+## Cài đặt Httpd 
+
+Cài đặt httpd
+
+```sh
+yum install -y httpd
+```
+
+Tạo resource cho httpd
+
+```sh
+pcs resource create Httpd ocf:heartbeat:apache configfile=/etc/httpd/conf/httpd.conf op monitor interval=1min
+```
+
+Tạo ràng buộc Httpd và Virtual_IP
+
+```sh
+pcs constraint colocation add Httpd with Virtual_IP INFINITY
+pcs constraint order Virtual_IP then Httpd
+```
+
+Tạo file index.html để test
+
+```sh
+vi /var/www/html index.html
+```
+
+![](./images/Cluster_httpd_node2.png)
+
+Một vài lệnh sử dụng với resource/constraint:
+- Move resource: ```pcs resource move <resource_id> <new_node>```
+- Create resource prefer node: ```pcs constraint location <resource_id> prefers <node>```
+- Relocate resource (đưa resource về node prefer): ```pcs resource relocate run```
+- Show resource status: ```pcs status resources```
+- Delete resource: ```pcs resource delete <resource_id>```
+- Stop resource: ```pcs resource disable <resource_id>``` - dừng resource và ngăn cluster khởi động lại nó, tuy nhiên tùy vào constraint mà resource sẽ dừng hay không
+
+![](./images/Cluster_httpd_node1.png)
