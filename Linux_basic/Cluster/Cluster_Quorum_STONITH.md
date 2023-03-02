@@ -21,7 +21,7 @@ Kỹ thuật Quorum được hỗ trợ mặc định trong pacemaker với 2 k�
 
 ![](./images/Cluster_quorum_1.png)
 
-Đối với Cluster gồm 3 node, tổng số vote là 3. Dựa trên cơ chế **voting** quorum sẽ chỉ hoạt động nếu số vote lớn hơn 1 nửa số node hoạt động. Vì vậy nếu có hơn hoặc bằng 2 node xảy ra sự cố, cả cluster sẽ ngừng hoạt động
+Đối với Cluster gồm 3 node, tổng số vote là 3. Dựa trên cơ chế **voting** quorum sẽ chỉ hoạt động nếu số vote lớn hơn 1 nửa số node hoạt động. Vì vậy nếu có lớn hơn hoặc bằng 2 node xảy ra sự cố, cả cluster sẽ ngừng hoạt động
 
 Trong trường hợp cluster gồm 6 node bị phân mảnh thì cần ít nhất 4 node cùng hoạt động để hình thành quorum. Trong trường hợp bị phân mảnh nhỏ hơn, pacemaker sẽ cô lập hoặc ngừng cung cấp dịch vụ
 
