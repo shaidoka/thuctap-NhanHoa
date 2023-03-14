@@ -117,6 +117,25 @@ Label cung cấp metadata nhận dạng cho các object trong Kubernetes. Label 
 
 Tác dụng của Label là hỗ trợ người quản trị trong việc quản lý các Pod
 
+## Khái niệm về master node và các thành phần
+
+Master node là nơi đảm nhiệm tất cả các tác vụ quản trị chịu trách nhiệm quản lý cụm Kubernetes. Có thể có nhiều hơn một node chính trong cụm để tăng khả năng chịu lỗi. Việc có nhiều hơn một node master giúp cụm Kubernetes có tính sẵn sàng cao
+
+Các thành phần trong master Node:
+- **API-server:** Kubernetes API là thành phần quản lý trung tâm nhận tất cả các yêu cầu REST để sửa đổi (đối với pod, service, bộ sao chép / bộ điều khiển và những thứ khác), đóng vai trò là giao diện người dùng cho cụm. Ngoài ra, đây là thành phần duy nhất giao tiếp với cụm etcd, đảm bảo dữ liệu được lưu trữ trong etcd và phù hợp với chi tiết dịch vụ của các pod được triển khai
+- **Etcd:** là một kho lưu trữ giá trị khóa phân tán, đơn giản được sử dụng để lưu trữ dữ liệu cụm Kubernetes (chẳng hạn như số lượng pod, trạng thái của chúng, namespace,...), các API object và chi tiết service discovery. Nó chỉ có thể truy cập được từ API Server vì lý do bảo mật. etcd bật thông báo cho cụm về các thay đổi cấu hình với sự trợ giúp của những watcher. Thông báo là các yêu cầu API trên mỗi node của cụm etcd để kích hoạt cập nhật thông tin trong bộ nhớ của node
+- **Kube Controller Manage:** là một tập hợp các controller khác nhau để theo dõi các cập nhật trạng thái của Kubernetes Cluster thông qua API và thực hiện các thay đổi đối với Cluster sao cho phù hợp
+- **Cloud Controller Manager:** là một tập hợp các logic dành riêng cho Cloud Provider (GCP, AWS, Azure) cho phép bạn liên kết Kubernetes Cluster với API của Cloud Provider. Nếu bạn đang sử dụng Kubernetes on-premises hoặc môi trường dev trên máy tính cá nhân, thì mặc định Cluster sẽ không có Cloud Controller Manager
+- **Scheduler:** giúp lập lịch các pod trên các node khác nhau dựa trên việc sử dụng tài nguyên. Nó đọc các yêu cầu hoạt động của dịch vụ và lên lịch trên node phù hợp nhất. Ví dụ: nếu ứng dụng cần 1GB bộ nhớ và core CPU thì các nhóm cho ứng dụng đó sẽ được lên lịch trên một node có tài nguyên phù hợp. Bộ lập lịch chạy mỗi khi có nhu cầu lập lịch nhóm. Bộ lập lịch phải biết tổng tài nguyên hiện có cũng như tài nguyên được phân bố cho khối lượng công việc hiện có trên mỗi node
+
+## Khái niệm về Worker Node và các thành phần
+
+Nó là một máy chủ hay bạn có thể nói là một máy ảo chạy các ứng dụng sử dụng các Pod được điều khiển bởi node Master. Trên node worker, các pod được lập lịch. Để truy cập các ứng dụng từ thế giới bên ngoài, chúng ta kết nối với chúng qua các node
+
+Các thành phần trong Worker Node:
+- **Kube-proxy:** chạy trên tất cả các node trong cluster, kube-proxy có trách nhiệm quản lý network policy trên mỗi node và chuyển tiếp hoặc lọc traffic tới node dựa trên các policy này
+- **Kubelet:** là service chính trên mỗi node, thường xuyên nhận các thông số của pod mới hoặc được sửa đổi (chủ yếu thông qua kube-apiserver) và đảm bảo rằng các pod và container của chúng không có vấn đề gì và chạy ở trạng thái mong muốn. Thành phần này cũng báo cáo cho master về tình trạng của node nơi mà nó đang chạy
+
 ## Tại sao nên sử dụng Kubernetes?
 
 Kubernetes có thể giúp ta phân phối, quản lý các ứng dụng được chứa trong container, được kế thừa, cloud-native, cũng như những ứng dụng được tái cấu trúc thành microservices
