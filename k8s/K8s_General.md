@@ -2,9 +2,9 @@
 
 Kubernetes hay K8s là một nền tảng điều phối container mã nguồn mở. Ta có thể dùng Kubernetes để tự động hóa nhiều quy trình thủ công liên quan đến việc deploy, quản lý và mở rộng các ứng dụng trong container. Nói cách khác, ta có thể tập hợp các nhóm host đang chạy Linux container với nhau. Từ đó, Kubernetes có thể giúp dễ dàng quản lý các nhóm đó một cách hiệu quả nhất.
 
-Ngoài ra, cluster Kubernetes có thể mở rộng các host trên các cloud tại chỗm public, private hay hybrid. Do đó, Kubernetes là một nền tảng lý tưởng để host các ứng dụng cloud-native yêu cầu khả năng mở rộng nhanh chóng. Chẳng hạn như truyền dữ liệu theo thời gian thực thông qua Apache Kafka.
+Ngoài ra, cluster Kubernetes có thể mở rộng các host trên các cloud tại chỗ public, private hay hybrid. Do đó, Kubernetes là một nền tảng lý tưởng để host các ứng dụng cloud-native yêu cầu khả năng mở rộng nhanh chóng. Chẳng hạn như truyền dữ liệu theo thời gian thực thông qua Apache Kafka.
 
-Ban đầu, Kubernetes được phát triển và thiết kế bởi các kỹ sư tại Google. Do đó, Google chính là một trong những người đóng góp đầu tiên cho công nghệ container của Linux. Đây cũng chính là công nghệ đằng sau các dịch vụ cloud của Google. Tính đến nay, Google tạo ra đến hơn 2 tỷ container mỗi tuần. Tất cả đều được cung cấp bởi nền tảng nội bộ Borg - tiền thân của K8s
+Ban đầu, Kubernetes được phát triển và thiết kế bởi các kỹ sư tại Google. Do đó, Google chính là một trong những người đóng góp đầu tiên cho công nghệ container của Linux. Đây cũng chính là công nghệ đằng sau các dịch vụ cloud của Google. Tính đến nay, Google tạo ra đến hơn 2 tỷ container mỗi tuần. Tất cả đều được cung cấp bởi nền tảng nội bộ Borg - tiền thân của K8s.
 
 ## Ứng dụng của Kubernetes
 
