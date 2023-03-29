@@ -117,6 +117,14 @@ Label cung cấp metadata nhận dạng cho các object trong Kubernetes. Label 
 
 Tác dụng của Label là hỗ trợ người quản trị trong việc quản lý các Pod
 
+### Desired state và Declarative model
+
+**Desired state**: trạng thái mong muốn là một đặc tả của hệ thống hoặc ứng dụng mà bạn muốn đạt được. Trong Kubernetes, bạn sẽ định nghĩa trạng thái mong muốn của ứng dụng thông qua các đối tượng như Deployments, Services, ConfigMaps và Secrets. Kubernetes sẽ sau đó cố gắng đạt được trạng thái này bằng cách tạo, cập nhật hoặc xóa các tài nguyên liên quan.
+
+**Declarative Model**: mô hình khai báo là phương pháp dùng để định nghĩa trạng thái mong muốn của hệ thống hoặc ứng dụng mà không cần chỉ định cách thức thực hiện. Thay vì chỉ rõ từng bước để đạt được mục tiêu, bạn chỉ cần mô tả trạng thái cuối cùng mà bạn muốn hệ thống đạt được. Khi sử dụng Kubernetes, bạn sẽ tạo ra các tệp YAML hoặc JSON để mô tả trạng thái mong muốn của ứng dụng theo mô hình khai báo. Ví dụ, để triển khai một ứng dụng web với 3 bản sao (replica), bạn tạo 1 file YAML với cấu hình replicas là 3, như vậy khi áp dụng file YAML này vào hệ thống, Kubernetes sẽ tự động điều chỉnh (thông qua kubectl) số pod để đạt được 3 như mong muốn.
+
+Ưu điểm của mô hình khai báo này là đơn giản hóa quá trình quản lý ứng dụng, giảm thiểu lỗi và tăng tính tự động hóa. Hơn nữa, Kubernetes sẽ tiếp tục giám sát trạng thái hiện tại của ứng dụng và tự động điều chỉnh khi cần thiết.
+
 ## Khái niệm về master node và các thành phần
 
 Master node là nơi đảm nhiệm tất cả các tác vụ quản trị chịu trách nhiệm quản lý cụm Kubernetes. Có thể có nhiều hơn một node chính trong cụm để tăng khả năng chịu lỗi. Việc có nhiều hơn một node master giúp cụm Kubernetes có tính sẵn sàng cao
@@ -168,4 +176,4 @@ Swarm được tích hợp chặt chẽ với hệ sinh thái Docker và có API
 
 Nói về công cụ, Kubernetes chiếm ưu thế vì có bộ công cụ phong phú hơn. Ngoài ra còn có thể được mở rộng và tùy chỉnh nhiều hơn so với Swarm, đặc biệt khi nói đến việc giám sát hệ thống và auto-scaling
 
-Nhìn chung, Swarm được xem là một giải pháp đơn giản hơn, dễ bắt đầu hơn và chủ yếu phù hợp cho việc phát triển. Còn K8s thì không bị ràng buộc với Docker, hỗ trợ các quy trình làm việc phức tạp hơn. Bên cạnh đó, Kubernetes cũng phổ biến hơn so với Swarm trong các môi trường sản xuất
+Nhìn chung, Swarm được xem là một giải pháp đơn giản hơn, dễ bắt đầu hơn và chủ yếu phù hợp cho việc phát triển. Còn K8s thì không bị ràng buộc với Docker, hỗ trợ các quy trình làm việc phức tạp hơn. Bên cạnh đó, Kubernetes cũng phổ biến hơn so với Swarm trong các môi trường sản xuất.
