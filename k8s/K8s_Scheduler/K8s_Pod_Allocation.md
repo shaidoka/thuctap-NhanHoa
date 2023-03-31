@@ -70,7 +70,7 @@ Khi ta chạy lệnh ```kubectl apply -f nginx-app.yml```, pod sẽ được l�
 **Một số label được tích hợp sẵn cho node**
 
 Ngoài các label ta **gắn vào**, các node cũng sẽ được điền sẵn với một tập các label tiêu chuẩn. Các label này là:
-- [https://kubernetes.io/docs/reference/kubernetes-api/labels-annotations-taints/#kubernetes-io-hostname](kubernetes.io/hostname)
+- (kubernetes.io/hostname)[https://kubernetes.io/docs/reference/kubernetes-api/labels-annotations-taints/#kubernetes-io-hostname]
 - [https://kubernetes.io/docs/reference/kubernetes-api/labels-annotations-taints/#failure-domainbetakubernetesiozone](failure-domain.beta.kubernetes.io/zone)
 - [https://kubernetes.io/docs/reference/kubernetes-api/labels-annotations-taints/#failure-domainbetakubernetesioregion](failure-domain.beta.kubernetes.io/region)
 - [https://kubernetes.io/docs/reference/kubernetes-api/labels-annotations-taints/#topologykubernetesiozone](topology.kubernetes.io/zone)
