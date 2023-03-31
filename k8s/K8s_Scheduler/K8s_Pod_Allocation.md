@@ -26,7 +26,7 @@ kubectl label nodes k8s-worker1 disktype=ssd
 
 Ta có thể kiểm tra rằng nó đã hoạt động bằng cách chạy lệnh ```kubectl get nodes --show-labels``` và xem node đã có label mới thêm vào hay chưa. Ta cũng có thể sử dụng lệnh ```kubectl describe node "nodename"``` để xem danh sách đầy đủ các label của node đã cho
 
-![](./images/Scheduler_2.png)
+!()(./images/Scheduler_2.png)
 
 ### Bước 2: Thêm trường nodeSelector vào cấu hình pod
 
@@ -70,15 +70,15 @@ Khi ta chạy lệnh ```kubectl apply -f nginx-app.yml```, pod sẽ được l�
 **Một số label được tích hợp sẵn cho node**
 
 Ngoài các label ta **gắn vào**, các node cũng sẽ được điền sẵn với một tập các label tiêu chuẩn. Các label này là:
-- (kubernetes.io/hostname)[https://kubernetes.io/docs/reference/kubernetes-api/labels-annotations-taints/#kubernetes-io-hostname]
-- [https://kubernetes.io/docs/reference/kubernetes-api/labels-annotations-taints/#failure-domainbetakubernetesiozone](failure-domain.beta.kubernetes.io/zone)
-- [https://kubernetes.io/docs/reference/kubernetes-api/labels-annotations-taints/#failure-domainbetakubernetesioregion](failure-domain.beta.kubernetes.io/region)
-- [https://kubernetes.io/docs/reference/kubernetes-api/labels-annotations-taints/#topologykubernetesiozone](topology.kubernetes.io/zone)
-- [https://kubernetes.io/docs/reference/kubernetes-api/labels-annotations-taints/#topologykubernetesiozone](topology.kubernetes.io/region)
-- [https://kubernetes.io/docs/reference/kubernetes-api/labels-annotations-taints/#beta-kubernetes-io-instance-type](beta.kubernetes.io/instance-type)
-- [https://kubernetes.io/docs/reference/kubernetes-api/labels-annotations-taints/#nodekubernetesioinstance-type](node.kubernetes.io/instance-type)
-- [https://kubernetes.io/docs/reference/kubernetes-api/labels-annotations-taints/#kubernetes-io-os](kubernetes.io/os)
-- [https://kubernetes.io/docs/reference/kubernetes-api/labels-annotations-taints/#kubernetes-io-arch](kubernetes.io/arch)
+- [kubernetes.io/hostname](https://kubernetes.io/docs/reference/kubernetes-api/labels-annotations-taints/#kubernetes-io-hostname)
+- [failure-domain.beta.kubernetes.io/zone](https://kubernetes.io/docs/reference/kubernetes-api/labels-annotations-taints/#failure-domainbetakubernetesiozone)
+- [failure-domain.beta.kubernetes.io/region](https://kubernetes.io/docs/reference/kubernetes-api/labels-annotations-taints/#failure-domainbetakubernetesioregion)
+- [topology.kubernetes.io/zone](https://kubernetes.io/docs/reference/kubernetes-api/labels-annotations-taints/#topologykubernetesiozone)
+- [topology.kubernetes.io/region](https://kubernetes.io/docs/reference/kubernetes-api/labels-annotations-taints/#topologykubernetesiozone)
+- [beta.kubernetes.io/instance-type](https://kubernetes.io/docs/reference/kubernetes-api/labels-annotations-taints/#beta-kubernetes-io-instance-type)
+- [node.kubernetes.io/instance-type](https://kubernetes.io/docs/reference/kubernetes-api/labels-annotations-taints/#nodekubernetesioinstance-type)
+- [kubernetes.io/os](https://kubernetes.io/docs/reference/kubernetes-api/labels-annotations-taints/#kubernetes-io-os)
+- [kubernetes.io/arch](https://kubernetes.io/docs/reference/kubernetes-api/labels-annotations-taints/#kubernetes-io-arch)
 
 ## Cách ly/giới hạn Node
 
@@ -87,7 +87,7 @@ Việc thêm label vào các đối tượng Node cho phép nhắm mục tiêu p
 Khi sử dụng label cho mục đích này, ta nên chọn các key cho label là không thể bị sửa đổi bởi kubelet process trên node. Việc này ngăn một node đã bị xâm nhập (compromised) sử dụng thông tin xác thực (credential) của kubelet của nó để thiết lập các label đó trên chính bản thân đối tượng Node và gây ảnh hưởng đến scheduler để lập lịch workload vào node bị xâm phạm (compromised)
 
 Admission plugin ```NodeRestriction``` ngăn kubelet thiết lập hoặc sửa đổi các label có tiền tố ```node-restriction.kubernetes.io/```. Để sử dụng tiền tố label đó cho mục đích cô lập node:
-- Đảm bảo ta đang sử dụng [https://kubernetes.io/docs/reference/access-authn-authz/node/](Node authorizer) và đã bật [https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/#noderestriction](admission plugin NodeRestriction)
+- Đảm bảo ta đang sử dụng [Node authorizer](https://kubernetes.io/docs/reference/access-authn-authz/node/) và đã bật [admission plugin NodeRestriction](https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/#noderestriction)
 - Thêm label với tiền tố ```node-restriction.kubernetes.io/``` vào các đối tượng Node và sử dụng các label đó trong node selector. Ví dụ: ```example.com.node-restriction.kubernetes.io/fips=true``` hoặc ```example.com.node-restriction.kubernetes.io/pci-dss=true```
 
 ## Affinity và anti-affinity
@@ -209,7 +209,7 @@ spec:
 
 Affinity trên pod này xác định 1 quy tắc pod affinity và 1 uy tắc pod anti-affinity. Trong ví dụ này, ```podAffinity``` là ```requiredDuringSchedulingIgnoredDuringExecution``` trong khi ```podAntiAffinity``` là ```preferredDuringSchedulingIgnoredDuringExecution```. Quy tắc pod affinity nói rằng pod có thể được lập lịch trên một node chỉ khi node đó nằm trong cùng một zone với ít nhất 1 pod đã-đang chạy có label với key "sercurity" và value "S1" (chính xác hơn, pod đủ điều kiện để chạy trên node N nếu node N có label với key ```failure-domain.beta.kubernetes.io/zone``` và một số value V sao cho có ít nhất 1 node trong cluster với key ```failure-domain.beta.kubernetes.io/zone``` và value V đang chạy một pod có label với key "security" và value "S1")
 
-Quy tắc pod anti-affinity nói rằng pod không thể được lập lịch trên một node nếu node đó nằm trong cùng zone với pod có label với key "security" và value "S2". Hãy xem [https://git.k8s.io/community/contributors/design-proposals/scheduling/podaffinity.md](tài liệu thiết kế) để biết thêm nhiều ví dụ về pod affinity và anti-affinity cho cả ```requiredDuringSchedulingIgnoredDuringExecution``` và ```preferredDuringSchedulingIgnoredDuringExecution```.
+Quy tắc pod anti-affinity nói rằng pod không thể được lập lịch trên một node nếu node đó nằm trong cùng zone với pod có label với key "security" và value "S2". Hãy xem [tài liệu thiết kế](https://git.k8s.io/community/contributors/design-proposals/scheduling/podaffinity.md) để biết thêm nhiều ví dụ về pod affinity và anti-affinity cho cả ```requiredDuringSchedulingIgnoredDuringExecution``` và ```preferredDuringSchedulingIgnoredDuringExecution```.
 
 Các toán tử hợp lệ cho pod affinity và anti-affinity là ```In```, ```NotIn```, ```Exists```, ```DoesNotExist```
 
@@ -315,11 +315,11 @@ Như ta thấy, tất cả 3 bản sao của ```webserver``` đều được đ�
 
 Kiểm tra bằng ```kubectl get pod -o wide```
 
-![](./images/Scheduler_4.png)
+!()(./images/Scheduler_4.png)
 
 **Không bao giờ đặt cùng nơi trong cùng node**
 
-Ví dụ trên sử dụng quy tắc ```podAntiAffinity``` với ```topologyKey: "kubernetes.io/hostname"``` để triển khai redis cluster sao cho không có 2 instance cùng nằm trên một host. Xem [https://kubernetes.io/docs/tutorials/stateful-application/zookeeper/#tolerating-node-failure](hướng dẫn ZooKeeper) để biết ví dụ về cấu hình Statefulset với anti-affinity để tính khả dụng cao, sử dụng kỹ thuật tương tự
+Ví dụ trên sử dụng quy tắc ```podAntiAffinity``` với ```topologyKey: "kubernetes.io/hostname"``` để triển khai redis cluster sao cho không có 2 instance cùng nằm trên một host. Xem [hướng dẫn ZooKeeper](https://kubernetes.io/docs/tutorials/stateful-application/zookeeper/#tolerating-node-failure) để biết ví dụ về cấu hình Statefulset với anti-affinity để tính khả dụng cao, sử dụng kỹ thuật tương tự
 
 ## nodeName
 
