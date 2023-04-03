@@ -315,7 +315,7 @@ Như ta thấy, tất cả 3 bản sao của ```webserver``` đều được đ�
 
 Kiểm tra bằng ```kubectl get pod -o wide```
 
-!()(./images/Scheduler_4.png)
+![](./images/Scheduler_4.png)
 
 **Không bao giờ đặt cùng nơi trong cùng node**
 
