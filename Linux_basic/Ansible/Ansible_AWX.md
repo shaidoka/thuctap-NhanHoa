@@ -129,7 +129,7 @@ pip3 install docker
 Cài đặt Docker-compose
 
 ```sh
-pip3 instal docker-compose
+pip3 install docker-compose
 ```
 
 Kiểm tra hoạt động
@@ -153,7 +153,7 @@ stateOrProvinceName             = HaNoi
 localityName                    = Hanoi
 0.organizationName              = NhanHoa
 organizationalUnitName          = Infrastructure
-commonName                      = 14.xxx.xxx.xxx
+commonName                      = Self-signed
 emailAddress                    = trungvb@nhanhoa.com.vn
 EOF
 ```
@@ -231,7 +231,7 @@ Thực hiện chạy playbook cài đặt AWX
 ansible-playbook -i inventory install.yml
 ```
 
-![]()
+![](./images/ansible_AWX_1.png)
 
 Kiểm tra container được khởi tạo
 
@@ -239,10 +239,19 @@ Kiểm tra container được khởi tạo
 docker ps -a
 ```
 
-![]()
+![](./images/ansible_AWX_2.png)
 
 Truy cập địa chỉ ```https://ip-address``` và đăng nhập bằng tài khoản với username là ```admin``` và password đã nhập trước đó
 
-![]()
+![](./images/ansible_AWX_3.png)
 
-Done! 
+![](./images/ansible_AWX_4.png)
+
+*Lưu ý:* Nếu muốn thay đổi mật khẩu tài khoản admin, ta thực hiện:
+
+```sh
+docker exec -it awx_web bash
+awx-manage changepassword admin
+```
+
+Done!
