@@ -129,3 +129,110 @@ Cuối cùng, user-space proxy sẽ cài đặt các **iptables rules** để ca
 Mặc định, kube-proxy trong userspace mode sẽ chọn 1 backend bằng thuật toán round-robin
 
 ![](./images/K8s_Service_1.svg)
+
+### 3. Chế độ ```iptables``` proxy
+
+Trong chế độ này, kube-proxy sẽ giám sát K8s control plane trong việc thêm hoặc xóa **Service** và **Endpoint object**. Đối với mỗi Service, nó sẽ cài đặt các **iptables rule** có nhiệm vụ capture traffic đi đến địa chỉ ```clusterIP``` và ```port``` của Service và chuyển hướng traffic đó đến 1 trong các backend pod của Service. Đối với mỗi Endpoint object, nó sẽ cài đặt các **iptables rule** để lựa chọn 1 backend pod.
+
+Mặc định thì kube-proxy trong iptables mode sẽ lựa chọn 1 backend ngẫu nhiên
+
+Việc sử dụng iptables để quản lý traffic sẽ có chi phí overhead hệ thống thấp hơn vì traffic sẽ được xử lý bởi **Linux netfilter** mà không cần chuyển qua lại giữa userspace và kernel space. Cách tiếp cận này thường là đáng tin cậy hơn.
+
+Nếu kube-proxy đang chạy trong iptables mode và pod đầu tiên được lựa chọn không phản hồi sẽ dẫn đến kết nối thất bại (fail). Đặc điểm này khác với userspace mode trong đó kube-proxy sẽ phát hiện việc kết nối đến pod đầu tiên fail để tự động retry đến 1 backend pod khác.
+
+Ta có thể sử dụng tính năng **readiness probes** (sẽ được đề cập trong bài viết chi tiết về Pod) của Pod để kiểm tra backend pod có đang hoạt động hay không để đảm bảo kube-proxy trong iptables mode chỉ thấy được các backend đã được kiểm tra là vẫn đang hoạt động. Làm như vậy thì ta sẽ tránh được việc traffic gửi qua kube-proxy đến 1 pod không còn hoạt động
+
+![](./images/K8s_Service_2.svg)
+
+### 4. Chế độ IPVS proxy
+
+Trong ```ipvs``` mode, kube-proxy sẽ giám sát K8s **Service** và **Endpoint**, gọi giao diện ```netlink``` để tạo ra các **IPVS rule** tương ứng và đồng bộ IPVS rule với các Service và Endpoint theo định kỳ. Vòng lặp điều khiển (Control loop) này đảm bảo trạng thái của IPVS match với trạng thái mong muốn. Khi truy cập 1 Service, IPVS điều hướng traffic đến 1 trong các backend pod
+
+IPVS proxy mode dựa trên chức năng **hook** của **netfilter** tương tự như iptables mode, nhưng sử dụng **hash table** như là cấu trúc dữ liệu bên dưới và hoạt động trong **kernel space**. Điều này có nghĩa là kube-proxy trong IPVS mode chuyển hướng traffic với độ trễ thấp hơn so với kube-proxy trong iptable mode nên sẽ có hiệu năng tốt hơn nhiều khi đồng bộ các proxy rule. So với các proxy mode khác thì IPVS mode cũng hỗ trợ network traffic với throughput cao hơn.
+
+IPVS cung cấp nhiều tùy chọn hơn trong việc cân bằng traffic đến backend pod:
+- ```rr```: round-robin
+- ```lc```: least connection
+- ```dh```: destination hashing
+- ```sh```: source hashing
+- ```sed```: shortest expected delay
+- ```nq```: never queue
+
+**Lưu ý:** để chạy kube-proxy ở IPVS mode, ta phải cài đặt IPVS trên node trước khi khởi động kube-proxy. Khi kube-proxy khởi động ở iPVS proxy mode, nó sẽ xác minh xem các module kernel của IPVS có khả dụng hay không. Nếu các module kernel của IPVS không được tìm thấy thì kube-proxy sẽ quay trở lại chạy trong iptables proxy mode.
+
+![](./images/K8s_Service_3.svg)
+
+Trong các mô hình proxy này, traffic gắn với địa chỉ ```ip:port``` của Service sẽ được proxy đến backend phù hợp mà không cần cho client biết bất cứ điều gì về K8s hoặc Service hay Pod.
+
+Nếu ta muốn đảm bảo rằng kết nối từ 1 client nào đó được chuyển đến cùng 1 pod (so với kết nối trước đó) thì ta có thể lựa chọn **session affinity** dựa trên địa chỉ IP của client bằng cách thiết lập giá trị cho trường ```service.spec.sessionAffinity``` thành ```ClientIP``` (mặc định là node). Ta cũng có thể thiết lập thời gian tối đa của 1 session bằng tham số ```service.spec.sessionAffinityConfig.clientIP.timeoutSeconds``` phù hợp (mặc định là 10800 tức là 3h)
+
+## Service Multi-Port
+
+Đối với một số Service cần expose ra nhiều hơn 1 port. K8s cho phép ta cấu hình nhiều port trên 1 Service object. Khi sử dụng nhiều port cho 1 service ta phải chỉ định tên của port để tránh bị nhầm lẫn. Ví dụ:
+
+```sh
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+spec:
+  slector:
+    app: MyApp
+  ports:
+  - name: http
+    protocol: TCP
+    port: 80
+    targetPort: 9376
+  - name: https
+    protocol: TCP
+    port: 443
+    targetPort: 9377
+```
+
+## Lựa chọn địa chỉ IP
+
+Ta có thể chỉ định địa chỉ clusterIP mong muốn khi tạo Service bằng cách sử dụng trường ```.spec.clusterIP```. Ví dụ nếu ta có 1 mục DNS mà muốn sử dụng lại hoặc 1 hệ thống cũ (legacy) đã được cấu hình với 1 địa chỉ IP cụ thể rất khó cấu hình lại.
+
+Địa chỉ IP mà ta lựa chọn phải là IPv4 hoặc IPv6 nằm trong dãy CIDR ```service-cluster-ip-range``` đã được cấu hình trên API server. Nếu ta cố gắng tạo 1 service với địa chỉ IP không hợp lệ thì API server sẽ trả lại mã trạng thái 422 HTTP để báo hiệu có vấn đề.
+
+## Service Discovery
+
+Kubernetes hỗ trợ 2 phương thức chính trong việc tìm kiếm service: **biến môi trường** và **DNS**.
+
+### 1. Biến môi trường
+
+Khi 1 pod chạy trong 1 node thì kubelet sẽ thêm một tập các biến môi trường cho mỗi Service đang hoạt động (active). Nó hỗ trợ các biến môi trường tương thích với Docker Link và các biến đơn giản hơn như ```{SVCNAME}_SERVICE_HOST``` và ```{SVCNAME}_SERVICE_PORT```, trong đó Service là chữ in hoa và dấu gạch ngang được chuyển thành dấu gạch dưới.
+
+Ví dụ Service ```redis-master``` expose TCP port 6379 và đã được gán IP là ```10.0.0.11``` sinh ra các biến môi trường sau:
+
+```sh
+REDIS_MASTER_SERVICE_HOST=10.0.0.11
+REDIS_MASTER_SERVICE_PORT=6379
+REDIS_MASTER_PORT=tcp://10.0.0.11:6379
+REDIS_MASTER_PORT_6379_TCP=tcp://10.0.0.11:6379
+REDIS_MASTER_PORT_6379_TCP_PROTO=tcp
+REDIS_MASTER_PORT_6379_TCP_PORT=6379
+REDIS_MASTER_PORT_6379_TCP_ADDR=10.0.0.11
+```
+
+**Lưu ý:** khi ta có client Pod cần truy cập đến 1 Service và ta đang sử dụng phương thức **biến môi trường** để công khai Port và clusterIP cho client Pods thì ta phải tạo Service trước khi client Pods xuất hiện. Nếu không thì các client Pods sẽ không nhận được các biến môi trường của chúng (do kubelet thêm vào). Nếu ta chỉ sử dụng DNS để khám phá clusterIP cho một Service, ta không cần lo lắng về vấn đề thứ tự này.
+
+### 2. DNS
+
+Ta có thể thiết lập 1 DNS Service cho cluster của ta bằng cách sử dụng các [addon](https://kubernetes.io/docs/concepts/cluster-administration/addons/)
+
+Một DNS server hỗ trợ cluster như CoreDNS sẽ giám sát K8s API khi có Service mới và tạo 1 tập các DNS record cho mỗi Service. Nếu ta đã bật DNS trong cluster thì tất cả các pod sẽ tự động có thể phân giải Service bằng tên DNS của Service.
+
+Ví dụ, nếu ta có Service tên ```my-service``` trong K8s namespace ```my-ns``` thì Control Plane và DNS Services phối hợp với nhau để tạo ra 1 DNS record là ```my-service.my-ns```. Các pod trong ```my-ns``` namespace có thể tìm thấy Service đơn giản bằng cách thực hiện truy vấn tên ```my-service``` (hoặc cũng có thể tìm kiếm ```my-service.my-ns```).
+
+Các pod trong namespace khác phải sử dụng tên ```my-service.my-ns``` để giao tiếp. Các tên này sẽ được phân giải thành ```ClusterIP``` đã được gán cho Service.
+
+Kubernetes cũng hỗ trợ DNS SRV (Service) records cho các port đã được đặt tên. Nếu ```my-service.my-ns``` Service có 1 port là ```http``` và protocol là ```TCP``` thì ta có thể thực hiện truy vấn DNS SRV cho ```_http._tcp.my-service.my-ns``` để biết được số port cũng như địa chỉ IP của ```http```.
+
+Kubernetes DNS Server là cách duy nhất để truy cập đến ```ExternalName``` Service.
+
+**DNS cho Services và Pods sẽ được đề cập trong 1 bài viết sau**
+
+## Headless Services
+
+Đôi lúc ta không cần cân bằng tải và địa chỉ IP cho Service. Trong trường hợp này, ta có thể tạo ra cái gọi là **Headless Service**
