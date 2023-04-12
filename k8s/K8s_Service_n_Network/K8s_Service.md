@@ -101,7 +101,7 @@ Việc truy cập đến các Service không có selector cũng tương tự nh�
 
 ```ExternalName``` Service là 1 trường hợp đặc biệt của Service không có selector mà sử dụng tên DNS thay thế. Chi tiết sẽ được đề cập sau.
 
-### 2. EndpintSlices
+### 2. EndpointSlices
 
 ```EndpointSlice``` là 1 tài nguyên API có thể cung cấp 1 sự thay thế có thể mở rộng được cho ```Endpoint```. Mặc dù về mặt khái niệm là khá giống với ```Endpoint```, song ```EndpointSlice``` cho phép phân tán các network endpoint trên nhiều tài nguyên khác nhau. Mặc định, 1 ```EndpointSlice``` được xem như là "full" khi nó đạt tới 100 endpoint. Lúc đó, nếu có thêm endpoint mới thì 1 ```EndpointSlice``` mới sẽ được tạo ra để lưu trữ các endpoint mới này
 
@@ -235,4 +235,274 @@ Kubernetes DNS Server là cách duy nhất để truy cập đến ```ExternalNa
 
 ## Headless Services
 
-Đôi lúc ta không cần cân bằng tải và địa chỉ IP cho Service. Trong trường hợp này, ta có thể tạo ra cái gọi là **Headless Service**
+Đôi lúc ta không cần cân bằng tải và địa chỉ IP cho Service. Trong trường hợp này, ta có thể tạo ra cái gọi là **Headless Service** bằng cách gán giá trị ```None``` cho clusterIP (```.spec.clusterIP```).
+
+Ta có thể sử dụng 1 Headless Service để giao tiếp với các cơ chế khám phá Service khác mà không bị ràng buộc với những cái có sẵn của K8s.
+
+Headless Services sẽ không gán ClusterIP, kube-proxy sẽ không quản lý các Service này và sẽ không có cân bằng tải hay proxy nào được thực hiện cho chúng. Cách DNS tự động cấu hình tùy thuộc vào việc Service có định nghĩa Selector hay không:
+
+**Có Selector**
+
+Với Headless Services có định nghĩa Selector thì Endpoint Controller sẽ tạo ra các ```Endpoints``` record trong API và chỉnh sửa cấu hình DNS để trả về các record (chứa địa chỉ) trỏ trực tiếp đến các ```Pod``` của ```Service```
+
+**Không có Selector**
+
+Với Headless Services không định nghĩa Selector thì Endpoint Controller sẽ không tạo ra các ```Endpoints``` record. Tuy nhiên, hệ thống DNS sẽ tìm kiếm và cấu hình:
+- CNAME record đối với loại **ExternalName** Services 
+- A record đối cho bất kỳ ```Endpoints``` nào có cùng tên với Services đối với các loại Services khác
+
+## Công khai Services (ServiceTypes)
+
+Với một số phần của ứng dụng (như frontend) ta có thể muốn expose 1 Services ra 1 địa chỉ IP bên ngoài cluster.
+
+Trường ```ServiceTypes``` cho phép ta chỉ định kiểu Services mong muốn. Giá trị mặc định là ```ClusterIP``` hoặc các giá trị sau:
+- ```ClusterIP```: expose Services ra địa chỉ IP nội bộ của cluster nghĩa là Service chỉ có thể kết nối được từ bên trong cluster. Đây là giá trị mặc định.
+- ```NodePort```: expose Services ra địa chỉ IP của mỗi Node tại 1 port tĩnh (được gọi là ```NodePort```). Một service loại ```ClusterIP``` (nơi mà ```NodePort``` Services sẽ route về) sẽ tự động được tạo ra. Ta có thể giao tiếp với ```NodePort``` Services từ bên ngoài Cluster thông qua địa chỉ ```<NodeIP>:<NodePort>```
+- ```LoadBalancer```: expose Services ra bên ngoài sử dụng bộ cân bằng tải (Load Balancer) của nhà cung cấp đám mây. ```NodePort``` và ```ClusterIP``` Services nơi mà bộ cân bằng tải bên ngoài route về sẽ được tự động tạo ra.
+- ```ExternalName```: ánh xạ Services với nội dung của trường ```externalName``` (ví dụ ```foo.bar.example.com```) bằng cách trả lại giá trị của ```CNAME``` record, không cần cài đặt hay proxy gì thêm.
+
+Ta cũng có thể sử dụng **Ingress** để expose Services. Ingress không phải là 1 loại Services nhưng nó hoạt động như là 1 entrypoint cho cluster. Nó cho phép ta tổng hợp các routing rule (quy tắc định tuyến) vào trong 1 tài nguyên duy nhất vì nó có thể expose nhiều Services trên cùng 1 địa chỉ IP. Sẽ có 1 bài riêng về **Ingress** sau, giờ ta lần lượt tìm hiểu về:
+
+### 1. NodePort
+
+Nếu ta thiết lập trường ```type``` thành ```NodePort```, thì K8s Control Plane sẽ phân bổ 1 port trong dãy được chỉ định bởi cờ ```--service-node-port-range``` (mặc định: 30000 - 32767). Mỗi node sẽ proxy port đó (cùng port number trên mọi Node) vào trong Services. Các Services sẽ báo cáo port đã được gán cho nó thông qua trường ```.spec.port[*].nodePort```.
+
+Nếu ta muốn chỉ định 1 địa chỉ IP cụ thể để proxy Port thì ta có thể thiết lập cờ ```nodeport-addresses``` trong kube-proxy thành các dãy IP mong muốn. Cơ chế này được hỗ trợ từ K8s 1.10. Cờ này sử dụng dấu phẩy "," để tách biệt giữa các dãy IP (VD: ```10.0.0.0/8,192.0.2.0/25```) mà kube-proxy nên xem xét là cục bộ (local) để sử dụng trên node này.
+
+Ví dụ nếu ta khởi động kube-proxy với cờ ```--nodeport-addresses=127.0.0.0/8``` thì kube-proxy chỉ lựa chọn các loopback interface cho NodePort Services. Giá trị mặc định cho ```--nodeport-addresses``` là danh sách trống. Có nghĩa là kube-proxy nên xem xét tất cả các network interface hiện có cho NodePort. (Điều này cũng tương thích với các bản phát hành K8s trước đó).
+
+Nếu ta muốn sử dụng 1 port cụ thể, ta có thể chỉ định 1 giá trị cho trường ```nodePort```. Control Plane sẽ phân bổ port đó hoặc sẽ báo cáo là giao dịch API bị lỗi (```API transaction failed```). Có nghĩa là ta cần phải quản lý thủ công sự xung đột về Port. Ta cũng phải sử dụng 1 port hợp lệ nằm trong dãy đã được cấu hình để sử dụng cho ```NodePort```.
+
+Việc sử dụng ```NodePort``` cho phép ta tự do thiết lập các giải pháp cân bằng tải (Load Balancing) riêng của ta để cấu hình các môi trường không được hỗ trợ đầy đủ bởi K8s hoặc thậm chí chỉ expose trực tiếp 1 hoặc vài node IP.
+
+Lưu ý rằng Service nodePort này được nhìn thấy thông qua ```<NodeIP>:spec.ports[*].nodePort``` và ```.spec.clusterIP:spec.ports[*].port``` (Nếu cờ ```--nodeport-addresses``` trong kube-proxy được thiết lập thì nó sẽ lọc các NodeIP)
+
+Ví dụ:
+
+```sh
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+spec:
+  type: NodePort
+  selector:
+    app: MyApp
+  ports:
+  - port: 80
+    targetPort: 80
+    nodePort: 30007
+```
+
+### 2. Loại LoadBalancer
+
+Trên các nhà cung cấp đám mây có hỗ trợ **external load balancer**, việc thiết lập trường ```type``` thành ```LoadBalancer``` sẽ cần chuẩn bị (provision) trước 1 bộ cân bằng tải cho Service của ta. Quá trình tạo bộ cân bằng tải thật sự diễn ra bất đồng bộ và thông tin về bộ cân bằng tải đã được chuẩn bị trước đó sẽ được công bố (published) trong trường ```.status.loadBalancer```. Ví dụ:
+
+```sh
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+spec:
+  selector:
+    app: MyApp
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 9376
+  cluserIP: 10.0.171.239
+  type: LoadBalancer
+status:
+  loadBalancer:
+    ingress:
+    - ip: 192.0.2.127
+```
+
+Traffic từ bộ cân bằng tải bên ngoài sẽ được chuyển hướng đến các pod ở backend. Nhà cung cấp đám mây sẽ quyết định cách nó sẽ được cân bằng tải.
+
+Đối với loại Service ```LoadBalancer```, khi có nhiều hơn một port được định nghĩa, tất cả các port phải có cùng giao thức (protocol) và giao thức phải là một trong ```TCP```, ```UDP``` hoặc ```SCTP```.
+
+Một số nhà cung cấp đám mây cho phép ta chỉ định giá trị cho ```loadBalancerIP```. Trong trường đó, bộ cân bằng tải được tạo ra với địa chỉ IP cụ thể do ta thiết lập trong trường ```loadBalancerIP```. Nếu trường ```loadBalancerIP``` không được thiết lập thì bộ cân bằng tải sẽ được thiết lập 1 địa chỉ IP tạm thời (ephemeral). Nếu ta chỉ định trường ```loadBalancerIP``` nhưng nhà cung cấp đám mây không hỗ trợ tính năng này thì giá trị đã thiết lập cho trường ```loadBalancerIP``` sẽ bị bỏ qua.
+
+**Internal Load Balancer**
+
+Trong một môi trường hỗn hợp, đôi lúc ta cần phải route traffic từ các Services vào bên trong cùng 1 dãy địa chỉ network (virtual)
+
+Trong môi trường split-horizon DNS, ta sẽ cần 2 Services để có thể route cả traffic bên trong và bên ngoài đến các endpoint.
+
+Ta có thể đạt được điều này bằng cách thêm 1 trong các annotation sau vào Services. Loại Annotations nào cần đưa vào tùy thuộc vào nhà cung cấp đám mây ta đang sử dụng:
+
+GCP:
+
+```sh
+[...]
+metadata:
+  name: my-service
+  annotation:
+    cloud.google.com/load-balancer-type: "Internal"
+[...]
+```
+
+AWS:
+
+```sh
+[...]
+metadata:
+  name: my-service
+  annotations:
+    cloud.google.com/load-balancer-type: "Internal"
+[...]
+```
+
+Azure:
+
+```sh
+[...]
+metadata:
+  name: my-service
+    annotations:
+      service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+[...]
+```
+
+OpenStack:
+
+```sh
+[...]
+metadata:
+    name: my-service
+    annotations:
+        service.beta.kubernetes.io/openstack-internal-load-balancer: "true"
+[...]
+```
+
+### 3. Loại ExternalName
+
+Các Services thuộc loại ```ExternalName``` sẽ ánh xạ 1 Services đến 1 tên DNS chứ không phải là đến 1 selector thông thường như ```my-service``` hay ```casssandra```. Ta chỉ định các Services này thông qua tham số ```spec.externalName```
+
+Ví dụ định nghĩa Services có tên ```my-service``` trong namespace ```prod``` để ánh xạ đến ```my.database.example.com```:
+
+```sh
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+  namespace: prod
+spec:
+  type: ExternalName
+  externalName: my.database.example.com
+```
+
+Khi tìm kiếm host có tên ```my-service.prod.svc.cluster.local```, thì DNS service của cluster sẽ trả lại 1 CNAME record với giá trị ```my.database.example.com```. Việc truy cập vào ```my-service``` sẽ hoạt động theo cách tương tự như với các Services khác nhưng có 1 sự khác biệt quan trọng là việc chuyển hướng sẽ diễn ra ở cấp DNS thay vì thông qua proxy hay forwarding. Nếu sau này ta muốn chuyển Database vào trong cluster, ta có thể khởi động các pod của nó, đưa thêm vào các selector hoặc endpoint phù hợp và thay đổi trường ```type``` của Services
+
+**Lưu ý:** Ta có thể gặp khó khăn khi sử dụng ExternalName cho một số giao thức phổ biến, như HTTP và HTPPS. Nếu ta sử dụng ExternalName thì Hostname được sử dụng bởi các client bên trong cluster của ta sẽ khác với tên mà ExternalName tham chiếu. Đối với các giao thức sử dụng hostname, sự khác biệt này có thể dẫn đến lỗi hoặc phản hồi không mong muốn. Các yêu cầu HTTP sẽ có một ```Host:header``` mà server gốc không nhận ra. TLS Server sẽ không thể cung cấp certificate khớp với hostname mà client kết nối đến.
+
+### 4. External IP
+
+Nếu có các địa chỉ IP bên ngoài route đến 1 hoặc nhiều cluster node thì các Service của K8s có thể được expose ra trên các ```externalIPs``` đó. Các traffic đi vào (ingress) trong cluster với externalIP (như là destination IP) trên Service Port, sẽ được route đến 1 trong những endpoint của Services. ```externalIPs``` không được quản lý bởi kubernetes mà là trách nhiệm của cluster admin.
+
+Trong đặc tả của Services, ```externalIPs``` có thể được ghi cùng với bất kỳ ```ServiceTypes``` nào. Trong ví dụ bên dưới, ```my-service``` có thể được truy cập bởi các client tại ```80.11.12.10:80``` (externalIP:port)
+
+```sh
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+spec:
+  selector:
+    app: MyApp
+  ports:
+  - name: http
+    protocol: TCP
+    port: 80
+    targetPort: 9376
+  externalIPs:
+  - 80.11.12.10
+```
+
+## Các thiếu sót 
+
+Việc sử dụng userspace proxy cho VIP (virtual IP) hoạt động ở phạm vi nhỏ và vừa nhưng không thể mở rộng thành cluster lớn đến rất lớn tầm hàng ngàn Services. 
+
+Việc sử dụng userspace proxy sẽ che khuất địa chỉ IP nguồn của 1 gói tin truy cập đến Services. Điều này làm cho một số cơ chế network filtering (như firewall) là không khả thi. Chế độ iptables proxy sẽ không che khuất địa chỉ IP nguồn (bên trong cluster) nhưng nó vẫn ảnh hưởng đến các client đến từ load balancer hoặc node port.
+
+Trường ```Type``` được thiết kế như là 1 chức năng được lồng vào, mỗi cấp (level) được thêm vào cho cấp trước. Đây không phải là yêu cầu bắt buộc đối với tất cả các nhà cung cấp đám mây (ví dụ GCP không cần phải phân bổ 1 ```NodePort``` để cho ```LoadBalancer``` hoạt động nhưng AWS thì có) nhưng API hiện tại yêu cầu nó.
+
+## Cài đặt Virtual IP
+
+Những gì mô tả trong phần trước là tương đối đủ cho việc sử dụng Services. Tuy nhiên có nhiều thành phần khác nên nắm rõ.
+
+### 1. Tránh xung đột
+
+Một trong những nguyên tắc chính của K8s là không để ta bị rơi vào tình huống có thể khiến các hành động của ta bị thất bại mặc dù không phải do lỗi của ta. Với thiết kế của tài nguyên Services, điều này có nghĩa là không bắt ta phải tự đưa ra quyết định lựa chọn port number nếu lựa chọn đó xung đột với lựa chọn của một người khác. Đó chính là sự cô lập các lỗi.
+
+Để cho phép ta chọn 1 port number cho Services, ta phải đảm bảo rằng khong có 2 Services nào bị xung đột. K8s thực hiện bằng cách phân bổ cho mỗi Services 1 địa chỉ IP riêng.
+
+Để đảm bảo mỗi Services nhận được 1 địa chỉ IP duy nhất, 1 bộ cấp phát nội bộ (**internal allocator**) sẽ tự động cập nhật bản đồ cấp phát toàn cục (**global**) trong cơ sở dữ liệu etcd trước khi tạo Services. Object bản đồ (map object) phải tồn tại trong registry cho Services để có thể nhận được 1 địa chỉ IP, nếu không việc tạo Services sẽ bị thất bại với 1 thông điệp cho biết địa chỉ IP không thể được phân bổ.
+
+Trong Control Plane, 1 **background Controller** sẽ chịu trách nhiệm cho việc tạo bản đồ (map) đó (cần thiết để hỗ trợ di chuyển từ các phiên bản cũ hơn của Kubernetes sử dụng **in-memory locking**). K8s cũng sử dụng các **Controller** để kiểm tra việc cấp phát không đúng (ví dụ bởi vì admin can thiệp) và để xóa các địa chỉ IP đã được cấp phát mà không còn được sử dụng bởi bất kỳ Services nào.
+
+### 2. Địa chỉ IP của Service
+
+Không giống như các địa chỉ IP của Pod, được thật sự route đến 1 đích cố định. Địa chỉ IP của Services không thật sự được trả lời bởi 1 host cụ thể nào. Thay vào đó kube-proxy sử dụng **iptables** để định nghĩa địa chỉ IP Virtual sẽ được chuyển hướng khi cần. Khi các client kết nối đến Virtual IP (VIP), traffic của chúng sẽ được tự động chuyển đến 1 endpoint phù hợp. Các **biến môi trường** và **DNS** cho Services sẽ thật sự được điền theo địa chỉ VIP (và Port) của Service (nghĩa là biến môi trường của mỗi Pod và DNS của Service sẽ sử dụng VIP của Service).
+
+kube-proxy hỗ trợ 3 chế độ proxy là ```userspace```, ```iptables```, ```ipvs``` mỗi chế độ lại hoạt động hơi khác nhau.
+
+**Userspace**
+
+Ví dụ xem xét ứng dụng xử lý ảnh được mô tả trong phần trước. Khi backend Services được tạo ra thì K8s master sẽ phân bổ 1 VIP, ví dụ ```10.0.0.1```. Giả sử Services port là ```1234```, Service này sẽ được quan sát bởi tất cả kube-proxy instance trong toàn cluster.
+
+Khi proxy thấy có 1 Services mới, nó sẽ mở 1 port ngẫu nhiên mới, thiết lập iptables rule để chuyển hướng traffic từ VIP đến port mới này và bắt đầu chấp nhận kết nối đến nó.
+
+Khi 1 client kết nối đến VIP của Service thì các iptables rule sẽ được sử dụng và chuyển hướng các gói tin đến port của proxy. "Service proxy" sẽ lựa chọn 1 backend (theo thuật toán **round-robin**) và bắt đầu proxy traffic từ client đến backend đó.
+
+Điều này có nghĩa là Service owners có thể lựa chọn bất kỳ port nào họ muốn mà không gặp rủi ro về sự xung đột. Các client đơn giản chỉ kết nối đến IP và Port mà không cần quan tâm đến Pod nào nó đang truy cập đến.
+
+**Iptables**
+
+Một lần nữa, hãy xem xét ứng dụng xử lý ảnh được mô tả trong phần trước. Khi backend Services được tạo ra thì K8s master sẽ phân bổ 1 VIP, ví dụ ```10.0.0.1```. Giả sử Service port là ```1234```, Services này sẽ được quan sát bởi tất cả kube-proxy instance trong toàn cluster
+
+Khi proxy thấy có 1 Services mới, nó sẽ cài đặt các iptables rules để chuyển hướng traffic từ VIP đến các rule cho từng Services. Các rule cho từng Services liên kết với các rule cho từng Endpoint để chuyển hướng traffic (sử dụng destination NAT) đến các backend.
+
+Khi 1 client kết nối với VIP của Services thì các iptables rule sẽ được kích hoạt. Một backend Pod được lựa chọn (có thể dựa trên **session affinity** hoặc **ngẫu nhiên**) và các gói tin sẽ được chuyển hướng đến các backend đó. Không giống như userspace proxy, các gói tin sẽ không bao giờ được copy vào userspace, kube-proxy không cần phải chạy để cho VIP hoạt động được và các node sẽ thấy traffic đến từ địa chỉ IP không thay đổi của client.
+
+Quy trình cơ bản này cũng sẽ được thực thi khi traffic đến thông qua nodeport hoặc qua 1 load balancer mặc dù trong những trường hợp đó, địa chỉ IP của client sẽ bị thay đổi.
+
+**IPVS**
+
+Hoạt động của iptables sẽ bị chậm đáng kể trong cluster kích thước lớn với hàng chục nghìn Services. IPVS được thiết kế để cân bằng tải và dựa trên hash table bên trong kernel. Vì vậy ta có thể đạt được hiệu năng ổn định khi có nhiều Service từ kube-proxy dựa trên IPVS. Có nghĩa là kube-proxy dựa trên IPVS có thuật toán cân bằng tải phức tạp hơn (least conns, locality, weighted, persistence)
+
+## API Object
+
+Service là 1 top-level resource trong Kubernetes REST API. Chi tiết ở [Kubernetes Service API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.26/#service-v1-core)
+
+## Các giao thức được hỗ trợ
+
+### 1. TCP
+
+Ta có thể sử dụng TCP cho bất kỳ loại Service nào vì nó là giao thức mạng mặc định
+
+### 2. UDP
+
+Ta có thể sử dụng UDP cho hầu hết các Service. Đối với Service có ```type=LoadBalancer```, việc hỗ trợ UDP phụ thuộc vào nhà cung cấp đám may có cung cấp tính năng này không.
+
+### 3. HTTP
+
+Nếu nhà cung cấp đám mây của ta hỗ trợ giao thức này, ta có thể sử dụng Service ở chế độ LoadBalancer để thiết lập reverse proxy HTTP/HTTPS bên ngoài, được forward đến Endpoint của Service.
+
+### 4. Giao thứ Proxy
+
+Nếu nhà cung cấp cloud hỗ trợ giao thức này, ta có thể sử dụng Service ở chế độ LoadBalaner để cấu hình bộ cân bằng tải bên ngoài K8s, nó sẽ forward các kết nối đã được gắn tiền tố (prefix) với giao thức proxy
+
+Bộ cân bằng tải sẽ gửi 1 loạt các octet ban đầu mô tả kết nối đến, tương tự như ví dụ sau:
+
+```sh
+PROXY TCP4 192.0.2.202 10.0.42.7 12345 7\r\n
+```
+
+theo sau đó là dữ liệu từ client
+
+### 5. SCTP
+
+K8s hỗ trợ SCTP làm giá trị cho trường ```protocol``` trong đặc tả Service, Endpoint, NetworkPolicy và Pod dưới dạng tính năng alpha. Để kích hoạt tính năng này, cluster admin cần bật ```SCTPSupport``` feature gate trên apiserver, ví dụ ```--feature-gate=SCTPSupport=true```
+
