@@ -58,3 +58,83 @@ Chọn ```Credential``` rồi ```Lauch``` thôi
 
 Như vậy là ta đã kết nối thành công với host client.
 
+## IV. Khởi tạo Projects
+
+Khái niệm Project trong AWX đơn giản là một nơi lưu trữ các tài nguyên của Ansible-playbook như các roles, playbooks. Một 1 project có thể lưu nhiều playbook sử dụng cho một mục đích hoặc đối tượng khác nhau.
+
+**Bước 1:** Add project
+
+![](./images/ansible_AWX_19.png)
+
+**Bước 2:** Điền các thông tin cần thiết. Ở đây ta cần lưu ý với ```type``` Manual thì ta sẽ phải copy thư mục chứa playbook vào đường dẫn ```/var/lib/awx/projects```, còn với ```type``` Git thì ta sẽ clone repository chứa playbook trên Github về, loại này có phần tiện lợi hơn nhờ các tính năng của Github.
+
+![](./images/ansible_AWX_20.png)
+
+## V. Khởi tạo Template
+
+**Bước 1:** Add Template
+
+![](./images/ansible_AWX_21.png)
+
+**Bước 2:** Điền các thông tin cần thiết. Các tham số ta cần chú ý là:
+- ```Name```: Tên template
+- ```Job Type```: có 2 giá trị là ```Run``` hoặc ```Check```. Nếu chọn ```Run``` thì template sẽ thực sự thực hiện playbook, tỏng khi ```Check``` sẽ chỉ phỏng đoán kết quả của playbook thôi.
+- ```Inventory```: chọn inventory mong muốn
+- ```Project```: chọn project lưu trữ playbook muốn thực hiện
+- ```Playbook```: chọn playbook
+- ```Credential```: credential sẽ sử dụng để kết nối đến các host client
+- ```Variables```: các biến nâng cao
+- ```Limit```: tùy chọn host sẽ thực hiện hoặc không thực hiện, nếu không điền gì thì mặc định là all
+
+![](./images/ansible_AWX_22.png)
+
+**Bước 3:** Chọn hình tên lửa để khởi chạy Template
+
+![](./images/ansible_AWX_23.png)
+
+![](./images/ansible_AWX_24.png)
+
+Như vậy là ta đã thực thi template thành công.
+
+## VI. Import inventory lên AWX
+
+Trên nhiều hệ thống lớn với hàng chục hàng trăm host client, sẽ tốn rất nhiều thời gian để ta import từng host 1 sử dụng giao diện. Hoặc một vài trường hợp khác, khi mà ta đã cài đặt xong hết thông qua CLI rồi mới cài đặt AWX, vậy thì để tiết kiệm thời gian, hãy import file inventory có sẵn thay vì tạo mới.
+
+**Bước 1:** Tạo 1 inventory trắng trên AWX như đã giới thiệu bên trên
+
+**Bước 2:** Tạo project ansible playbook thông qua CLI
+
+```sh
+mkdir /var/lob/awx/projects/new-project/
+cd /var/lib/awx/project/new-project
+```
+
+Copy file inventory vào thư mục này
+
+```sh
+cp /etc/ansible/hosts ./
+```
+
+**Bước 3:** Truy cập vào container awx_task
+
+```sh
+docker exec -it <id_container_awx_task> /bin/bash
+```
+
+**Bước 4:** Di chuyển vào thư mục project đã tạo
+
+```sh
+cd /var/lib/awx/projects/new-project/
+```
+
+**Bước 5:** Thực thi lệnh awx-manage để import inventory
+
+```sh
+awx-manage inventory_import --source=hosts --inventory-name="new-inventory"
+```
+
+Trong đó:
+- ```source```: file inventory muốn import
+- ```--inventory-name```: tên inventory trắng được tạo sẵn trên AWX
+
+Done!
