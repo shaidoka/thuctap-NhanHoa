@@ -1,0 +1,9 @@
+kind: RuntimeClass
+apiVersion: node.k8s.io/v1
+metadata:
+    name: kata-fc
+handler: kata-fc
+overhead:
+    podFixed:
+        memory: "120Mi"
+        cpu: "250m"

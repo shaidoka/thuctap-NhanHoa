@@ -15,7 +15,7 @@ Các bước sau làm trên cả 3 node (thay đổi cho phù hợp)
 
 ```sh
 apt-get update -y && apt-get upgrade -y
-apt-get -y install -y vim curl wget 
+apt-get -y install vim curl wget 
 apt-get -y install byobu
 ```
 
@@ -69,7 +69,7 @@ Cài đặt các thành phần của K8s trên tất cả các node
 ```sh
 apt-get update && apt-get install -y apt-transport-https
 
-curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add 
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add
 
 cat <<EOF >/etc/apt/sources.list.d/kubernetes.list
 deb http://apt.kubernetes.io/ kubernetes-xenial main
@@ -88,7 +88,7 @@ kubeadm init --apiserver-advertise-address 103.159.51.184 --pod-network-cidr=10.
 
 Trong đó:
 - ```103.159.51.184```: là IP của node k8s-master
-- ```--apiserver-advertise-address```: là địa chỉ của node k8s-master, địa chỉ này cần truyền thông được với các node còn lại của cụm cluster. Trong ví dụ này node k8s master có địa chỉ là 103.159.51.24
+- ```--apiserver-advertise-address```: là địa chỉ của node k8s-master, địa chỉ này cần truyền thông được với các node còn lại của cụm cluster. Trong ví dụ này node k8s master có địa chỉ là 103.159.51.184
 - ```--pod-network-cidr```: là dải địa chỉ mạng phụ thuộc mà công nghệ network sẽ sử dụng khi kết hợp với K8s, trong hướng dẫn này sử dụng flannel và flannel sử dụng dải 10.244.0.0/16
 
 ![](./images/K8s_Install_1.png)
@@ -428,13 +428,13 @@ subjects:
 ```
 
 ```sh
-kubectl apply -f dashboard-clusterrole
+kubectl apply -f dashboard-clusterrole.yml
 ```
 
 Sau đó, ta dùng lệnh sau để tạo token sử dụng cho viêc login
 
 ```sh
-kubectl -n kubernetes-dashboard create token admin-user
+kubectl -n kubernetes-dashboard create token admin-user --duration=720h
 ```
 
 ![](./images/K8s_Install_20.png)

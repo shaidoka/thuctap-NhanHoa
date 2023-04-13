@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: configmap-demo-pod
+spec:
+  containers:
+    - name: demo
+      image: game.example/demo-game
+      env:
+        # Định nghĩa biến môi trường
+        - name: PLAYER_INITIAL_LIVES # Ở đây ta sử dụng chữ HOA
+                                     # khác với tên của key sử dụng chữ thường trong ConfigMap
+          valueFrom:
+            configMapKeyRef:
+              name: game-demo
+              key: player_initial_lives
+        - name: UI_PROPERTIES_FILE_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: game-demo
+              key: ui_properties_file_name
+          volumeMounts:
+          - name: config
+            mountPath: "/config"
+            readOnly: true
+      volumes:
+        # Ta thiết lập volume ở cấp Pod, sau đó mount chúng vào trong các container bên trong Pod đó
+        - name: config
+          configMap:
+            # Cung cấp tên của ConfigMap ta muốn mount
+            name: game-demo
+            # Danh sách các key trong ConfigMap để tạo thành file
+            items:
+            - key: "game.properties"
+              path: "game.properties"
+            - key: "user-interface.properties"
+              path: "user-interface.properties"
