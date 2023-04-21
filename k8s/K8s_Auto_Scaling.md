@@ -255,3 +255,17 @@ spec:
 
 Với ```targetRef``` ta sẽ chọn resource ta thu thập để scale, và ```updatePolicy.updateMode``` có 3 chế độ là ```Off```, ```Initial``` và ```Auto```
 
+### 1. VPA Component
+
+VPA sẽ có 3 component như sau
+- Recommender: component này sẽ monitor các tài nguyên đã tiêu thụ để cung cấp giá trị CPU và memory requests gợi ý
+- Updater: component này sẽ kiểm tra Pod được quản lý bởi scalable resource có CPU và memory đúng với giá trị của Recommender cung cấp ở trên hay không, nếu không, nó sẽ kill Pod đó và tạo lại Pod mới với CPU và memory requests đã được cập nhật đúng theo Recommender
+- Admission Plugin: đây là admission plugin của VPA thêm vào các Admission Plugin có sẵn API Server, có nhiệm vụ sẽ thay đổi resource requests của Pod khi nó được tạo để đúng với giá trị của Recommender
+
+### 2. Update Policy
+
+Policy này sẽ điều khiển cách VPA áp dụng thay đổi lên Pod, được chỉ định thông qua thuộc tính **updatePolicy.updateMode**. Có 3 giá trị là:
+- Off: Ở mode này, VPA chỉ tạo ra một recommendations, mà không áp dụng giá trị recommendations đó lên Pod, ta chọn mode này khi chỉ muốn xem giá trị requests được gợi ý cho chúng ta, và ta sẽ quyết định xem có cập nhật lại CPU và memory requests giống với giá trị gợi ý cho ta hay không
+- Initial: Ở mode này, sau khi recommendations được tạo ra, thì chỉ những Pod nào được tạo mới sau này mới được áp dụng giá trị CPU/Memory requests recommend, những Pod hiện tại không thay đổi
+- Auto: Ở mode này, sau khi recommendation được tạo ra, thì không chỉ những Pod mới được áp dụng giá trị gợi ý này, mà kể cả những Pod hiện tại mà có giá trị không đúng với giá trị của recommedations, thì nó cũng sẽ bị restart lại.
+

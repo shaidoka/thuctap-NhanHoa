@@ -66,7 +66,7 @@ guaranteedReplicaManagerCPU: 15
 ingress:  
   enabled: true
   ingressClassName: longhorn-storage-ingress
-  host: longhorn-ui.viettq.com
+  host: longhorn-ui.baotrung.xyz
 
 namespaceOverride: "storage"
 ```
