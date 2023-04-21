@@ -82,3 +82,180 @@ Khi tạo StatefulSet và có định nghĩa ServiceName trong cấu hình của
 
 Ở phần này ta sẽ demo bằng việc cài đặt cụm MySQL trên K8s. Phần lưu trữ sẽ dùng PV/PVC để mount vào các pod, do đó cần cài đặt sẵn storage class để sử dụng.
 
+Namespace sử dụng trong phần này là ```db```
+
+```sh
+kubectl create ns db
+```
+
+### 1. Tạo secret để cấu hình password cho database
+
+Tạo 1 file Secret ```mysql-secret.yaml``` như sau:
+
+```sh
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysql-password
+type: opaque
+stringData:
+  MYSQL_ROOT_PASSWORD: NH_ToBeTheBest
+```
+
+Trong đó password dùng để connect tới DB, ta áp dụng secret trên và nhớ sử dụng namespace chúng ta muốn
+
+```sh
+kubectl -n db apply -f mysql-secret.yaml
+```
+
+### 2. Cài đặt và cấu hình Storage Class 
+
+Tạo storage class theo hướng dẫn từ bài viết trước
+
+![](./images/K8s_Stateful_8.png)
+
+### 3. Cấu hình StatefulSet để cài MySQL
+
+Ta tạo file manifest ```mysql-sts.yaml``` để khai báo cấu hình statefulset như sau:
+
+```sh
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql-sts
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+  serviceName: "mysql-svc"
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: mysql
+        image: mysql:5.7
+        args:
+          - "--ignore-db-dir=lost+found"
+        ports:
+        - containerPort: 3306
+        volumeMounts:
+        - name: mysql-pvc
+          mountPath: /var/lib/mysql
+        env:
+          - name: MYSQL_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: mysql-password
+                key: MYSQL_ROOT_PASSWORD
+  volumeClaimTemplates:
+  - metadata:
+      name: mysql-pvc
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: "longhorn-storage-delete"
+      resources:
+        requests:
+          storage: 1Gi
+```
+
+Trong đó:
+- ```name: mysql-sts```: Pod được tạo ra sẽ có format là ```mysql-sts-(index)```.
+- ```serviceName: "mysql-svc```: Việc khai báo serviceName này sẽ tạo ra các bản ghi DNS riêng cho từng pod theo format ```(PodName).(ServiceName).(NameSpace).svc.(CluserName)```. Ví dụ ```mysql-sts-0.mysql-svc.db.svc.cluster.local```
+- Phần cấu hình sotrage ta sử dụng storage class ```longhorn-storage-delete``` với dung lượng yêu cầu cho mỗi PVC là 1 GiB và mode là ```RWO```
+- Các giá trị khác gần như tương tự so với Deployment
+
+```sh
+kubectl -n db apply -f mysql-sts.yaml
+```
+
+Lúc này pod sẽ được tạo tuần tự:
+
+![](./K8s_Storage/images/K8s_Storage_8.png)
+
+Mỗi pod đều được gắn vs 1 pvc:
+
+![](./images/K8s_Stateful_9.png)
+
+Lưu ý dù ta có khai báo tham số ```serviceName: "mysql-svc"``` nhưng việc này chỉ giúp tạo cho ta bản ghi DNS chứ không tạo ra service có tên là ```mysql-svc```
+
+### 4. Tạo Service cho ứng dụng
+
+Ở bài này ta không tạo service dạng LoadBalancer cho ứng dụng mà dùng ```headless service``` (service không có clusterIP). Tạo file cấu hình như sau:
+
+```sh
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-svc
+  labels:
+    app: mysql
+spec:
+  ports:
+  - port: 3306
+  clusterIP: None
+  selector:
+    app: mysql
+```
+
+Sau đó apply vào hệ thống
+
+```sh
+kubectl -n db apply -f mysql-service-headless
+```
+
+### 5. Cài MySQL Client để test kết nối
+
+Tạo file manifest ```mysql-client.yaml``` để khai báo mysql client với nội dung như sau:
+
+```sh
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mysql-client
+spec:
+  containers:
+  - name: mysql-container
+    image: alpine
+    command: ['sh', '-c', "sleep infinitively"]
+    imagePullPolicy: IfNotPresent
+```
+
+Tạo pod trên bằng câu lệnh:
+
+```sh
+kubectl -n db apply -f mysql-client.yaml
+```
+
+Sau khi tạo xong Pod thì ta kết nối vào trong pod để cài đặt MySQL client
+
+```sh
+kubectl -n db exec --stdin --tty mysql-client -- sh
+```
+
+Cài đặt mysql-client
+
+```sh
+apk add mysql-client
+```
+
+Đứng từ Pod Mysql client này ta có thể kết nối tới mysql db bằng forrmat lệnh ```mysql -u root -p -h <host_server_name>``` trong đó ```<host_server_name>``` là tên của mysql. Với cấu hình cài đặt bên trên thì cú pháp là
+
+```sh
+stateful_name-ordinal_number.(serviceName).(namespace).svc.(clusterName)
+```
+
+Ví dụ: ```mysql-sts-0.my-svc.db.svc.cluster.local```
+
+Như vậy ta sẽ connect vào db và tạo một database mới
+
+```sh
+mysql -u root -p -h mysql-sts-0.mysql-svc.db.svc.cluster.local
+```
+
+![](./images/K8s_Stateful_10.png)
+
+Có thể thấy, dữ liệu của 3 pod trong statefulset là khác nhau, statefulset sẽ không đồng bộ dữ liệu cho chúng ta như deployment

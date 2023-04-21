@@ -79,3 +79,76 @@ Download helm chart nfs-client-provisioner về để cài offline
 
 ```sh
 helm repo add stable https://charts.helm.sh/stable
+helm search repo nfs-client-provisioner
+helm pull stable/nfs-client-provisioner --version 1.2.11
+tar -xzf nfs-client-provisioner-1.2.11.tgz
+```
+
+Trước khi cài đặt cần thay đổi tham số mặc định của helm chart này. Ta sẽ tạo 2 storage class khác nhau tương ứng với reclaim policy là **delete** và **retain**. Tạo file value cho storage class như sau:
+
+```sh
+cp nfs-client-provisioner/values.yaml values-nfs-delete.yaml
+cp nfs-client-provisioner/values.yaml values-nfs-retain.yaml
+```
+
+Thay đổi các tham số trong file **values-nfs-delete.yaml** như sau:
+
+```sh
+replicaCount: 3
+server: 103.124.93.116
+path: /data/delete
+provisionerName: nfs-storage-delete-provisioner
+name: nfs-delete
+reclaimPolicy: Delete
+archiveOnDelete: false
+```
+
+Thay đổi các tham số trong file **values-nfs-retain.yaml** như sau:
+
+```sh
+replicaCount: 3
+server: 103.124.93.116
+path: /data/retain
+provisionerName: nfs-storage-retain-provisioner
+name: nfs-retain
+reclaimPolicy: Retain
+archiveOnDelete: true
+```
+
+Giờ ta cài đặt 2 storage class này, sử dụng 1 namespace riêng để dễ quản lý
+
+```sh
+kubectl create namespace "storage"
+helm install nfs-storage-retain --namespace storage -f values-nfs-retain.yaml nfs-client-provisioner
+helm install nfs-storage-delete --namespace storage -f values-nfs-delete.yaml nfs-client-provisioner
+```
+
+![](./images/K8s_Storage_2.png)
+
+### 3. Kiểm tra nfs-storageclass bằng cách tạo thử pvc
+
+Giờ tạo một PVC xem nfs-storageclass nó có tự động sinh ra PV cho mình không. 
+
+Tạo file config cho PVC có recliam policy là delete như sau, lưu ý tham số **storageClassName: nfs-delete** được gán đúng với tên storage class đã tạo ở bước trước:
+
+```sh
+cat << EOF > test-pvc-delete.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: test-pvc-delete
+spec:
+  storageClassName: nfs-delete
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Mi
+EOF
+```
+
+```sh
+kubectl apply -f test-pvc-delete.yaml
+```
+
+*Đến đây thì kẹt ko rõ vì sao :(( Có vẻ như nfs-client-provisioner đã ko còn hỗ trợ nữa*
