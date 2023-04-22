@@ -194,11 +194,97 @@ kubectl expose deployment kubia --port=80 --target-port=8080
 kubectl run -it --rm --restart=Never loadgenerator --image=busybox -- sh -c "while true; do wget -O - -q http://kubia; done"
 ```
 
+![](./images/K8s_Auto_Scaling_6.png)
+
+![](./images/K8s_Auto_Scaling_7.png)
+
+Thử 1 cách khác, ta thêm container sau vào pod
+
+```sh
+- name: stress-container
+  image: progrium/stress
+  command: ["stress", "--cpu", "0.1"]
+  resources:
+    requests:
+      cpu: 100m
+```
+
+Và theo dõi kết quả
+
+![](./images/K8s_Auto_Scaling_9.png)
+
+Như vậy số pod đã tăng lên max khi ta đẩy CPU lên cao. Giờ ta xóa container stress đi và xem kết quả:
+
+![](./images/K8s_Auto_Scaling_10.png)
+
+![](./images/K8s_Auto_Scaling_11.png)
+
 **Chú ý:** AutoScaling có 1 thông số gọi là Maximum rate of scaling, thông số này giới hạn số replica có thể scale trong 1 lần, mặc định là **gấp 2 lần số lượng replicas hiện tại**, nếu số lượng relicas hiện tại là 1 hoặc 2 thì tối đa replicas được scale là 4.
 
-### 2. Scale theo memory
+### 2. Scale theo CPU và memory
 
 Việc config scale memory không khác gì so với CPU. Tuy nhiên ta cần phải lưu ý rằng việc release và sử dụng memory sẽ phụ thuộc vào ứng dụng bên trong container. Khi ta scale up số lượng Pod lên dựa vào memory, system không thể chắc chắn rằng số lượng sử dụng memory của từng ứng dụng sẽ giảm đi, vì điều này phụ thuộc vào cách ta viết ứng dụng, nếu sau khi ta scale up Pod, ứng dụng vẫn sử dụng memory nhiều như trước hoặc thậm chí nhiều hơn, quá trình scale sẽ lặp lại và đạt tới ngưỡng maximum Pod của worker node và có thể dẫn tới die worker node. Vì vậy khi scale Pod dựa vào memory thì ta phải xem xét nhiều yếu tố hơn chứ không phải chỉ config HPA là xong.
+
+Phần này sẽ kiểm thử với deployment tương tự như bên trên nhưng thêm RAM xem sao.
+
+Đầu tiên là chỉnh sửa 1 chút ở Deployment:
+
+```sh
+cat << EOF > deploy-scaling-ram.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubia-2
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: kubia
+  template:
+    metadata:
+      labels:
+        app: kubia
+    spec:
+      containers:
+      - image: luksa/kubia:v1
+        name: nodejs
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+EOF
+```
+
+```sh
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: kubia-2
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: kubia
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 30
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 30
+```
+
+![](./images/K8s_Auto_Scaling_12.png)
+
+Nếu stress test cả CPU và RAM thì không trực quan lắm vì các công cụ test memory sẽ sử dụng cả CPU để tạo process, do đó CPU sẽ bị ảnh hưởng và HPA sẽ scale theo CPU lên mức tối đa. Còn nếu ta tăng CPU request lên cao thì HPA sẽ không scale theo CPU nữa do không đủ Utilization => Rất khó để stress test cả CPU và RAM cùng 1 lúc mà nó trực quan được
 
 ### 3. Scale theo metric khác
 
