@@ -1,0 +1,12 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: iscsi-targetd-vg-targetd
+provisioner: iscsi-targetd
+parameters:
+  targetPortal: 103.124.93.116:3260
+  iqn: iqn.2023-04.org.linux.test:targetd
+  volumeGroup: vg-targetd
+  initiators: iqn.2023-04.org.debian:01:master1, iqn.2023-04.org.debian:01:master2, iqn.2023-04.org.debian:01:worker1, iqn.2023-04.org.debian:01:worker2, iqn.2023-04.org.debian:01:worker3
+  chapAuthDiscovery: "true"
+  chapAuthSession: "true"

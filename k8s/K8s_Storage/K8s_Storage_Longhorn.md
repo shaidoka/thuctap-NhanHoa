@@ -86,7 +86,7 @@ kubectl get pods -n storage
 
 ![](./images/K8s_Storage_4.png)
 
-Truy cập dash board thông qua ```<node_IP>:30888```
+Truy cập dashboard thông qua ```<node_IP>:30888```
 
 ![](./images/K8s_Storage_3.png)
 
@@ -234,3 +234,9 @@ kubectl apply -f test-pod-longhorn-retain.yaml
 ![](./images/K8s_Storage_7.png)
 
 Done!
+
+**Note:** Để uninstall longhorn cài đặt với helm, trước hết ta cần dùng lệnh sau
+
+```sh
+kubectl -n longhorn-system edit settings.longhorn.io deleting-confirmation-flag
+```

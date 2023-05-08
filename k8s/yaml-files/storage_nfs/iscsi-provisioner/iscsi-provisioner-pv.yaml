@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-10g
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteMany
+  iscsi:
+    targetPortal: 103.124.93.116:3260
+    iqn: iqn.2023-04.org.linux.test:targetd
+    lun: 0
+    fsType: ext4
+    readOnly: false
+  persistentVolumeReclaimPolicy: Delete

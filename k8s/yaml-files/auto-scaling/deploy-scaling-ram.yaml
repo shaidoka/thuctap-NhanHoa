@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubia-2
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: kubia-2
+  template:
+    metadata:
+      labels:
+        app: kubia-2
+    spec:
+      containers:
+      - image: luksa/kubia:v1
+        name: nodejs
+        resources:
+          requests:
+            memory: 100Mi
