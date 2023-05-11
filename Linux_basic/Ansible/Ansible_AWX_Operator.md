@@ -96,7 +96,7 @@ kubectl get svc -l "app.kubernetes.io/managed-by=awx-operator" -n awx
 Bây giờ, hãy lấy thông tin đăng nhập bằng cách chạy lệnh sau
 
 ```sh
-kubectl get secret awx-demo-admin-password -o jsonpath="{.data.password}" | base64 --decode ; echo
+kubectl get secret awx-demo-admin-password -o jsonpath="{.data.password}" -n awx | base64 --decode ; echo
 ```
 
 Như vậy thông tin để đăng nhập AWX UI sẽ là ```admin``` và kết quả trả về của lệnh trên. Còn đường dẫn sẽ là ```<Cluster_IP>:<NodePort>``` trong đó Cluster IP là bất kỳ IP nào thuộc cluster, còn NodePort là Port của ```awx-demo-service``` có được khi chúng ta sử dụng lệnh get svc
@@ -459,3 +459,116 @@ spec:
             topologyKey: topology.kubernetes.io/zone
 ```
 
+## Persisting Projects Directory
+
+Trong trường hợp mà ta muốn persist ```/var/lib/projects``` directory, có 1 vài tham số ta có thể tùy biến như sau
+
+|Name|Description|Default|
+|:-|:-|:-|
+|projects_persistence|Chỉ định có dùng persistent volume cho /var/lib/projects không|false|
+|projects_storage_class|Chỉ định PV storage class|''|
+|projects_storage_size|Chỉ định PV size|8Gi|
+|projects_storage_access_mode|Chỉ định PV access mode|ReadWriteMany|
+|projects_existing_claim|Chỉ định PVC đã tồn tại để sử dụng|''|
+
+Ví dụ 1 customization để ```awx-operator``` tự động xử lý PV:
+
+```sh
+spec:
+  ...
+  projects_persitence: true
+  projects_storage_class: rook_ceph
+  projects_storage_size: 20Gi
+```
+
+## Custom Volume and Volume Mount Options
+
+Custom volumes và volume mounts có thể được sử dụng để ghi đè lên các file cấu hình mặc định
+
+|Name|Description|Default|
+|:-|:-|:-|
+|extra_volumes|Chỉ định extra volumes để thêm và application pod|''|
+|web_extra_volume_mounts|Chỉ định volume mounts để thêm vào Web container|''|
+|task_extra_volume_mounts|Chỉ định volume mounts cần thêm vào Task container|''|
+|ee_extra_volume_mounts|Chỉ định volume mounts để thêm vào Execution container|''|
+|init_container_extra_volume_mounts|Chỉ định volume mounts để thêm vào Init container|''|
+|init_container_extra_commands|Chỉ định commands cho Init container|''|
+
+Ví dụ:
+
+```sh
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: awx-demo-ex
+  namespace: <target namespace>
+data:
+  ansible.cfg: |
+    [defaults]
+    remote_tmp = /tmp
+    [ssh_connection]
+    ssh_args = -C -o ControlMaster=auto -o ControlPersist=60s
+  custom.py: |
+    INSIGHTS_URL_BASE = "example.org"
+    AWX_CLEANUP_PATHS = True
+```
+
+```sh
+spec:
+  ...
+  extra_volumes: |
+    - name: ansible-cfg
+      configMap:
+        defaultMode: 420
+        items:
+          - key: ansible.cfg
+            path: ansible.cfg
+        name: awx-demo-extra-config
+    - name: custom-py
+      configMap:
+        defaultMode: 420
+        items:
+          - key: custom.py
+            path: custom.py
+        name: awx-demo-extra-config
+    - name: shared-volume
+      persistentVolumeClaim:
+        claimName: my-external-volume-claim
+  
+  init_container_extra_volume_mounts: |
+    - name: shared-volume
+      mountPath: /shared
+  
+  init_container_extra_commands: |
+    # set proper permission (rwx) for the awx user
+    chmod 755 /shared
+    chgrp 1000 /shared
+  
+  ee_extra_volume_mounts: |
+    - name: ansible-cfg
+      mountPath: /etc/ansible/ansible.cfg
+      subPath: ansible.cfg
+  
+  task_extra_volume_mounts: |
+    - name: custom-py
+      mountPath: /etc/tower/conf.d/custom.py
+      subPath: custom.py
+    - name: shared-volume
+      mountPath: /shared
+```
+
+## Uninstall
+
+Để gỡ cài đặt AWX và các thành phần khác, ta thực hiện các câu lệnh (hãy thay đổi tên của resource để phù hợp vs hệ thống)
+
+```sh
+kubectl delete awx awx-demo -n awx
+kubectl delete ns awx
+kubectl delete deployment awx-operator
+kubectl delete serviceaccount awx-operator
+kubectl delete clusterrolebinding awx-operator
+kubectl delete clusterrole awx-operator
+kubectl delete crd awxbackups.awx.ansible.com
+kubectl delete crd awxrestores.awx.ansible.com
+kubectl delete crd awxs.awx.ansible.com
+```
