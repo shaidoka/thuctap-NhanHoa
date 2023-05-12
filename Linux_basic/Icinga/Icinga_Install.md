@@ -1,5 +1,11 @@
 # Cài đặt Icinga
 
+Ra mắt rất sớm từ những năm 2009, Icinga tính đến hiện tại vẫn rất được nhiều người lựa chọn sử dụng nhờ tính thuận tiện và dễ sử dụng của nó.
+
+## I. Cài đặt dependency và Icinga2 package
+
+### 1. Cài đặt dependency
+
 Update packages
 
 ```sh
@@ -12,35 +18,10 @@ Cài đặt dependency
 apt install software-properties-common ca-certificates lsb-release apt-transport-https wget gnupg -y
 ```
 
-```sh
-wget http://ftp.hk.debian.org/debian/pool/main/b/boost1.71/libboost1.71-dev_1.71.0-6~bpo10+1_amd64.deb
-dpkg -i libboost1.71-dev_1.71.0-6~bpo10+1_amd64.deb
-```
-
-Thêm Ondrej PPA vào hệ thống
+Cài đặt php modules, apache2, mariadb. php8.1
 
 ```sh
-LC_ALL=C.UTF-8 sudo add-apt-repository ppa:ondrej/php
-```
-
-Cập nhật Apt package
-
-```sh
-apt update -y
-```
-
-Cài đặt php 8.1
-
-```sh
-apt install php8.1 -y
-```
-
-**Lưu ý:** Để thay đổi phiên bản php default, ta dùng lệnh ```update-alternatives --config php```
-
-Cài đặt php modules, apache2, mariadb
-
-```sh
-apt install apache2 mariadb-server mariadb-client mariadb-common php8.1-gd php8.1-mbstring php8.1-mysqlnd php8.1-curl php8.1-xml php8.1-cli php8.1-soap php8.1-xmlrpc php8.1-zip  php8.1-common php8.1-opcache php8.1-gmp php8.1-imagick php8.1-pgsql php8.1-intl -y
+apt install apache2 mariadb-server mariadb-client mariadb-common php php-gd php-mbstring php-mysqlnd php-curl php-xml php-cli php-soap php-intl php-xmlrpc php-zip  php-common php-opcache php-gmp php-imagick php-pgsql -y
 ```
 
 Khởi động apache2, mariadb
@@ -75,7 +56,7 @@ Restart apache2
 systemctl restart apache2
 ```
 
-Cài đặt Icinga2:
+### 2. Cài đặt Icinga2
 
 Thêm GPG-key
 
@@ -184,7 +165,7 @@ Restart service icinga2
 systemctl restart icinga2
 ```
 
-Cài đặt và thiết lập IcingaWeb2
+### 3. Cài đặt và thiết lập IcingaWeb2
 
 Cài đặt **icingaweb2** và **Icinga CLI**
 
@@ -216,3 +197,63 @@ Nếu quên token, ta có thể dùng lệnh sau để show
 ```sh
 icingacli setup token show
 ```
+
+## II. Cài đặt Icingaweb2
+
+Truy cập vào địa chỉ ```<ip-address>/icingaweb2/setup``` trên trình duyệt để thực hiện setup Icinga Web
+
+![](./images/Icinga_3.png)
+
+![](./images/Icinga_4.png)
+
+Ở phần tiếp, hãy chắc chắn rằng tất cả các thành phần đều được đáp ứng, nếu thiếu thành phần nào hãy cài đặt thêm
+
+![](./images/Icinga_5.png)
+
+Chọn Database
+
+![](./images/Icinga_6.png)
+
+Nhập thông tin về database và chọn ```Validate Configuration``` để kiểm tra cấu hình
+
+![](./images/Icinga_7.png)
+
+![](./images/Icinga_8.png)
+
+Như trên là được rồi, giờ ta tiếp tục
+
+![](./images/Icinga_9.png)
+
+Tạo tài khoản admin
+
+![](./images/Icinga_10.png)
+
+![](./images/Icinga_11.png)
+
+![](./images/Icinga_12.png)
+
+Nhập thông tin về IDO db và kiểm tra cấu hình
+
+![](./images/Icinga_13.png)
+
+![](./images/Icinga_14.png)
+
+Chọn kiểu Transport là ```Local Command File```
+
+![](./images/Icinga_15.png)
+
+![](./images/Icinga_16.png)
+
+Confirm configuration
+
+![](./images/Icinga_17.png)
+
+Done!
+
+![](./images/Icinga_18.png)
+
+![](./images/Icinga_19.png)
+
+Và đây là giao diện cơ bản của Icinga2
+
+![](./images/Icinga_20.png)
