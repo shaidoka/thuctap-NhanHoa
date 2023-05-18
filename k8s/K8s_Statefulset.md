@@ -12,7 +12,7 @@ Hãy nhìn ví dụ dưới đây
 
 ![](./images/K8s_Stateful_1.png)
 
-Như trong ví dụ trên, ta có một ứng dụng nodejs xử lý yêu cầu của client. Mỗi khi có request tới, nó thực hiện các nghiệp vụ cuả nó và lưu trạng thái vào Databasae. Khi có yêu cầu sửa/xóa dữ liệu thì nó đơn giản là forward yêu cầu đó để database xử lý, bân thân nó không lưu dữ liệu => stateless app
+Như trong ví dụ trên, ta có một ứng dụng nodejs xử lý yêu cầu của client. Mỗi khi có request tới, nó thực hiện các nghiệp vụ của nó và lưu trạng thái vào Databasae. Khi có yêu cầu sửa/xóa dữ liệu thì nó đơn giản là forward yêu cầu đó để database xử lý, bân thân nó không lưu dữ liệu => stateless app
 
 Database xử lý thêm/sửa/xóa dữ liệu thì các thay đổi đó được lưu lại. Ví dụ một bản ghi đã bị xóa thì lần xử lý sau sẽ không còn bản ghi đó nữa => stateful app
 
@@ -46,7 +46,7 @@ Một điều quan trọng nữa với Statefulset là các Pod của nó không
 
 ![](./images/K8s_Stateful_4.png)
 
-Mỗi pod sẽ có phân vùng lưu trữ riêng của nó để lưu trữ dữ liệu. Dữ liệu trên mỗi Pod sẽ được liên tục đồng bộ để đảm bảo là chúng luôn giống hệ nhau.
+Mỗi pod sẽ có phân vùng lưu trữ riêng của nó để lưu trữ dữ liệu. Dữ liệu trên mỗi Pod sẽ được liên tục đồng bộ để đảm bảo là chúng luôn giống hệt nhau.
 
 Một điểm nữa là khi pod bị xóa hay crash, dữ liệu của nó không bị mất đi mà vẫn được lưu trên các volume của nó (tạo bởi PV/PVC)
 
