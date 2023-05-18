@@ -173,4 +173,82 @@ spec:
 
 Để sử dụng Readiness Probe thì ta dùng thuộc tính readinessProbe, ở file config trên thì ta dùng phương thức exec để thực hiện health check.
 
-Ta sử dụng Liveness Probe để restart container, Readiness Probe để remove Pod ra khỏi Service nếu nó không healthy.
+**KL: Ta sử dụng Liveness Probe để restart container, Readiness Probe để remove Pod ra khỏi Service nếu nó không healthy**
+
+### Zero downtime deploy với Readiness Probe
+
+Ta có thể kết hợp Deployment dùng thuộc tính strategy RollingUpdate với Pod config Readiness Probe để làm được Zero downtime deploy
+
+```sh
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: socket-server
+  labels:
+    component: socket-server
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      component: socket-server
+  template:
+    metadata:
+      labels:
+        component: socket-server
+    spec:
+      containers:
+        - name: socket-server
+          image: registry.kala.ai/web-crm/socket-server
+          ports:
+            - containerPort: 3001
+          envFrom:
+            - configMapRef:
+                name: backend
+          readinessProbe:
+            initialDelaySeconds: 2
+            periodSeconds: 5
+            tcpSocket:
+              port: 3001
+```
+
+Ở file config trên, ta sử dụng Deployment với strategy deploy là RollingUpdate (default), với Readiness Probe để check web socket server có healthy để nhận request hay chưa. Khi Deployment tiến hành deploy 1 pod mới, lúc này ta sẽ có Readiness Probe check giùm ta Pod mới được tạo ra có thể nhận request chưa, nếu có thì Deployment mới tiến hành xóa pod cũ đi. Với cách này thì ta có thể giảm tối đa downtime của ứng dụng.
+
+## II. Pod's lifecycle
+
+Ở trong phần pod status ta có nói về init container, thì init container sẽ chạy khi 1 pod được tạo ra hoặc xóa đi, có 3 stages trong 1 lifecycle:
+- Initialization stage: ở stage này sẽ tiến hành pull image của các container xuống và các init container sẽ được chạy trong stage này.
+- Run stage: khi tất cả các init container chạy xong và main container started
+- Termination stage: khi pod bị xóa đi thì nó sẽ ở stage này
+
+![](./images/K8s_Pod_3.png)
+
+### Initialization stage
+
+Ở phần initialization stage này Pod sẽ thực hiện 2 công việc là pull image và chạy hết tất cả init container theo thứ tự.
+
+Ở phần pull image thì ta sẽ có một thuộc tính là imagePullPolicy để chỉ định hành động image sẽ được pull như thế nào, có 3 giá trị là:
+- Always: giá trị mặc định, luôn luôn kết nối tới container registry để pull image xuống khi một Pod được tạo ra
+- Never: ở giá trị này thì Pod sẽ không kết nối với container registry để pull image, mà cần image nnawfm sẵn ở dưới worker, có thể là lúc ta build image thì image này đã nằm trên worker rồi, điều này thường được thực hiện khi server CI/CD với server chạy ứng dụng là 1.
+- IfNotPresent: chỉ kết nối tới registry để pull image khi image không tồn tại ở worker node
+
+![](./images/K8s_Pod_4.png)
+
+Sau khi image pull xong thì pod sẽ thực hiện việc chạy các init container, cần tất cả các init container này chạy thành công thì pod mới chuyển sang Run stage được.
+
+![](./images/K8s_Pod_5.png)
+
+### Run stage
+
+Sau khi tất cả các init container chạy xong, Pod sẽ chuyển sang run stage, lúc này thì tất cả các container được định nghĩa trong Pod sẽ được tạo synchronously dựa vào thứ tự ta định nghĩa trong Pod (trong tương lai có thể sẽ khác, có thể tất cả các container trong Pod sẽ được tạo song song với nhau để tăng performance)
+
+**Cẩn thận khi sử dụng post-start hook**, nếu một post-start hook block quá trình tạo ra một container, các container tiếp theo có thể sẽ không được tạo ra.
+
+### Termination stage
+
+Khi một Pod bị xóa thì nó sẽ bước vào stage này, ở stage này thì trước khi các container trong pod bị xóa sẽ có 1 khoảng thời gian chờ để container thực hiện pre-stop hook, và grace-full shutdown. Khoảng thời gian này ta có thể định nghĩa được ở trong trường ```spec.terminationGracePeriodSeconds``` khi khai báo config cho Pod. Nếu kết thúc thời gian ```terminationGracePeriodSeconds```, bất kể pre-stop có chạy xong hay chưa thì container cũng sẽ bị kill đi.
+
+![](./images/K8s_Pod_6.png)
+
+### Minh họa của toàn bộ Pod Lifecycle
+
+![](./images/K8s_Pod_7.png)
