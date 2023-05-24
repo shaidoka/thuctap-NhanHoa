@@ -61,7 +61,7 @@ Kubelet certificate cần phải được ký bởi cluster CA, hoặc tắt nó
 ```sh
 kubectl edit deployment metrics-server -n kube-system
 ```
-Sau đó tìm đến ```.spec.template.spec.container[].args[]``` và thêm tham số sau vào ```--kubelet-insecure-tls```
+Sau đó tìm đến ```.spec.template.spec.containers[].args[]``` và thêm tham số sau vào ```--kubelet-insecure-tls```
 
 Kiểm tra đã cài đặt thành công chưa bằng lệnh
 

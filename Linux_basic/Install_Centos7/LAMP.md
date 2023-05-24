@@ -18,29 +18,34 @@ MariaDB được định hướng để duy trì khả năng tương thích cao 
 
 1. Tạo repo cài đặt MariaDB 10
 
- Theo mặc định repo của CentOS chỉ có sẵn Maria 5. Để cài đặt MariaDB 10 sẽ cần phải tạo repo riêng
+Theo mặc định repo của CentOS chỉ có sẵn Maria 5. Để cài đặt MariaDB 10 sẽ cần phải tạo repo riêng
 
- Tạo file /etc/yum.repo.d/mariadb.repo
-
- ```vi /etc/yum.repos.d/mariadb.repo```
-
- Thêm vào đó nội dung như sau:
+Thêm Repo
 
 ```sh
-[mariadb]
-name = MariaDB
-baseurl=http://mirror.mariadb.org/yum/10.9.3/rhel7-amd64/
-gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
-gpgcheck=1
+curl -LsS -O https://downloads.mariadb.com/MariaDB/mariadb_repo_setup
+sudo bash mariadb_repo_setup --mariadb-server-version=10.5
+```
+
+Cập nhật cache yum
+
+```sh
+yum makecache -y
 ```
 
 2. Cài đặt MariaDB
 
 Để cài đặt MariaDB cần chạy lệnh sau:
 
-```yum -y install MariaDB-server MariaDB-client```
+```yum -y install MariaDB-server MariaDB-client MariaDB-backup```
 
 3. Đặt mật khẩu root của database
+
+**Nếu update từ bản cũ lên thì chạy thêm lệnh**
+
+```sh
+mysql_upgrade --force
+```
 
 Sau khi cài đặt MariaDB, khởi động database và thiết lập secure:
 

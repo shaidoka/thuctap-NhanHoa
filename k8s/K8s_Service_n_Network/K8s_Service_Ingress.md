@@ -38,7 +38,7 @@ Lý tưởng nhất, tất cả các Ingress Controller phải phù hợp với 
 Cài đặt **ingress-nginx** bằng file YAML:
 
 ```sh
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.7.0/deploy/static/provider/cloud/deploy.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.7.1/deploy/static/provider/baremetal/deploy.yaml
 ```
 
 ## Ingress resource
@@ -225,7 +225,7 @@ foo.bar.com --|                 |-> foo.bar.com service1:80
 bar.foo.com --|                 |-> bar.foo.com service2:80
 ```
 
-Đặc tả Ingress sau sẽ nói cho bộ cân bằng tải route các erquest dựa trên **host header**:
+Đặc tả Ingress sau sẽ nói cho bộ cân bằng tải route các request dựa trên **host header**:
 
 ```sh
 apiVersion: networking.k8s.io/v1
@@ -274,7 +274,7 @@ spec:
   - http:
       paths:
       - backend:
-          serviceName: service3
+          serviceName: service3 
           servicePort: 80
 ```
 
