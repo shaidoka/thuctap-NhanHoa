@@ -384,12 +384,31 @@ Trong file values của minio có tham số ```path: /minio/v2/metrics/cluster``
 
 ### Cấu hình Prometheus lấy dữ liệu từ Minio
 
-Quay lại thư mục cài đặt Prometheus ban đầu, ta sẽ sửa lại file values của prometheus stack để update thêm phần scrape-config cho minio như sau:
+Để lấy được metrics từ MinIO, ta sẽ cần thông tin TOKEN để xác thực kết nối tới MinIO API. Đầu tiên truy cập vào MinIO pod
+
+```sh
+k exec minio-586df48495-htqmx -n minio-ns -it -- /bin/bash
+```
+
+Đặt Alias cho MinIO API instance (IP ở đây là IP của MinIO service)
+
+```sh
+mc alias set mycloud http://10.99.161.246:9000
+```
+
+Generate config
+
+```sh
+mc admin prometheus generate mycloud
+```
+
+Quay lại thư mục cài đặt Prometheus ban đầu, ta sẽ sửa lại file values của prometheus stack để update thêm phần scrape-config cho minio với cấu hình y hệt như ta vừa gen:
 
 ```sh
 additionalScrapeConfigs:
 - job_name: minio-job
   metrics_path: /minio/v2/metrics/cluster
+  bearer_token: eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJwcm9tZXRoZXVzIiwic3ViIjoiNU1ReTcxYTlrVGxGdHpyaCIsImV4cCI6NDgzODU0MTA0Mn0.lN6QZPxXyagYs0QC8oLVy2RGBHntucsLTw50aG5urg4PRASUfkyVTrZ_pVtlMboQJ97daWBW1MiegVDFRPPe5Q
   scheme: http
   static_configs:
   - targets: ['minio.minio-ns.svc.cluster.local:9000']
@@ -415,3 +434,34 @@ Chờ chút để update rồi vào lại web prometheus kiểm tra trong phần
 
 Ở đây ta sẽ sử dụng dashboard template có ID là **13502**. Import lên Grafana và xem thành quả:
 
+![](./images/K8s_Monitor_15.png)
+
+## Cấu hình cảnh báo qua Alert Manager
+
+Ta tạo thêm cấu hình rule alert cho MinIO với tham số đơn giản là số lượng file của 1 bucket nếu lớn hơn 1 thì sẽ có cảnh báo
+
+Sửa file value của Prometheus như sau:
+
+```sh
+# additionalPrometheusRules: []
+additionalPrometheusRules:
+  - name: minio-rule-file
+    groups:
+    - name: minio-rule
+      rules:
+      - alert: MinioBucketUsage
+        expr: minio_bucket_usage_object_total{bucket="test-bucket1", instance="10.99.161.246:9000", job="minio-job"} > 1
+        for: 10s
+        labels:
+          severity: page
+        annotations:
+          summary: High bucket usage
+```
+
+Sau khi upgrade helm thì vào prometheus kiểm tra xem
+
+![](./images/K8s_Monitor_16.png)
+
+Tạo 1 vài file trong bucket, sau đó vào alertmanager kiểm tra
+
+![](./images/K8s_Monitor_17.png)
