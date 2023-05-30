@@ -341,3 +341,57 @@ test-ingress   myapp.example.com   203.0.113.2,203.0.113.3   80
 
 Tương tự đối với môi trường cloud, cách triển khai này cần 1 edge network component cung cấp 1 public entrypoint đến K8s cluster. Edge component này có thể là phần cứng (như vendor appliance) hoặc phần mềm (như HAProxy) và thường được quản lý bên ngoài K8s cluster.
 
+Ví dụ như deployment xây dựng trên NodePort service được đề cập ở trên trong phần **Thông qua NodePort Service**, với 1 điểm khác biệt là: client ở ngoài cluster không thể truy cập cluster trực tiếp mà chỉ thông qua edge component có thể làm điều này. Cách thức này rất phù hợp với các cluster K8s private (nơi mà không node nào có IP public)
+
+Ở phía edge component, điều kiện cần đó là 1 IP public riêng biệt mà chuyển tiếp mọi HTTP traffic đến K8s nodes và/hoặc master. Traffic TCP đi vào port 80 và 443 được chuyển đến HTTP hoặc HTTPS NodePort liên quan trên node mục tiêu như biểu diễn trong hình dưới đây:
+
+![](./images/K8s_Service_Baremetal_6.jpg)
+
+### External IPs
+
+**Lưu ý:** Phương thức này không hỗ trợ giữ nguyên địa chỉ IP nguồn của HTTP request gì làm bất kỳ cách nào, do đó nó không được khuyến nghị sử dụng, trừ khi đây là cách cuối cùng.
+
+Tùy chọn ```externalIPs``` Service được đề cập trước đó ở phần **NodePort**. Theo định nghĩa về Service, tùy chọn ```externalIPs``` khiến ```kube-proxy``` định tuyến traffic gửi đến địa chỉ IP bất kỳ và trên Service port đến endpoint của Service đó. Những địa chỉ IP này phải thuộc về target node.
+
+Ví dụ: ta có 3 node sau
+
+```sh
+kubectl get node
+
+NAME     STATUS   ROLES    EXTERNAL-IP
+host-1   Ready    master   203.0.113.1
+host-2   Ready    node     203.0.113.2
+host-3   Ready    node     203.0.113.3
+```
+
+Và ```ingress-nginx``` NodePort Service sau:
+
+```sh
+kubectl -n ingress-nginx get svc
+
+NAME                   TYPE        CLUSTER-IP     PORT(S)
+ingress-nginx          NodePort    10.0.220.217   80:30100/TCP,443:30101/TCP
+```
+
+Khi ta thiết lập externalIPs của Service spec như sau, và NGINX lúc này sẽ khả dụng trên cả NodePort và Service port:
+
+```sh
+spec:
+  externalIPs:
+  - 203.0.113.2
+  - 203.0.113.3
+```
+
+Do đó khi ta thực hiện curl trên NodePort và domain thì đều trả về cùng kết quả:
+
+```sh
+$ curl -D- http://myapp.example.com:30100
+HTTP/1.1 200 OK
+Server: nginx/1.15.2
+
+$ curl -D- http://myapp.example.com
+HTTP/1.1 200 OK
+Server: nginx/1.15.2
+```
+
+Lưu ý là domain myapp.example.com bên trên phân giải ra địa chỉ 203.0.113.2 hoặc 203.0.113.3
