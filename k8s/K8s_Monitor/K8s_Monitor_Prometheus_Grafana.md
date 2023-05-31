@@ -333,7 +333,7 @@ Lúc này ta đã cài đặt xong bộ công cụ Prometheus + AlertManager + G
 
 Sau khi cài tới đây thì cơ bản lấy được thông tin của K8s và hiển thị lên Grafana được rồi
 
-Vậy khi cài một ứng dụng khác lên K8s thì việc cafid dặt để lấy dữ liệu của nó và hiển thị lên dashboard sẽ như nào? Hãy cùng lab với MinIO.
+Vậy khi cài một ứng dụng khác lên K8s thì việc cài đặt để lấy dữ liệu của nó và hiển thị lên dashboard sẽ như nào? Hãy cùng lab với MinIO.
 
 Ý tưởng là cài MinIO lên K8s, sau đó cấu hình để expose metric của nó, vì có khá nhiều opensource hỗ trợ sẵn metric mà Prometheus có thể hiểu được. Sau đó cấu hình scrape-config của Prometheus để chọc vào MinIO lấy metric. Cuối cùng là lên mạng tìm 1 dashboard template của MinIO import vào Grafana là xong.
 
