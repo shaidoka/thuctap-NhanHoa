@@ -81,3 +81,110 @@ helm -n monitoring upgrade prometheus-stack -f values-prometheus-clusterIP.yaml 
 
 Sau bước này thì Prometheus sẽ hiểu là nó sẽ đọc tất cả các đối tượng PrometheusRule ở tất cả các namespace mà có gán một trong các label là ```app=kube-prometheus-stack``` hoặc ```app=prometheus-rule```
 
+Ta khai báo file minio-AlertRule.yaml có nội dung như sau:
+
+```sh
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  labels:
+    app: kube-prometheus-stack
+    role: alert-rules
+  name: minio-prometheus-rule
+spec:
+  groups:
+  - name: minio-rule
+    rules:
+    - alert: MinioDiskOffline
+      for: 1m
+      expr: |-
+        minio_cluster_nodes_offline_total >= 1
+      annotations:
+        description: Minio Disk Offline
+```
+
+Sau đó apply nó vào namespace **monitoring**:
+
+```sh
+kubectl -n monitor apply -f minio-AlertRule.yaml
+```
+
+Giải thích:
+- Sau bước trên, ta đã tạo một đối tượng PrometheusRule trên K8s có tên là **minio-prometheus-rule** ở namespace monitoring
+
+```sh
+kubectl -n monitor get PrometheusRule
+
+NAME                                                       AGE
+minio-prometheus-rule                                      24h
+```
+
+- Đối tượng PrometheusRule này có gán label ```app=prometheus-rule``` nên sẽ được load vào cấu hình rule của prometheus
+- Phần spec của nó khai báo một rule có nội dung là cảnh báo nếu thấy có disk offline
+
+Giờ vào kiểm tra ở Prometheus mục Rules:
+
+![](./images/K8s_Monitor_Service_6.png)
+
+Kiểm tra trên AlertManager:
+
+![](./images/K8s_Monitor_Alert_2.png)
+
+## Cấu hình Alert Manager gửi cảnh báo qua gmail
+
+Trong bài này sẽ sử dụng mật khẩu ứng dụng, do đó hãy chắc chắn đã cấu hình thành phần này cho tài khoản gmail trước.
+
+Cấu hình Alert Manager có 2 tham số quan trọng là **route** và **receiver**. Nó là các cấu hình điều hướng làm nhiệm vụ phân tích các cảnh báo theo các label để chuyển hướng tới nơi nhận khác nhau
+
+Cấu hình **route** có thể giải thích theo một vài usecase như sau:
+- Routing theo namespace để điều hướng người nhận cảnh báo tới người quản lý namespace tương ứng đó
+   - Cấu hình các cảnh báo đến từ namespace ```dev``` tới **receiver** là **dev-team**, receiver này sẽ gửi email tới nhóm dev
+   - Cấu hình các cảnh báo đến từ namespace ```prod``` tới **receiver** là **ope-team**, receiver này gửi email tới nhóm operation
+- Routing theo loại service để điều hướng người nhận cảnh báo tới người quản lý service tương ứng đó:
+   - Cấu hình các cảnh báo liên quan tới database tới nhóm DBA
+   - Cấu hình các cảnh báo liên quan tới opensource khác (ngoài db) tới nhóm devops
+   - Cấu hình các cảnh báo liên quan tới ứng dụng inhouse tới nhóm dev
+
+Trong cấu hình **receiver** thì tùy từng loại (email, webhook,...) mà có các tham số cấu hình khác nhau nhưng nói chung là chứa thông tin để gửi cảnh báo tới nơi nhận đó.
+
+Để cấu hình gửi cảnh báo qua email cho Alert Manager thì ta cần update lại file helm value của Prometheus stack như sau:
+
+```sh
+alertmanger:
+  enabled: true
+  config:
+    global:
+      resolve_timeout: 5m
+    route:
+      group_by: ['namespace', 'job']
+      group_wait: 5s
+      group_interval: 5s
+      repeat_interval: 5m
+      receiver: 'gmail'
+      routes:
+      - receiver: 'gmail'
+        group_wait: 10s
+        matchers:
+        - namespace="monitor"
+    receivers:
+    - name: 'gmail'
+      email_configs:
+      - to: trungvb@nhanhoa.com.vn
+        from: trungvb@nhanhoa.com.vn
+        smarthost: smtp.gmail.com:587
+        auth_username: 'trungvb@nhanhoa.com.vn'
+        auth_identity: 'trungvb@nhanhoa.com.vn'
+        auth_password: 'fhbirsabgjkv'
+    templates:
+    - '/etc/alertmanager/config/*.tmpl'
+```
+
+Upgrade lại release
+
+```sh
+helm -n monitor upgrade prometheus-grafana-stack -f values-prometheus.yaml kube-prometheus-stack
+```
+
+OK
+
+![](./images/K8s_Monitor_Alert_3.png)
