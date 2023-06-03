@@ -110,3 +110,161 @@ Trước hết, ta kiểm tra danh sách node trong etcd cluster bằng lệnh "
 etcdctl member list
 ````
 
+![](./images/K8s_Etcd_2.png)
+
+Lấy danh sách resource (key) được lưu trong etcd
+
+```sh
+ETCDCTL_API=3 etcdctl get / --prefix --keys-only \
+--endpoints=https://127.0.0.1:2379 \
+--cacert=/home/ubuntu/yaml-files/etcd/credentials/ca.crt \
+--cert=/home/ubuntu/yaml-files/etcd/credentials/server.crt \
+--key=/home/ubuntu/yaml-files/etcd/credentials/server.key
+```
+
+![](./images/K8s_Etcd_3.png)
+
+Ta lấy một key bất kỳ và thực hiện lệnh get
+
+```sh
+ETCDCTL_API=3 etcdctl get /registry/apiextensions.k8s.io/customresourcedefinitions/awxrestores.awx.ansible.com \
+--endpoints=https://127.0.0.1:2379 \
+--cacert=/home/ubuntu/yaml-files/etcd/credentials/ca.crt \
+--cert=/home/ubuntu/yaml-files/etcd/credentials/server.crt \
+--key=/home/ubuntu/yaml-files/etcd/credentials/server.key
+```
+
+Đó là cách ta lấy dữ liệu của 1 đối tượng lưu trữ trong Etcd. Như vậy là ta đã biết cách sử dụng etcdctl cơ bản rồi. Tiếp theo hãy cùng tìm hiểu cách backup/restore cho etcd.
+
+## Backup và restore etcd
+
+Trong phần này chúng ta sẽ:
+- Tạo 1 pod bất kỳ
+- Thực hiện backup
+- Sửa/xóa pod đã cài ở bước trên
+- Thực hiện restore
+
+### 1. Cài đặt pod bất kỳ
+
+Tạo namespace mới cho chắc
+
+```sh
+kubectl create ns test-backup-restore-etcd
+```
+
+Tạo pod trên namespace này
+
+```sh
+kubectl -n test-backup-restore-etcd run my-nginx --image=nginx --restart=Always
+```
+
+### 2. Backup etcd dùng snapshot
+
+Thực hiện backup etcd như sau:
+
+```sh
+ETCDCTL_API=3 etcdctl snapshot save /home/ubuntu/yaml-files/etcd/etcd_backup \
+--endpoints=https://127.0.0.1:2379 \
+--cacert=/home/ubuntu/yaml-files/etcd/credentials/ca.crt \
+--cert=/home/ubuntu/yaml-files/etcd/credentials/server.crt \
+--key=/home/ubuntu/yaml-files/etcd/credentials/server.key
+```
+
+![](./images/K8s_Etcd_4.png)
+
+Kết quả của lệnh backup trên là lưu snapshot của etcd ra file ```/home/ubuntu/yaml-files/etcd/etcd_backup```
+
+Kiểm tra lại kết quả backup:
+
+```sh
+ETCDCTL_API=3 etcdutl --write-out=table snapshot status /home/ubuntu/yaml-files/etcd/etcd_backup
+```
+
+![](./images/K8s_Etcd_5.png)
+
+### 3. Xóa pod
+
+Chơi lớn xóa luôn namespace 
+
+```sh
+kubectl delete ns test-backup-restore-etcd
+```
+
+Kiểm tra
+
+```sh
+kubectl get pods -n test-backup-restore-etcd
+```
+
+### 4. Restore etcd từ bản backup
+
+Các bước để restore etcd được tóm tắt như sau:
+- Dùng etcdctl để restore etcd-data từ file snapshot đã backup ở bước trên
+- Stop tất cả các instance của kube-api-server trên K8s cluster
+- Thay thế etcd-data hiện tại bằng data từ bản backup
+- Restart các service của k8s
+- Kiểm tra tính toàn vẹn dữ liệu
+
+### Restore etcd data
+
+Chúng ta sẽ dùng file snapshot ở bước trước để restore, nhưng có điểm khác là restore sẽ ra local chứ không phải restore thẳng vào etcd cluster
+
+Câu lệnh restore như sau:
+
+```sh
+mkdir dir_restore
+etcdutl snapshot restore etcd_backup --data-dir /home/ubuntu/yaml-files/etcd/dir_restore/
+```
+
+### Stop các control plane instance
+
+Để restore etcd thì ta phải stop lại tất cả các instance của kube-api-server, restore etcd ở tất cả các etcd instance sau đó start tất cả kube-api-server.
+
+Việc dừng kube-api-server không phải là stop lại pod của apiServer, do các thành phần trong control plane đều được triển khai dưới dạng **Static Pods**. Chúng không được quản lý bởi bất kỳ loại Replication Controller nào cả, mà ở dạng "tĩnh" trong file yaml ở ```/etc/kubernetes/manifests/``` trên master node:
+
+![](./images/K8s_Etcd_6.png)
+
+Các file cấu hình này được đọc và xử lý bởi kubelet chạy trên các master node. Do đó để stop/delete các static pod này ta đơn giản chỉ cần move chúng ra khỏi thư mục mặc định. Kubelet sẽ scan định kỳ để tìm kiếm sự thay đổi và apply nó. Khi ta remove file khỏi thư mục thì tương ứng kubelet sẽ remove pod đi và ngược lại.
+
+Ta sẽ tạo thư mục ```/k8s-backup``` để move các file yaml ra đó, sau khi restore etcd xong ta sẽ move lại để restore service
+
+```sh
+mkdir /k8s-backup
+mv /etc/kubernetes/manifests/*.yaml /k8s-backup/
+```
+
+**Hành động trên phải được thực hiện ở tất cả các node master**
+
+Sau khi thực hiện xong mà kubectl ngừng hoạt động là được.
+
+### Restore etcd-data từ bản backup
+
+Trước tiên ta cần chuẩn bị sẵn file backup lên các node master. Ta có thể dùng rsync, scp hoặc bất kỳ cách thức nào cũng được.
+
+```sh
+rsync -avzhe ssh --progress /home/ubuntu/yaml-files/etcd/dir_restore/ root@103.101.162.38:/k8s-backup/
+```
+
+Tiếp theo ta sẽ thay thế dữ liệu của etcd hiện tại với dữ liệu từ bản backup (thực hiện trên tất cả master node)
+
+```sh
+mv /var/lib/etcd/member /var/lib/etcd/member.bak
+mv /k8s-backup/member /var/lib/etcd/
+```
+
+**Lưu ý:** Điều chỉnh đường dẫn cho phù hợp!
+
+### Start lại các control plane instance
+
+Chúng ta chỉ đơn giản move lại các file yaml đã backup ở thư mục ```/k8s-backup``` về lại thư mục ```/etc/kubernetes/manifests/```
+
+```sh
+mv /k8s-backup/*.yaml /etc/kubernetes/manifests/
+systemctl restart docker
+```
+
+Kiểm tra pods lúc nãy ta xóa đã được khôi phục chưa:
+
+![](./images/K8s_Etcd_7.png)
+
+Done!
