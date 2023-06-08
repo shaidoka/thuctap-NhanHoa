@@ -4,3 +4,33 @@ metadata:
   name: awx-demo
 spec:
   service_type: nodeport
+  replicas: 2
+  web_affinity:
+    podAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+          - key: "app.kubernetes.io/name"
+            operator: In
+            values:
+            - awx-demo-task
+        topologyKey: "kubernetes.io/hostname"
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+          - key: "app.kubernetes.io/name"
+            operator: In
+            values:
+            - awx-demo-web
+        topologyKey: "kubernetes.io/hostname"
+  task_affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+          - key: "app.kubernetes.io/name"
+            operator: In
+            values: 
+            - awx-demo-task
+        topologyKey: "kubernetes.io/hostname"

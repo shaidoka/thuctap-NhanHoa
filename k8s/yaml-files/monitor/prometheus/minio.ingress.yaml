@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: minio-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: minio.monitor.baotrung.xyz
+    http:
+      paths:
+      - backend:
+          service:
+            name: minio
+            port:
+              number: 9001
+        path: /minio
+        pathType: Prefix

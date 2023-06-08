@@ -1,0 +1,17 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  labels:
+    app: kube-prometheus-rule
+    role: alert-rules
+  name: minio-prometheus-rule
+spec:
+  groups:
+  - name: minio-rule
+    rules:
+    - alert: MinioDiskOffline
+      for: 1m
+      expr: |-
+        minio_cluster_nodes_offline_total >= 1
+      annotations:
+        description: Minio Disk Offline
