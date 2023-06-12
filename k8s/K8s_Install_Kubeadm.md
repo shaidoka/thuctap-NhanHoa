@@ -79,6 +79,8 @@ apt-get update  -y
 apt-get install -y kubelet kubeadm kubectl
 ```
 
+**Lưu ý:** Trước khi cài đặt ta có thể dùng lệnh ```apt-cache madison kubeadm``` để kiểm tra các phiên bản khả dụng trước khi cài đặt nó.
+
 Thiết lập cluster:
 - Đứng trên node ```k8s-master``` thực hiện lệnh dưới để thiết lập cluster
 
