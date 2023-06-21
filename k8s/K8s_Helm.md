@@ -83,6 +83,7 @@ securityContext: {}
 service:
   type: ClusterIP #Tương ứng service/type trong file service.yaml
   port: 80 #Tương ứng service/port trong file service.yaml
+  targetPort: 8080
 
 ingress:
   enabled: true
@@ -108,3 +109,62 @@ nodeSelector: {}
 tolerations: []
 affinity: {}
 ```
+
+Với template của service thì ta cần sửa lại tham số ```targetPort```
+
+```sh
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetPort }}
+  selector:
+    {{- include "nodejs-example.selectorLabels" . | nindent 4 }}
+```
+
+Trong file template của deployment, ta thêm 1 vài biến môi trường cần thiết vào trong container
+
+```sh
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.targetPort }}
+              protocol: TCP
+          env:
+            - name: MY_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: MY_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: MY_POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: MY_POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: MY_POD_SERVICE_ACCOUNT
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.serviceAccountName
+```
+
+Cuối cùng, cài đặt helmchart này bằng lệnh
+
+```sh
+kubectl create ns test-helm
+helm -n test-helm install nodejs-helm -f nodejs-value.yaml nodejs-example
+```
+
+Trong đó cú pháp là ```helm -n <namespace> install <release-name> -f <value-file> <chart>```
+
+![](./images/K8s_Nodejs_2.png)
+
+Kiểm tra website
+
+![](./images/K8s_Nodejs_3.png)
+
+Để mở rộng, ta hoàn toàn có thể thêm các template tùy ý như statefulset, daemonset hay nhiều đối tượng khác vào helmchart này. Ta cũng có thể bổ sung volumes như persistentVolumes, configMap, secret,... trong template của deployment.
