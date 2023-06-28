@@ -30,7 +30,7 @@ Từ phiên bản K8s v1.25 trở lên, hãy thiết lập ```global.cattle.psp.
 ```sh
 helm install rancher rancher-latest/rancher \
   --namespace cattle-system \
-  --set hostname=<IP_OF_LINUX_NODE>.sslip.io \
+  --set hostname=rancher.baotrung.xyz \
   --set replicas=1 \
   --set bootstrapPassword=<PASSWORD_FOR_RANCHER_ADMIN> \
   --set global.cattle.psp.enabled=false

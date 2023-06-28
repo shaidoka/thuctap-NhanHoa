@@ -187,7 +187,7 @@ Hoặc ta có thể dùng lệnh sau để theo dõi trực quan hơn quá trìn
 watch -n 1 kubectl get hpa,deployment
 ```
 
-Để trigger scalup, đầu tiên ta cần expose deployment
+Để trigger scaleup, đầu tiên ta cần expose deployment
 
 ```sh
 kubectl expose deployment kubia --port=80 --target-port=8080
