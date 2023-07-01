@@ -825,3 +825,80 @@ Số lượng replicas nhanh chóng tăng lên do mức độ sử dụng CPU v�
 
 #### b. Scale theo request
 
+Để trực quan thì phần này ta sẽ cấu hình một chút để theo dõi được lượng request vào ingress nginx
+
+Chỉnh sửa cấu hình service ingress của nginx
+
+```sh
+kubectl edit service/ingress-nginx-controller -n ingress-nginx
+```
+
+Sửa như sau
+
+```sh
+apiVersion: v1
+kind: Service
+..
+spec:
+  ports:
+    - name: prometheus
+      port: 10254
+      targetPort: prometheus
+      ..
+```
+
+Giờ thêm port và annotation vào deployment
+
+```sh
+kubectl edit deployment.apps/ingress-nginx-controller -n ingress-nginx
+```
+
+```sh
+apiVersion: v1
+kind: Deployment
+..
+spec:
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "10254"
+    spec:
+      containers:
+        - name: controller
+          ports:
+            - name: prometheus
+              containerPort: 10254
+            ..
+```
+
+Thêm ServiceMonitor sau để prometheus có thể lấy được metrics mà ingress đưa ra
+
+```sh
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: nginx-ingress-monitor
+  namespace: monitor
+  labels:
+    name: nginx-prometheus-servicemonitor
+    app.kubernetes.io/instance: service-monitor
+    app: kube-prometheus-stack
+    release: prometheus-grafana-stack
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ingress-nginx
+  namespaceSelector:
+    matchNames:
+    - ingress-nginx
+  endpoints:
+  - port: prometheus
+```
+
+Cuối cùng, lên grafana và import thêm dashboard mới vào, sử dụng json trong link sau: [Dashboard nginx ingress](https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/grafana/dashboards/nginx.json)
+
+Kết quả:
+
+![](./images/K8s_DATN_4.png)
+
