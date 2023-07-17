@@ -6,7 +6,7 @@ Một trong những tính năng chính của Longhorn là hỗ trợ volume back
 
 Tính năng này cũng không chỉ giới hạn ở S3 hay NFS, các công cụ backup của bên thứ 3 mà có thể truy nhập K8s API và quản lý volume snapshot có thể dễ dàng tích hợp với Longhorn, nhưng chúng ta sẽ không đề cập đến chúng ở trong bài viết này.
 
-Để cài đặt longhorn, hãy tham khảo trong bài viết [này](https://github.com/shaidoka/thuctap-NhanHoa/blob/main/k8s/K8s_Monitor/K8s_Monitor_Prometheus_Grafana.md#c%C3%A0i-%C4%91%E1%BA%B7t-minio)
+Để cài đặt MinIO, hãy tham khảo trong bài viết [này](https://github.com/shaidoka/thuctap-NhanHoa/blob/main/k8s/K8s_Monitor/K8s_Monitor_Prometheus_Grafana.md#c%C3%A0i-%C4%91%E1%BA%B7t-minio)
 
 Chúng ta sẽ tạo 1 user và bucket cho những backup này sử dụng công cụ command line của Minio là [mc](https://github.com/minio/mc)
 
