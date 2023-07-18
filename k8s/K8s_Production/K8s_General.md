@@ -192,6 +192,12 @@ Thử 1 bài test nhẹ hơn:
 ab -n 100000 -c 100 http://k8s.mautic.baotrung.xyz/
 ```
 
+![](./images/K8s_Prod_9.png)
+
+Ứng dụng vẫn hoạt động nhưng phản hồi khá chậm, thường mất từ 5-20s cho mỗi request
+
+![](./images/K8s_Prod_10.png)
+
 Tiếp tục giảm lượng request:
 
 ```sh
@@ -200,4 +206,4 @@ ab -n 10000 -c 10 http://k8s.mautic.baotrung.xyz/
 
 ![](./images/K8s_Prod_8.png)
 
-=> Ứng dụng chạy ổn định ở số lượng pod là 3
+=> Ứng dụng chạy ổn định ở số lượng pod là 3-4
