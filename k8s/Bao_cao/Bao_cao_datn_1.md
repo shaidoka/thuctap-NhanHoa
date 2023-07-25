@@ -643,7 +643,7 @@ Cơ bản thì app này làm nhiệm vụ sau:
 - Gọi vào "/about" hay "/about-us" trả về about.html
 - Các request khác thì trả về 404.html
 
-Ở đây đã có sẵn node_muldes rồi, tuy nhiên ta vẫn có thể cài đặt lại bằng ```npm install```
+Ở đây đã có sẵn node_moduldes rồi, tuy nhiên ta vẫn có thể cài đặt lại bằng ```npm install```
 
 ### 3. Build images và push lên registry
 

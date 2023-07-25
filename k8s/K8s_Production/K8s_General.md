@@ -207,3 +207,4 @@ ab -n 10000 -c 10 http://k8s.mautic.baotrung.xyz/
 ![](./images/K8s_Prod_8.png)
 
 => Ứng dụng chạy ổn định ở số lượng pod là 3-4
+
