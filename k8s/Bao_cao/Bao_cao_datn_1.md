@@ -171,6 +171,14 @@ apt-get install -y kubelet kubeadm kubectl
 
 **Lưu ý:** Trước khi cài đặt ta có thể dùng lệnh ```apt-cache madison kubeadm``` để kiểm tra các phiên bản khả dụng trước khi cài đặt nó.
 
+Đánh dấu không update các package liên quan đến kubernetes
+
+```sh
+apt-mark hold kubelet
+apt-mark hold kubeadm
+apt-mark hold kubectl
+```
+
 ### 4. Khởi tạo cluster
 
 Thiết lập cluster:

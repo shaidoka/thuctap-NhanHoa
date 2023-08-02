@@ -35,3 +35,14 @@ Wazuh có 1 tập các script để sử dụng cho active response. ```firewall
 systemctl restart wazuh-manager
 ```
 
+## Kiểm tra
+
+Ta có thể kiểm tra log mà wazuh agent thực hiện active response script bằng cách dùng lệnh sau trên agent
+
+```sh
+tail -f /var/ossec/log/active-response.log
+```
+
+Hoặc, khi có active response được kích hoạt, trên UI cũng xuất hiện alert như sau
+
+![](./images/Wazuh_AR_2.png)
