@@ -62,3 +62,8 @@ Dynamic provisioning có thể được kích hoạt trên 1 cluster mà tất c
 
 1 administrator có thể đánh dấu 1 SC cụ thể là mặc định bằng cách thêm annotation ```storageclass.kubernetes.io/is-default-class``` vào nó. Khi StorageClass mặc định tồn tại trong 1 cluster và user tạo ra ```PersistentVolumeClaim``` với trường ```storageClassName``` không được chỉ định, ```DefaultStorageClass``` admission controller sẽ tự động thêm trường ```StorageClassName``` trỏ vào storage class mặc định.
 
+Lưu ý rằng chỉ có thể có tối đa 1 loại sc mặc định trên 1 cluster. Nếu có nhiều hơn thì PVC mà không có trường ```storageClassName``` rõ ràng sẽ không được tạo ra
+
+## Nhận diện topology
+
+Trong cluster nhiều zone, Pod có thể được trải rộng trên các zone trong 1 Region. Các hệ thống lưu trữ một zone nên được provision trong Zone nơi Pod được lập lịch. Điều này có thể được thực hiện bằng cách thiết lập [Volume Binding Mode](https://kubernetes.io/docs/concepts/storage/storage-classes/#volume-binding-mode)
