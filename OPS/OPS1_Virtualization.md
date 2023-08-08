@@ -203,3 +203,4 @@ Kubernetes hay K8s là một nền tảng điều phối container mã nguồn m
 Ngoài ra, cluster Kubernetes có thể mở rộng các host trên các cloud tại chỗ public, private hay hybrid. Do đó, Kubernetes là một nền tảng lý tưởng để host các ứng dụng cloud-native yêu cầu khả năng mở rộng nhanh chóng. Chẳng hạn như truyền dữ liệu theo thời gian thực thông qua Apache Kafka.
 
 Ban đầu, Kubernetes được phát triển và thiết kế bởi các kỹ sư tại Google. Do đó, Google chính là một trong những người đóng góp đầu tiên cho công nghệ container của Linux. Đây cũng chính là công nghệ đằng sau các dịch vụ cloud của Google. Tính đến nay, Google tạo ra đến hơn 2 tỷ container mỗi tuần. Tất cả đều được cung cấp bởi nền tảng nội bộ Borg - tiền thân của K8s.
+
