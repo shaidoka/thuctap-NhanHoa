@@ -39,3 +39,29 @@ Cloud computing là mô hình cho phép truy cập qua mạng để lựa chọn
 
 ![](./images/OPS3_5.jpg)
 
+## II. OpenStack
+
+### 1. Khái niệm
+
+OpenStack là nền tảng mã nguồn mở được phát triển dựa trên công nghệ điện toán đám mây. Bao gồm các thành phần có liên quan với nhau kiểm soát các nhóm phần cứng đa dạng, đa nhà cung cấp về tài nguyên xử lý, lưu trữ và kết nối mạng.
+
+### 2. Kiến trúc logic của OpenStack
+
+![](./images/OPS3_6.jpg)
+
+### 3. Các project cốt lõi của OpenStack
+
+- Keystone
+- Glance
+- Neutron
+- Nova
+- Cinder
+- Horizon
+
+### 4. Xây dựng hệ thống OpenStack với mô hình 3 node
+
+- 1 node controller
+- 2 node compute
+
+![](./images/OPS3_7.jpg)
+

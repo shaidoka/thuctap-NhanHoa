@@ -8,3 +8,30 @@ Khi áp dụng CICD thì ngay trong môi trường dev ta đã thấy được l
 
 ## Mô hình CICD cơ bản
 
+Mô hình CICD được tham khảo có dạng như sau:
+
+![](./images/K8s_CICD_1.jpg)
+
+*Nguồn: Trịnh Quốc Việt - viblo.asia's content writer*
+
+Trong đó tùy theo yêu cầu mà có thể tích hợp thêm các bước scan code, automation test nhưng trong phạm vi bài viết này không đề cập tới. Ngoài Gitlab và Jenkins, chúng ta hoàn toàn có thể sử dụng các công cụ có chung mục đích, như AWS Code Commit, Azure Repos, Gitlab Runner,...
+
+Ý tưởng của bài viết này như sau:
+- Commit code lên gitlab
+- Pull source về Jenkins server để build
+- Build docker image và push image lên registry
+- Triển khai/cập nhật lên K8s bằng kubectl/helm
+
+Do đó, các bước cần thực hiện trong bài này là:
+- Tạo helmchart cho ứng dụng
+- Cài đặt và cấu hình gitlab để quản lý source code
+- Cài đặt và cấu hình Jenkins để tạo luồng CICD
+- Tạo job pipline cho Jenkins, thực hiện và test từng bước nhỏ trong cả luồng CICD
+- Thay đổi code và chạy CICD job để kiểm tra kết quả
+
+## Tạo helmchart cho ứng dụng
+
+Đã giới thiệu ở bài trước rồi.
+
+## Cài đặt và cấu hình Gitlab
+
