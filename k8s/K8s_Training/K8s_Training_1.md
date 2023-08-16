@@ -72,6 +72,8 @@ Ta có thể tự do lựa chọn nơi sử dụng Kubernetes. Có thể là tr�
 
 Node là thành phần của phần cứng. Một node có thể là một máy ảo host bởi nhà cung cấp cloud, hay là một máy vật lý trong các data center. Tuy nhiên, để nghĩ về node một cách đơn giản hơn, ta có thể xem nó như các tài nguyên CPU/RAM được sử dụng bởi Kubernetes cluster, thay vì chỉ là các máy đơn lẻ. Sở dĩ vì các pod không bị giới hạn với bất kỳ máy nhất định nào, tại mọi thời điểm. Do đó, chúng sẽ di chuyển trên tất cả tài nguyên có sẵn để đạt được trạng thái mong muốn của ứng dụng.
 
+A node is a component of hardware. A node can be a virtual machine hosted by a cloud provider or a physical machine in a data center. However, to simplify the concept of a node, we can think of it as CPU/RAM resources used by a Kubernetes cluster, rather than just individual machines. This is because pods are not constrained to any specific machine at any given time. Instead, they can move across all available resources to achieve the desired state of the application.
+
 Có 2 loại node khác nhau là worker và master:
 
 Master node: đóng vai trò là control của cụm cluster, máy điều khiển các kubernetes node. Đây là nơi tất cả các nhiệm vụ được giao
@@ -97,10 +99,29 @@ Trong thực tế, các Pod khi được chạy trên các cluster Kubernetes ho
 
 ### 5. Deployment
 
-Kubernetes cao hơn 1 bước nữa, nó quản lý các ReplicaSets, số lượng, phiên bản, số lượng Pods trong ReplicaSets. Ngoài ra, Deployment còn có cơ chế giúp người quản lý hệ thống dễ dàng cập nhật, rollback phiên bản của ứng dụng (phiên bản container chạy trong các Pod).
+Deployment cao hơn 1 bước nữa, nó quản lý các ReplicaSets, số lượng, phiên bản, số lượng Pods trong ReplicaSets. Ngoài ra, Deployment còn có cơ chế giúp người quản lý hệ thống dễ dàng cập nhật, rollback phiên bản của ứng dụng (phiên bản container chạy trong các Pod).
 
-### 4. Service
+### 6. Service
 
 Các Pod sẽ có IP, hostname riêng chứa các container của ứng dụng. Client có thể kết nối đến các Pod để tương tác bằng IP hay hostname tương ứng. Tuy nhiên, có một vấn đề là các Pod có thể bị crash hay lỗi bất ngờ, khi Replication Controller tạo lại Pod mới thay thế thì các thông số như địa chỉ IP, hostname cũng thay đổi. Hơn nữa một ứng dụng triển khai trên Kubenetes có nhiều Pod chạy cùng lúc, client không nên và cũng không cần thiết lưu trữ 1 tá các địa chỉ IP, hostname của các Pod
 
 Do đó Kubernetes Service ra đời cho phép tạo một điểm truy cập duy nhất đến các Pod cung cấp cùng 1 dịch vụ. Mỗi Service có địa chỉ IP và port không đổi. Client có thể mở các kết nối đến IP và port của service, sau đó chúng sẽ được điều hướng đến các Pod để xử lý
+
+## Thực hành với Minikube
+
+Minikube là một công cụ cho phép bạn xây dựng một K8s cục bộ. Minikube sẽ chạy một cụm K8s bao gồm 1 node trên server hoặc máy tính cá nhân
+
+Minikube là một công cụ hoàn hảo để người dùng có thể học, làm quen và phát triển trên môi trường K8s
+
+Hướng dẫn này sử dụng bản phân phối là Ubuntu 20.04
+
+### Hướng dẫn cài đặt
+
+1. Thiết lập hostname
+
+Sử dụng lệnh sau đây để đặt hostname cho server
+
+```sh
+hostnamectl set-hostname minikube.baotrung.xyz
+```
+

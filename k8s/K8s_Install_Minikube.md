@@ -10,6 +10,12 @@ Hướng dẫn này sử dụng bản phân phối là Ubuntu 22.02
 
 ## II. Hướng dẫn cài đặt
 
+Trước khi cài đặt bất kỳ điều gì, hãy update package đã:
+
+```sh
+apt-get update -y && apt-get upgrade -y
+```
+
 ### 1. Thiết lập hostname
 
 Sử dụng lệnh sau đây để đặt hostname cho server
@@ -35,8 +41,6 @@ Thực hiện cài đặt
 ```sh
 apt install -y docker.io
 ```
-
-Nếu muốn chọn đúng phiên bản để install thì có thể sử dụng ```apt search docker.io``` và ```apt-cache show docker.io | grep "Version"``` để tìm được phiên bản khả dụng
 
 Sau khi cài đặt có thể kiểm tra version bằng lệnh
 
@@ -66,6 +70,8 @@ kubectl version --short
 
 ### 4. Cài đặt conntrack với lệnh sau
 
+Conntrack hay connection tracking cho phép kernel theo dõi tất cả các kết nối hay phiên làm việc của mạng logic. NAT nhờ những thông tin này để biên dịch tất cả các gói tin với cùng phương thức, và iptables nhờ đó có thể hoạt động như 1 stateful firewall
+
 ```sh
 apt-get install -y conntrack
 ```
@@ -91,23 +97,17 @@ Chạy minikube trên server với lệnh
 minikube start --network-plugin=cni --vm-driver=docker --force
 ```
 
-![](./images/K8s_Minikube_1.png)
-
 Kiểm tra trạng thái 
 
 ```sh
 minikube status
 ```
 
-![](./images/K8s_Minikube_2.png)
-
 hoặc 
 
 ```sh
 kubectl get pods -A
 ```
-
-![](./images/K8s_Minikube_3.png)
 
 ### 6. Cài đặt calico
 
@@ -122,8 +122,6 @@ Kiểm tra kết quả
 ```sh
 kubectl get pods -l k8s-app=calico-node -A
 ```
-
-![](./images/K8s_Minikube_4.png)
 
 ### 7. Các lệnh kiểm tra trạng thái
 
