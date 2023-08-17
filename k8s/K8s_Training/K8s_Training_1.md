@@ -115,9 +115,7 @@ Minikube là một công cụ hoàn hảo để người dùng có thể học, 
 
 Hướng dẫn này sử dụng bản phân phối là Ubuntu 20.04
 
-### Hướng dẫn cài đặt
-
-1. Thiết lập hostname
+### 1. Thiết lập hostname
 
 Sử dụng lệnh sau đây để đặt hostname cho server
 
@@ -125,3 +123,188 @@ Sử dụng lệnh sau đây để đặt hostname cho server
 hostnamectl set-hostname minikube.baotrung.xyz
 ```
 
+Hostname nên được thiết lập đầy đủ cả hostname và domain name
+
+Cấu hình hostname trong file /etc/hosts
+
+```sh
+[IP_Address] <host.domain> <host>
+```
+
+Restart lại server để nhận đầy đủ hostname đã thiết lập
+
+### 2. Cài đặt docker
+
+Thực hiện cài đặt 
+
+```sh
+apt install -y docker.io
+```
+
+Sau khi cài đặt có thể kiểm tra version bằng lệnh
+
+```sh
+docker version
+```
+
+### 3. Cài đặt kubectl
+
+Download bản mới nhất bằng lệnh
+
+```sh
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+```
+
+Cài đặt kubectl với lệnh sau
+
+```sh
+sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+```
+
+Kiểm tra bằng lệnh
+
+```sh
+kubectl version
+```
+
+### 4. Cài đặt conntrack với lệnh sau
+
+Conntrack hay connection tracking cho phép kernel theo dõi tất cả các kết nối hay phiên làm việc của mạng logic. NAT nhờ những thông tin này để biên dịch tất cả các gói tin với cùng phương thức, và iptables nhờ đó có thể hoạt động như 1 stateful firewall
+
+```sh
+apt-get install -y conntrack
+```
+
+### 5. Cài đặt Minikube
+
+Download file cài đặt và cấp quyền thực thi bằng lệnh
+
+```sh
+curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && chmod +x minikube
+```
+
+Tiến hành cài đặt minikube
+
+```sh
+sudo mkdir -p /usr/local/bin/
+sudo install minikube /usr/local/bin/
+```
+
+Chạy minikube trên server với lệnh
+
+```sh
+minikube start --network-plugin=cni --vm-driver=docker --force
+```
+
+Kiểm tra trạng thái 
+
+```sh
+minikube status
+```
+
+hoặc 
+
+```sh
+kubectl get pods -A
+```
+
+### 6. Cài đặt calico
+
+Thực hiện lệnh cài đặt
+
+```sh
+kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/master/manifests/calico.yaml
+```
+
+Kiểm tra kết quả
+
+```sh
+kubectl get pods -l k8s-app=calico-node -A
+```
+
+### 7. Các lệnh kiểm tra trạng thái
+
+Kiểm tra trạng thái minikube
+
+```sh
+minikube status
+```
+
+Kiểm tra thông tin k8s cluster
+
+```sh
+kubectl cluster-info
+```
+
+Để kiểm tra log quá trình cài đặt
+
+```sh
+minikube logs
+```
+
+### 8. Deployment và Service demo
+
+Tạo file ```nginx-deployment.yaml``` với nội dung sau:
+
+```sh
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.14.2
+        ports:
+        - name: http
+          containerPort: 80
+```
+
+Và file ```nginx-service.yaml``` như sau:
+
+```sh
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: nginx
+  name: nginx-svc
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: nginx
+  type: NodePort
+```
+
+Áp dụng:
+
+```sh
+kubectl apply -f nginx-deployment.yaml
+kubectl apply -f nginx-service.yaml
+```
+
+Lấy IP và port để truy cập service:
+
+```sh
+minikube service nginx-svc
+```
+
+Curl đến service:
+
+```sh
+curl http://192.168.49.2:32178
+```

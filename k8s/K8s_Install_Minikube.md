@@ -65,7 +65,7 @@ sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 Kiểm tra bằng lệnh
 
 ```sh
-kubectl version --short
+kubectl version
 ```
 
 ### 4. Cài đặt conntrack với lệnh sau
@@ -135,12 +135,6 @@ Kiểm tra thông tin k8s cluster
 
 ```sh
 kubectl cluster-info
-```
-
-Kiểm tra các node trong cluster
-
-```sh
-kubectl get nodes -A
 ```
 
 Để kiểm tra log quá trình cài đặt
