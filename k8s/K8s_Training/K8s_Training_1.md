@@ -72,8 +72,6 @@ Ta có thể tự do lựa chọn nơi sử dụng Kubernetes. Có thể là tr�
 
 Node là thành phần của phần cứng. Một node có thể là một máy ảo host bởi nhà cung cấp cloud, hay là một máy vật lý trong các data center. Tuy nhiên, để nghĩ về node một cách đơn giản hơn, ta có thể xem nó như các tài nguyên CPU/RAM được sử dụng bởi Kubernetes cluster, thay vì chỉ là các máy đơn lẻ. Sở dĩ vì các pod không bị giới hạn với bất kỳ máy nhất định nào, tại mọi thời điểm. Do đó, chúng sẽ di chuyển trên tất cả tài nguyên có sẵn để đạt được trạng thái mong muốn của ứng dụng.
 
-A node is a component of hardware. A node can be a virtual machine hosted by a cloud provider or a physical machine in a data center. However, to simplify the concept of a node, we can think of it as CPU/RAM resources used by a Kubernetes cluster, rather than just individual machines. This is because pods are not constrained to any specific machine at any given time. Instead, they can move across all available resources to achieve the desired state of the application.
-
 Có 2 loại node khác nhau là worker và master:
 
 Master node: đóng vai trò là control của cụm cluster, máy điều khiển các kubernetes node. Đây là nơi tất cả các nhiệm vụ được giao
