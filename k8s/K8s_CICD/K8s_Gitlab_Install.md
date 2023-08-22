@@ -25,6 +25,7 @@ export GITLAB_HOME=/srv/gitlab
 GitLab container sử dụng volume được mount trên host để lưu trữ dữ liệu:
 
 |Local location|Container localtion|Usage|
+|:-|:-|:-|
 |$GITLAB_HOME/data|/var/opt/gitlab|Lưu trữ dữ liệu ứng dụng|
 |$GITLAB_HOME/logs|/var/log/gitlab|Lưu trữ logs|
 |$GITLAB_HOME/config|/etc/gitlab|Lưu trữ tệp cấu hình của GitLab|
