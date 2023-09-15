@@ -1,0 +1,14 @@
+div{
+    background-color: antiquewhite;
+    border-width: 5px;
+    border-style: dashed;
+    border-color: aquamarine;
+}
+
+span{
+    background-color: red;
+}
+
+body{
+    background-color: aliceblue;
+}

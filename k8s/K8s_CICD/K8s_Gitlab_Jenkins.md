@@ -35,3 +35,25 @@ Do đó, các bước cần thực hiện trong bài này là:
 
 ## Cài đặt và cấu hình Gitlab
 
+Cách cài đặt Gitlab được đề cập ở [đây](https://github.com/shaidoka/thuctap-NhanHoa/blob/main/k8s/K8s_CICD/K8s_Gitlab_Install.md)
+
+Thực hiện các bước sau:
+- Tạo user Jenkins
+- Tạo repo demo
+
+```sh
+git clone https://github.com/rockman88v/nodejs-helm-demo.git
+cd nodejs-helm-demo/
+git remote remove origin
+git remote add gitlab http://gitlab.baotrung.xyz/Jenkins/nodejs-demo
+git push gitlab --mirror
+```
+
+## Cài đặt và cấu hình Harbor Registry
+
+*Phần này có thể thay thế bằng bất kỳ private registry nào cũng được*
+
+Các cài đặt Harbor Registry được đề cập ở [đây]
+
+Sau khi cài đặt thì thực hiện thêm 1 vài bước:
+

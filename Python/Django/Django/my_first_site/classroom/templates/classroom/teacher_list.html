@@ -1,0 +1,7 @@
+<h1>List of Teacher (ListView)</h1>
+<ul>
+    {% for teacher in teacher_list %}
+        <li><a href="/classroom/teacher_detail/{{teacher.id}}">{{teacher.first_name}} {{teacher.last_name}}</li>
+
+    {% endfor %}
+</ul>

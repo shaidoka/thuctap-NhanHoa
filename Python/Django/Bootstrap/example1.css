@@ -1,0 +1,14 @@
+.btn-danger{
+    background-color: pink;
+    border-color: pink;
+    
+}
+
+.btn-danger:hover{
+    background-color: blueviolet;
+    border-color: blueviolet;
+}
+
+.col-extra{
+    border: 2px solid black;
+}

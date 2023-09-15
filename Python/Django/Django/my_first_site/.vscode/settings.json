@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "*.html": "html",
+        "**/templates/**/*.html": "django-html"
+    },
+    "files.autoSave": "afterDelay"
+    
+}
