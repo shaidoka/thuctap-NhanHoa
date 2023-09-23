@@ -2,6 +2,16 @@
 <ul>
     {% for teacher in teacher_list %}
         <li><a href="/classroom/teacher_detail/{{teacher.id}}">{{teacher.first_name}} {{teacher.last_name}}</li>
-
+        <ul>
+            <li>
+                <a href="/classroom/update_teacher/{{teacher.id}}">Update Information for {{teacher.first_name}}
+            </li>
+        </ul>    
+        <ul>
+            <li>
+                <a href="/classroom/delete_teacher/{{teacher.id}}">Delete {{teacher.first_name}}
+            </li>
+        </ul>
+            
     {% endfor %}
 </ul>
