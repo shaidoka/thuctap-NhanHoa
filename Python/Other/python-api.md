@@ -13,6 +13,7 @@ API request hoạt động với cách thức chính xác như vậy: bạn tạ
 Có nhiều phương thức HTTP cho REST APIs. Những phương thức này giúp API biết được cần phải thực hiện điều gì với dữ liệu. Trong khi có nhiều phương thức HTTP, 5 phương thức HTTP dưới đây được sử dụng hầu hết trong REST APIs:
 
 |HTTP METHOD|DESCRIPTION|
+|:-|:-|
 |```GET```|Thu thập dữ liệu|
 |```POST```|Thêm dữ liệu mới|
 |```PUT```|Cập nhật dữ liệu đã tồn tại|
@@ -24,6 +25,7 @@ Mỗi khi REST API nhận và xử lý HTTP request, nó trả về response v�
 Mã trạng thái dựa trên bảng phân loại dưới đây:
 
 |CODE RANGE|CATEGORY|
+|:-|:-|
 |```1xx```|Thông tin response|
 |```2xx```|Thực thi thành công|
 |```3xx```|Chuyển hướng|
