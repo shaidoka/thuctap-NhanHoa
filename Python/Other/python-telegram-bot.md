@@ -163,3 +163,4 @@ def fetch_horoscope(message, sign):
 
 Hàm cuối này là nơi ta lấy cung hoàng đạo từ tham số hàm và ngày tử vi từ thuộc tính ```message.text```. Tiếp đến, ta fetch dữ liệu tử vi từ hàm ```get_daily_horoscope``` và viết tin nhắn sẽ gửi. Cuối cùng chúng ta gửi dữ liệu tử vi.
 
+![](./images/2.png)
