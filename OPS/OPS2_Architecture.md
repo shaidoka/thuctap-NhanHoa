@@ -56,6 +56,7 @@ Các thành phần OpenStack Networking:
 ![](./images/OPS2_2.png)
 
 |Component Name|Description|
+|:-|:-|
 |neuton-server|Dịch vụ này chạy trên network node cung cấp Networking API và các mở rộng. Neutron-server yêu cầu kết nối không trực tiếp tới một database bền vững. Điều này được thực hiện thông qua các plugin giao tiếp với database thông qua AMQP|
 |plugin agent|Chạy trên mỗi node cumpute để quản lý cấu hình vswitch. Plugin này cho phép bạn chỉ định agent nào được chạy|
 |DHCP agent|Cung cấp dịch vụ DHCP tới các tenant network. Dịch vụ này chịu trách nhiệm cho việc quản lý cấu hình DHCP|
