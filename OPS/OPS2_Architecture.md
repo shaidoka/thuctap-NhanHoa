@@ -35,6 +35,7 @@ OpenStack được thiết kế để có thể mở rộng dễ dàng theo chi�
 ![](./images/OPS2_1.png)
 
 |Function|Code Name|Description|
+|:-|:-|:-|
 |Block Storage|Cinder|OpenStack Block Storage cung cấp việc lưu trữ dưới dạng block level cho các thiết bị lưu trữ. Hệ thống lưu trữ block quản lý việc tạo, attach và detach các thiết bị block tới server. Block storage volume được tích hợp sẵn với OpenStack Compute và Dashboard cho phép người dùng quản lý các lưu trữ riêng của họ|
 |Compute|Nova|OpenStack cloud operating system, dịch vụ cung cấp việc phục vụ các tài nguyên theo nhu cầu bằng việc cung cấp và quản lý các máy ảo. Các tài nguyên compute được truy cập thông qua API cho các nhà phát triển hoặc người dùng, hoặc qua giao diện Web|
 |Dashboard|Horizon|OpenStack Dashboard cung cấp cho người quản trị và người dùng một giao diện đồ họa để truy cập, cung ứng và tự động hóa các tài nguyên nằm trên cloud. Thiết kế mở rộng giúp việc kết hợp với các sản phẩm của bên thứ 3 dễ dàng hơn|
