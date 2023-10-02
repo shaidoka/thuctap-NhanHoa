@@ -239,3 +239,23 @@ Tổng quan về Services và Backends mà Keystone hỗ trợ:
 ## VII. Keystone flowchart
 
 ![](./images/OPS6_7.jpg)
+
+## VIII. Một số lưu ý
+
+**Region và Domain:**
+- Region mặc dù không có ý nghĩa về vật lý, nhưng thường được sử dụng cho mục đích này. Ví dụ một doanh nghiệp có văn phòng bên us-east và một ở us-north
+- Domain là sự phân tách hợp lý giữa việc làm chủ các project và tài nguyên định danh
+
+**Một user chỉ có thể tồn tại trong 1 domain:**
+- Mỗi user chỉ được có 1 domain
+- Các domain khác nhau có thể có các người dùng có tên trùng nhau, nhưng ID của user mới là unique identity
+
+**Tenants và Project:**
+- Trong những ngày đầu, tenant được sử dụng bởi dịch vụ OPS để là thực thể cho việc gom nhóm và cô lập tài nguyên
+- Qua thời gian, project đã trở nên trực quan hơn cho khái niệm này. Thật không may, không phải tất cả của project có thể truyền tải đầy đủ sang tenant
+- Do đó, trong một vài trường hợp, các dịch vụ và tài liệu của OPS vẫn có thể nhìn thấy tenant
+
+**Scoped và unscoped token**
+- Một **unscoped token** là khi người dùng được xác thực nhưng lại không xác định được domain hoặc project, loại này hữu ích khi sử dụng làm truy vấn như quyết định xem project nào mà user được phép truy cập
+- **Scoped token** được tạo khi user được xác thực cho một project hoặc một domain. Scoped token có thông tin về role được kết nối với chúng và là loại token được sử dụng bởi các dịch vụ khác nhau của OPS để kiểm tra xem các hoạt động nào là được phép thực hiện
+
