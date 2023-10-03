@@ -209,13 +209,11 @@ Cấu hình Keystone sử dụng Fernet token trong file ```keystone.conf```
 ```
 
 Có 3 loại file key:
-- **Type 1 - Primary Key**: sử dụng cho cả 2 mục đích mã hóa và giải mã fernet tokens. Các key được đặt tên theo số nguyên bắt đầu từ 0. Trong đó Primary Key có chỉ số cao nhất
-- **Type 2 - Secondary Key**: chỉ dùng để giải mã (Lowest Index < Secondary Key Index < Highest Index)
-- **Type 3 - Stagged Key**: tương tự như secondary key trong trường hợp nó sử dụng để giải mã token. Tuy nhiên nó sẽ trở thành Primary Key trong lần luân chuyển khóa tiếp theo. Stagged Key có chỉ số 0
+- **Type 1 - Primary Key**: chỉ có 1 PK trong repo, sử dụng cho cả 2 mục đích mã hóa và giải mã fernet tokens. Các key được đặt tên theo số nguyên bắt đầu từ 0. Trong đó Primary Key có chỉ số cao nhất
+- **Type 2 - Secondary Key**: 1 SeK từng là 1 PK, nhưng bị giáng cấp để PK khác lên thay thế. SeK chỉ dùng để giải mã (Lowest Index < Secondary Key Index < Highest Index). Do từng là PK, việc tồn tại của SeK giúp Keystone có thể giải mã được những token mà được mã hóa bởi nó
+- **Type 3 - Staged Key**: staged key là 1 key đặc biệt mà có vài điểm tương đồng với SeK. Chỉ có thể có 1 SK trong repo và nó phải tồn tại. Cũng giống SeK, SK có khả năng giải mã tokens. Khác ở chỗ, SK chưa từng là PK. Trên thực tế, chúng ở chiều ngược lại, vì chúng sẽ luôn luôn là PK tiếp theo. SK luôn được đặt tên là **0** ở trong key repo
 
 ### 2. Fernet key rotation
-
-![](./images/OPS6_15.png)
 
 Giả sử triển khai hệ thống cloud với keystone ở 2 bên **us-west** và **us-east**. Cả 2 repo này đều được thiết lập với 3 fernet key như sau
 
@@ -224,4 +222,80 @@ ls /etc/keystone/fernet-keys
 0 1 2
 ```
 
-Ở đây 2 
+Ở đây 2 là Primary Key để mã hóa fernet token. Fernet tokens có thể được mã hóa sử dụng 1 trong 3 key theo thứ tự 2 1 0. Giờ ta quay vòng fernet key bên us-west, repo bên này sẽ được thiết lập như sau:
+
+```sh
+ls /etc/keystone/fernet-keys
+0 1 2 3
+```
+
+Với cấu hình như trên, 3 sẽ trở thành Primary Key để mã hóa fernet token. Khi keystone bên us-west nhận token từ us-east (mã hóa bằng key 2), us-west sẽ xác thực token này, giải mã bằng 4 key theo thứ tự 3 2 1 0. Keystone bên us-east nhận fernet token từ us-west (mã hóa bằng key 3), us-east xác thực token này vì key 3 bên us-west lúc này trở thành secondary key bên us-east, keystone us-east giải mã token với 3 key theo thứ tự 2 1 0.
+
+Có thể cấu hình giá trị ```max_active_keys``` trong file ```/etc/keystone.conf``` để quy định tối đa số key tồn tại trong keystone. Nếu số key vượt quá giá trị này thì key cũ sẽ bị xóa.
+
+### 3. Kế hoạch cho vấn đề rotated keys
+
+Khi sử dụng fernet tokens yêu cầu chú ý về thời hạn của token và vòng đời của key. Vấn đề nảy sinh khi secondary keys bị remove khỏi key repo trong khi vẫn cần dùng key đó để giải mã một token chưa hết hạn (token này được mã hóa bởi key đã bị remove)
+
+Để giải quyết vấn đề này, trước hết cần lên kế hoạch rotate key. VD bạn muốn token hợp lệ trong vòng 24 giờ và muốn rotate key cứ mỗi 6h. Như vậy để giữ 1 key tồn tại trong 24h cho mục đích decrypt thì cần thiết lập ```max_active_keys=6``` trong file ```keystone.conf``` (do tính thêm 2 cả PK + SK). Điều này giúp cho việc giữ tất cả các key cần thiết nhằm mục đích xác thực token mà vẫn giới hạn được số lượng key trong key repo (/etc/keystone/fernet-keys/)
+
+```sh
+token_expiration = 24
+rotation_frequency = 6
+max_active_keys = (token_expiration / rotation_frequency) + 2
+```
+
+### 4. Token generation workflow
+
+![](./images/OPS6_15.png)
+
+Với key và message nhận được, quá trình tạo token như sau:
+
+1. Ghi thời gian hiện tại vào trường timestamp
+
+2. Lựa chọn 1 IV duy nhất
+
+3. Xây dựng ciphertext
+
+- Padding message với bội số là 16 bytes (thao tác bổ sung một số bit cho văn bản trong mã hóa khối AES)
+- Mã hóa padded message sử dụng thuật toán AES 128 trong chế độ CBC với IV đã chọn và encryption key được cung cấp
+
+4. Tính toán trường HMAC theo mô tả sử dụng signing key mà người dùng cung cấp
+
+5. Kết nối các trường theo đúng format token ở trên
+
+6. Mã hóa base64 toàn bộ token
+
+### 5. Token validation workflow
+
+![](./images/OPS6_15.png)
+
+Các bước xác thực token diễn ra như sau:
+
+1. Gửi yêu cầu xác thực token với phương thức ```GET /v3/auth/tokens```
+
+2. Khôi phục lại padding, trả lại token với padding chính xác
+
+3. Decrypt sử dụng Fernet Keys để thu lại token payload 
+
+4. Xác định phiên bản của token payload (Unscoped payload: 1, domain scoped payload: 1, project scoped payload: 2)
+
+5. Tách các trường của payload để chứng thực. VD với project scoped payload thì gồm các trường: userid, projectid, method, expiry, audit id
+
+6. Kiểm tra xem token đã hết hạn chưa. Nếu rồi thì báo "Token not found". Nếu chưa thì chuyển sang bước 7
+
+7. Kiểm tra xem token đã bị thu hồi chưa. Nếu token đã bị thu hồi (tương ứng với 1 sự kiện thu hồi trong bảng revocation_event của keystone database) thì trả về "Token not found". Nếu chưa thì trả lại Token (thông điệp phản hồi thành công HTTP/1.1 200 OK)
+
+### 6. Token revocation workflow
+
+Quá trình này tương tự với UUID và PKI/PKIz token
+
+### 7. Fernet - Multiple data center
+
+![](./images/OPS6_17.png)
+
+Với token Fernet thì nó không nhỏ như UUID nhưng cũng không hề có kích cỡ lớn như PKI và PKIz. Nhưng quan trọng là nó non-persistent (không cần lưu trữ trong database). Do đó, khi sử dụng Fernet token, không cần phải cache lại nó. Thay vào đó, Keystone xây dựng lại Fernet token dựa trên metadata của token thông qua encryption và decryption bằng fernet key được đồng bộ giữa các region
+
+Khi xác thực thông qua multiple region, có thể sử dụng cùng 1 token ở cả 2 miền region là us-west và us-east
+
+Do fernet token có thể được tái tạo lại dựa trên phần còn lại của backend data nên nó làm giảm đáng kể lưu lượng
