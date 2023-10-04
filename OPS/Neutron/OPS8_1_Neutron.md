@@ -119,4 +119,78 @@ Cung cấp các dịch vụ layer 3 ví dụ như định tuyến, NAT giữa c�
 
 Một security group được coi như là một firewall ảo cho các máy ảo để kiểm soát lưu lượng bên trong và bên ngoài router. Do đó, mỗi port trên một subnet có thể gán được với một tập hợp các security group riêng
 
-Nếu không chỉ định group cụ thể nào khi vận hành, máy ảo sẽ được gán tự động với default security group của project. Mặc định, group này sẽ hủy tất cả các lưu lượng vào và cho phép lưu lượng ra ngoài. Các rule có thể được bổ sung để thay đổi các hành vi đó. Security group và các security có thể được bổ sung để thay đổi các hành vi đó. Security group và các security group rule cho phép người quản trị và các tenant chỉ định loại traffic và hướng (ingress/egress)
+Nếu không chỉ định group cụ thể nào khi vận hành, máy ảo sẽ được gán tự động với default security group của project. Mặc định, group này sẽ hủy tất cả các lưu lượng vào và cho phép lưu lượng ra ngoài. Các rule có thể được bổ sung để thay đổi các hành vi đó. Security group và các security có thể được bổ sung để thay đổi các hành vi đó. Security group và các security group rule cho phép người quản trị và các tenant chỉ định loại traffic và hướng (ingress/egress) được phép đi qua port. Một security group là một container của các security group rules.
+
+Mặc định, mọi security groups chứa các rules thực hiện ở một số hành động sau:
+- Cho phép traffic ra bên ngoài chỉ khi nó sử dụng MAC và IP của port máy ảo, cả 2 địa chỉ này được kết hợp tại ```allowed-address-pairs```
+- Cho phép tín hiệu tìm kiếm DHCP và gửi message request sử dụng MAC của port cho máy ảo và địa chỉ IP chưa xác định
+- Cho phép trả lời các tín hiệu DHCP và DHCPv6 từ DHCP server để các máy ảo có thể lấy IP
+- Từ chối việc trả lời các tín hiệu DHCP request từ bên ngoài để tránh việc máy ảo trở thành DHCP server
+- Cho phép các tín hiệu ```inbound/outbound``` ICMPv6 MLD, tìm kiếm neighbors, các máy ảo nhờ vậy có thể tìm kiếm và gia nhập các multicast group
+- Từ chối các tín hiệu outbound ICMPv6 để ngăn việc máy ảo trở thành IPV6 router và forward các tín hiệu cho máy ảo khác
+- Cho phép tín hiệu outbound non-IP từ địa chỉ MAC của các port trên máy ảo
+
+Mặc dù cho phép non-IP traffic nhưng security groups không cho phép các ARP traffic. Có một số rules để lọc các tín hiệu ARP nhằm ngăn chặn việc sử dụng nó để chặn tín hiệu tới máy ảo khác. Ta không thể xóa hoặc vô hiệu hóa những rule này. Ta có thể hủy security groups bằng cách sửa giá trị dòng ```port_security_enabled``` thành ```False```
+
+#### Extensions
+
+OPS Networking service có khả năng mở rộng. Có 2 mục đích chính cho việc này: cho phép thực thi các tính năng mới trên API mà không cần phải đợi đến khi ra bản tiếp theo và cho phép các nhà phân phối bổ sung những chức năng phù hợp. OPS Networking service có khả năng mở rộng. Có 2 mục đích chính cho việc này: cho phép thực thi các tính năng mới trên API mà không cần phải đợi đến khi ra bản tiếp theo và cho phép các nhà phân phối bổ sung những chức năng phù hợp
+
+#### DHCP
+
+Dịch vụ tùy chọn DHCP quản lý địa chỉ IP trên provider và self-service networks. Networking service triển khai DHCP service sử dụng agent quản lý qdhcp namespaces và dnsmasq service
+
+#### Metadata
+
+Dịch vụ tùy chọn cung cấp API cho máy ảo để lấy metadata như SSH keys
+
+#### Open vSwitch
+
+Open vSwitch (OVS) là công nghệ switch ảo hỗ trợ SDN (Software-Defined Network) thay thế Linux bridge. OVS cung cấp chuyển mạch trong mạng ảo hỗ trợ các tiêu chuẩn Netflow, Openflow, sFlow, Open vSwitch cũng được tích hợp với các switch vật lý sử dụng các tính năng lớp 2 như STP, LACP, 802.1q VLAN tagging. OVS tunneling cũng được hỗ trợ để triển khai các mô hình overlay như VXLAN, GRE
+
+#### L3 agent
+
+L3 agent là một phần của package OPS neutron. Nó được xem như router layer 3 chuyển hướng lưu lượng và cung cấp dịch vụ gateway cho network lớp 2. Các nodes chạy L3 agent không được cấu hình IP trực tiếp trên một card mạng mà được kết nối với mạng ngoài. Thay vì thế, sẽ có một dải địa chỉ IP từ mạng ngoài được sử dụng cho OPS networking. Các địa chỉ này được gán cho các routers mà cung cấp liên kết giữa mạng trong và mạng ngoài. Miền địa chỉ được lựa chọn phải đủ lớn để cung cấp địa chỉ IP duy nhất cho mỗi router khi triển khai cũng như mỗi floating IP gán cho các máy ảo.
+- **DHCP Agent**: OPS Networking DHCP agent chịu trách nhiệm cấp phát các địa chỉ IP cho các máy ảo chạy trên network. Nếu agent được kích hoạt và đang hoạt động khi một subnet được tạo, subnet đó mặc định sẽ được kích hoạt DHCP
+- **Plugin Agent**: Nhiều networking plug-ins được sử dụng cho agent của chúng, bao gồm OVS và Linux bridge. Các plug-in chỉ định agent chạy trên các node đang quản lý lưu lượng mạng, bao gồm các compute node, cũng như các node chạy các agent
+
+## III. Cấu trúc thành phần và dịch vụ
+
+![](./images/OPS8_6.png)
+
+### Server (```neutron-server``` là ```neutron-*-plugin```):
+
+Dịch vụ này chạy trên các network node để phục vụ Networking API và các mở rộng của nó. Nó cũng tạo ra network model và đánh địa chỉ IP cho mỗi port. neutron-server và các plugin agent yêu cầu truy cập vào database để lưu trữ thông tin lâu dài và truy cập vào message queue (RabbitMQ) để giao tiếp nội bộ (giữa các tiến trình và với các tiến trình của các project khác)
+- Cung cấp API, quản lý DB
+
+### Plugin
+
+- Quản lý agent
+
+### Agent
+
+- Cung cấp kết nối layer 2, layer 3 tới máy ảo
+- Xử lý truyền thông giữa mạng ảo và mạng vật lý
+- Xử lý metadata
+
+**Layer 2 (Ethernet và Switching)**
+
+- Linux Bridge
+- OVS
+
+**Layer 3 (IP và Routing)**
+
+Cung cấp kết nối ra mạng ngoài (internet) cho các VM trên các tenant networks nhờ L3/NAT forwarding
+- L3
+- DHCP
+
+**Misscellaneous**
+- Metadata
+
+### Services
+
+Các dịch vụ routing:
+- VPNaaS: VPN as a Service, extension của neutron cho VPN
+- LBaaS: LB as a Service, API quy định và cấu hình nên các LB, được triển khai dựa trên HAProxy software load balancer
+- FWaas: Firewall as a Service, API thử nghiệm cho phép các nhà cung cấp kiểm thử trên networking của họ
+
