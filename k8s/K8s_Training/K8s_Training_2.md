@@ -647,3 +647,111 @@ Có thể kiểm tra thêm logs của Updater
 ```sh
 kubectl logs -f vpa-updater-599cfb6c8f-jlltj -n kube-system
 ```
+
+## Bonus
+
+Để sử dụng API đã tạo ở trong bài này, chúng ta có thể tạo 1 con bot telegram và đẩy nó lên k8s
+
+Tạo 1 file ```horo_telegram_bot.py``` với nội dung như sau: **(nhớ sửa lại BOT_TOKEN)**
+
+```sh
+import os
+import telebot
+import requests
+
+BOT_TOKEN = '<paste_bot_token_here>'
+
+bot = telebot.TeleBot(BOT_TOKEN)
+
+# Initialize an empty dictionary to store conversation states
+conversation_states = {}
+
+def get_daily_horoscope(sign: str, day: str) -> dict:
+  """Get daily horoscope for a zodiac sign.
+  Keyword arguments:
+  sign: str - Zodiac sign
+  day: str - Date in format (YYYY-MM-DD) or TODAY/TOMORROW/YESTERDAY
+  Return: dict - JSON data
+  """
+  url = "http://horoscope.baotrung.xyz/api/v1/get-horoscope/daily"
+  params = {"sign": sign, "day": day}
+  response = requests.get(url, params)
+  return response.json()
+
+@bot.message_handler(commands=['horoscope'])
+def sign_handler(message):
+  # After receiving horoscope command, store the state
+  conversation_states[message.chat.id] = 'AWAITING_ZODIAC_SIGN'
+  text = "What's your zodiac sign?\nChoose one: *Aries*, *Taurus*, *Gemini*, *Cancer,* *Leo*, *Virgo*, *Libra*, *Scorpio*, *Sagittarius*, *Capricorn*, *Aquarius*, and *Pisces*."
+  sent_msg = bot.send_message(message.chat.id, text, parse_mode="Markdown")
+  bot.register_next_step_handler(sent_msg, day_handler)
+
+def day_handler(message):
+  # Before handling zodiac sign, check the state
+  if conversation_states.get(message.chat.id) == 'AWAITING_ZODIAC_SIGN':
+    sign = message.text
+    text = "What day do you want to know?\nChoose one: *TODAY*, *TOMORROW*, *YESTERDAY*, or a date in format YYYY-MM-DD."
+    sent_msg = bot.send_message(message.chat.id, text, parse_mode="Markdown")
+    bot.register_next_step_handler(sent_msg, fetch_horoscope, sign.capitalize())
+    conversation_states[message.chat.id] = 'AWAITING_DAY'
+
+def fetch_horoscope(message, sign):
+  # Before fetching the horoscope, check the state
+  if conversation_states.get(message.chat.id) == 'AWAITING_DAY':
+    day = message.text
+    horoscope = get_daily_horoscope(sign, day)
+    data = horoscope["data"]
+    parts = data.split(" - ", 1)
+    horoscope_message = f'*Horoscope:* {parts[1]}\n*Sign:* {sign}\n*Day:* {parts[0]}'
+    bot.send_message(message.chat.id, "Here's your horoscope!")
+    bot.send_message(message.chat.id, horoscope_message, parse_mode="Markdown")
+    del conversation_states[message.chat.id]  # Reset the state
+
+@bot.message_handler(commands=['start', 'hello'])
+def send_welcome(message):
+  bot.reply_to(message, "Hello World!")
+
+@bot.message_handler(func=lambda msg: True)
+def echo_all(message):
+  bot.reply_to(message, message.text)
+
+bot.infinity_polling()
+```
+
+Tạo và apply deployment như sau:
+
+```sh
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+      - name: python
+        image: python:3.9.6
+        command: ["/bin/bash", "-c"]
+        args:
+          - |
+            pip install pyTelegramBotAPI requests
+            python /scripts/telegram-bot.py
+        volumeMounts:
+        - name: script-volume
+          mountPath: /scripts
+      volumes:
+      - name: script-volume
+        configMap:
+          name: script-python-bot
+```
+
+Done!
+
+![](./images/K8s_8.png)
