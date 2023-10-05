@@ -527,3 +527,123 @@ Done! Giờ trỏ domain và truy cập web vừa tạo:
 Có 2 phương pháp scaling (pod/cluster) là **horizontal scaling** và **vertical scaling**:
 - **Horizontal scaling** là cách scale mà ta sẽ tăng số lượng worker (application) đang xử lý công việc hiện tại ra nhiều hơn. Ví dụ ta đang có 2 pod để xử lý tích điểm cho client khi client tạo deal thành công, khi số lượng client tăng đột biến, 2 pod không thể xử lý kịp, ta sẽ scale số lượng pod lên thành 4 chẳng hạn.
 - **Vertical scaling** là cách scale thay vì tăng số lượng worker, ta sẽ tăng lượng tài nguyên của pod đó lên, như là tăng số CPU và RAM của pod. Ví dụ ta có một model để train AI, việc train này không thể tách ra 1 model khác để tăng tốc độ train được, mà ta chỉ có thể tăng CPU và memory cho model đó, lúc này ta sẽ cần đến Vertical scaling.
+
+### 1. Horizontal Pod Autoscaling
+
+#### Kịch bản thử nghiệm
+
+Để kiểm thử tính năng auto-scaling theo chiều ngang của K8s, chúng ta sẽ thực hiện theo quy trình sau:
+- Tạo deployment nodejs với replicas lớn hơn hoặc bằng 2 (đã thực hiện ở phần trước).
+- Trên một máy chủ khác nằm ngoài cụm, sử dụng công cụ kiểm tra hiệu năng website là ab. Thực hiện 100000 request, số lượng request đồng thời là 10000 đến website. Sau khi benchmark xong, ghi lại kết quả.
+- Tạo 1 tài nguyên HPA với min và max replicas lần lượt là 1 và 10 (chi tiết ở phần sau).
+- Giữ nguyên khoảng 5 phút, theo dõi sự đổi số lượng replicas. Kết quả dự đoán: số lượng replicas giảm còn 1. Kết quả này cho thấy HPA đã scale down deployment để hạn chế tài nguyên dư thừa.
+- Tiếp tục sử dụng ab. Thực số lượng request và request đồng thời tương tự như bước 2. Sau khi benchmark xong, ghi lại kết quả, so sánh với kết quả của bước 2. Kết quả mong muốn: thời gian mỗi request giảm
+
+#### Thực hiện
+
+**Bước 1:** Trên 1 server không nằm trong cụm, tải và thực hiện benchmarking
+
+```sh
+yum install ab -y
+ab -n 100000 -c 10000 http://horoscope.baotrung.xyz/
+```
+
+Ghi lại kết quả!
+
+**Bước 2:** Tạo và apply HPA với cấu hình như sau:
+
+```sh
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: horoscope-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: horoscope-app
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 50
+```
+
+**Bước 3:** Tiếp tục sử dụng ab để request đến website
+
+```sh
+ab -n 100000 -c 10000 http://horoscope.baotrung.xyz/
+```
+
+Ghi lại kết quả và so sánh với kết quả ở bước 1!
+
+### 2. Vertical Pod Autoscaling (Phần này không cần lab cũng được)
+
+#### Kịch bản thử nghiệm
+
+Kịch bản kiểm thử:
+- Đảm bảo đã xóa HPA ở lần kiểm thử trước
+- Tạo VPA 
+- Dùng ab đẩy request vào website
+- Theo dõi tài nguyên sử dụng của pods
+- Theo dõi log của Updater
+
+#### Thực hiện
+
+**Bước 1:** Hãy chắc chắn là đã xóa HPA ở bước trước đi:
+
+```sh
+kubectl delete hpa horoscope-hpa
+```
+
+**Bước 2:** Giờ tạo và apply VPA với cấu hình như sau:
+
+```sh
+apiVersion: "autoscaling.k8s.io/v1"
+kind: VerticalPodAutoscaler
+metadata:
+  name: horoscope-vpa
+spec:
+  targetRef:
+    apiVersion: "apps/v1"
+    kind: Deployment
+    name: horoscope-app
+  resourcePolicy:
+    containerPolicies:
+      - containerName: '*'
+        minAllowed:
+          cpu: 100m
+          memory: 50Mi
+        maxAllowed:
+          cpu: 1500m
+          memory: 1280Mi
+        controlledResources: ["cpu", "memory"]
+```
+
+**Bước 3:** Dùng ab thực hiện request đến website:
+
+```sh
+ab -n 100000 -c 10000 http://nodejs.baotrung.xyz/
+```
+
+**Bước 4:** Kiểm tra mức độ sử dụng cpu và memory:
+
+```sh
+kubectl top pods
+```
+
+Có thể kiểm tra thêm logs của Updater
+
+```sh
+kubectl logs -f vpa-updater-599cfb6c8f-jlltj -n kube-system
+```
