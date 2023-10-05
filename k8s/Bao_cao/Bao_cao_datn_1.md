@@ -655,7 +655,7 @@ Cơ bản thì app này làm nhiệm vụ sau:
 
 ### 3. Build images và push lên registry
 
-Thực hiện build docker:
+Thực hiện build images:
 
 ```sh
 docker build -t shaidoka/nodejs-k8s:v1 .

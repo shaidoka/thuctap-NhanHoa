@@ -193,4 +193,3 @@ Các dịch vụ routing:
 - VPNaaS: VPN as a Service, extension của neutron cho VPN
 - LBaaS: LB as a Service, API quy định và cấu hình nên các LB, được triển khai dựa trên HAProxy software load balancer
 - FWaas: Firewall as a Service, API thử nghiệm cho phép các nhà cung cấp kiểm thử trên networking của họ
-

@@ -341,3 +341,189 @@ spec:
 ```sh
 kubectl apply -f ipaddresspool.yaml
 ```
+
+## II. Quy trình triển khai ứng dụng lên k8s
+
+### 1. Pull code và build image
+
+Máy chủ sử dụng để build image cho ứng dụng là **CentOS 7**, ae có thể sử dụng distro nào cũng được, nhưng tập lệnh sẽ khác đôi chút
+
+Update OS
+
+```sh
+yum update -y
+```
+
+Cài đặt gói cần thiết
+
+```sh
+yum install yum-utils -y
+```
+
+Thêm repo docker
+
+```sh
+yum-config-manager \
+--add-repo \
+https://download.docker.com/linux/centos/docker-ce.repo
+```
+
+Download docker
+
+```sh
+yum install docker-ce docker-ce-cli containerd.io -y
+```
+
+Khởi động docker
+
+```sh
+systemctl enable docker --now
+```
+
+Link tham khảo: [Tìm hiểu về Docker](https://wiki.nhanhoa.com/kb/tim-hieu-co-ban-ve-docker-phan-2/)
+
+**Trước khi thực hiện bước tiếp theo, hãy lên [Docker Hub](https://hub.docker.com/) đăng ký 1 tài khoản**
+
+Đăng nhập vào docker
+
+```sh
+docker login
+```
+
+Cài đặt github CLI + Pull code
+
+```sh
+curl -OL https://github.com/cli/cli/releases/download/v1.14.0/gh_1.14.0_linux_amd64.rpm
+yum localinstall gh_1.14.0_linux_amd64.rpm
+# Login vào github
+gh auth login
+gh repo clone shaidoka/horoscope-project
+```
+
+Thêm Dockerfile vào repo:
+
+```sh
+cd horoscope-project
+touch Dockerfile
+```
+
+```sh
+cat << EOF > Dockerfile
+FROM python:3.6-slim
+RUN apt update
+WORKDIR /app
+ADD requirements.txt /app/requirements.txt
+RUN pip install -r /app/requirements.txt
+ADD . /app
+ENV PORT 5000
+EOF
+```
+
+Thực hiện build images:
+
+```sh
+docker build -t horoscope-image .
+```
+
+Tag image: **(Thay đổi tên user đúng với tài khoản của mn)**
+
+```sh
+docker tag horoscope-image shaidoka/horoscope-api:v1
+```
+
+Sau đó push lên registry:
+
+```sh
+docker push shaidoka/horoscope-api:v1
+```
+
+### 4. Triển khai lên k8s
+
+Tạo và apply deployment với nội dung như sau **(có thể sửa image thành image mn vừa pushm không thì sử dụng image em đã build sẵn cũng được)**:
+
+```sh
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: horoscope-app
+  labels:
+    app: horoscope-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: horoscope-app
+  template:
+    metadata:
+      labels:
+        app: horoscope-app
+    spec:
+      containers:
+        - name: horoscope-app
+          image: shaidoka/horoscope-image:v1
+          imagePullPolicy: Always
+          command: ["python", "/app/main.py"]
+          resources:
+            # Specifying the resourses that we might need for our application
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "300m"
+          ports:
+            - containerPort: 5000
+```
+
+*Lệnh apply là ```kubectl apply -f <tên-file-yaml>```*
+
+Tạo vào apply service như sau:
+
+```sh
+apiVersion: v1
+kind: Service
+metadata:
+  name: horoscope-service
+spec:
+  selector:
+    app: horoscope-app
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 80
+    targetPort: 5000
+```
+
+Tạo và apply ingress như sau:
+
+```sh
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: horoscope-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: horoscope.baotrung.xyz
+    http:
+      paths:
+      - backend:
+          service:
+            name: horoscope-service
+            port:
+              name: http
+        path: /
+        pathType: Prefix
+```
+
+Done! Giờ trỏ domain và truy cập web vừa tạo:
+
+![](./images/K8s_6.png)
+
+## III. Autoscaling
+
+Ưu điểm lớn nhất mà K8s có là mức độ linh hoạt, đặc biệt là trong việc auto scaling của nó.
+
+Có 2 phương pháp scaling (pod/cluster) là **horizontal scaling** và **vertical scaling**:
+- **Horizontal scaling** là cách scale mà ta sẽ tăng số lượng worker (application) đang xử lý công việc hiện tại ra nhiều hơn. Ví dụ ta đang có 2 pod để xử lý tích điểm cho client khi client tạo deal thành công, khi số lượng client tăng đột biến, 2 pod không thể xử lý kịp, ta sẽ scale số lượng pod lên thành 4 chẳng hạn.
+- **Vertical scaling** là cách scale thay vì tăng số lượng worker, ta sẽ tăng lượng tài nguyên của pod đó lên, như là tăng số CPU và RAM của pod. Ví dụ ta có một model để train AI, việc train này không thể tách ra 1 model khác để tăng tốc độ train được, mà ta chỉ có thể tăng CPU và memory cho model đó, lúc này ta sẽ cần đến Vertical scaling.
