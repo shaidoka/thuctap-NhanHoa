@@ -315,7 +315,7 @@ Lệnh trên sẽ deploy MetalLB vào cluster dưới namespace ```metallb-syste
 
 MetalLB cần 1 pool địa chỉ IP để sử dụng cho ```ingress-nginx``` service. Pool này có thể chỉ định thông qua ```IPAddressPool``` object ở trong cùng namespace với MetalLB controller. 
 
-Tạo 1 object với kind IPAddressPool như sau
+Tạo 1 object với kind IPAddressPool như sau **(IP ở đây phải là IP nơi mà ingress controller được đặt)**
 
 ```sh
 apiVersion: metallb.io/v1beta1
