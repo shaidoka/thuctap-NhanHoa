@@ -102,7 +102,7 @@ Host 2 và Host 3 VTEP không join nhóm multicast bởi vì chúng không có m
 - Mạng vật lý sẽ chuyển các gói tin này tới Host 4 VTEP, vì nó đã join vào nhóm multicast 239.1.1.100. Host 2 và 3 VTEP sẽ không nhận được frame broadcast này
 - VTEP trên host 4 đầu tiên đối chiếu header được đóng gói, nếu 24bit VNI trùng với ID của VXLAN. Nó sẽ de-capsulated lớp gói được VTEP host 1 đóng vào và chuyển tới máy ảo VM đích (MAC2)
 
-#### VTEDP học và tạo bảng forwarding
+#### VTEP học và tạo bảng forwarding
 
 Ban đầu, mỗi VTEP sau khi join vào nhóm IP multicast đều có 1 bảng forwarding table như dưới đây:
 
@@ -114,4 +114,26 @@ Các bước sau sẽ thực hiện để VTEP học và ghi vào bảng forward
 ![](./images/OPS8_21.png)
 
 Host 2 VTEP - Forwarding table entry:
-- VM trên Host 1 gửi bản tin ARP request với địa chỉ MAC đích là 
+- VM trên Host 1 gửi bản tin ARP request với địa chỉ MAC đích là "FFFFFFFFFFF"
+- VTEP trên Host 1 đóng gói vào frame Ethernet broadcast vào một UDP header với địa chỉ IP đích multicast và địa chỉ nguồn 10.20.10.10 của VTEP
+- Mạng vật lý sẽ chuyển gói tin multicast tới các host join vào nhóm IP multicast "239.1.1.10"
+- VTEP trên Host 2 nhận được gói tin đã đóng gói. Dựa vào outer và inner header, nó sẽ tạo 1 entry trong bảng forwarding chỉ ra mapping giữa MAC của máy VM MAC1 ứng với VTEP nguồn của địa chỉ IP của nó. VTEP cũng kiểm tra VNI của gói tin để quyết định chuyển tiếp gói tin vào trong cho máy ảo VM bên trong nó hay không
+- Gói tin được de-encapsulated và chuyển vào VM mà được kết nối với VXLAN 5001
+
+Hình sau minh họa cách mà VTEP tìm kiếm thông tin trong forwarding table để gửi unicast trả lời lại từ VM từ VTEP 2:
+
+![](./images/OPS8_22.png)
+
+- Máy ảo VM MAC2 trên Host 2 đáp trả lại ARP request bằng cách gửi unicast lại gói tin với địa chỉ MAC đích là MAC1
+- Sau khi nhận được gói tin unicast đó, VTEP trên Host 2 thực hiện tìm kiếm thông tin trong bảng forwarding table và lấy được thông tin ứng với MAC đích là MAC1. VTEP sẽ biết rằng phải chuyển gói tin tới máy ảo VM MAC1 bằng cách gửi gói tin tới VTEP có địa chỉ "10.20.10.10"
+- VTEP tạo bản tin unicast với địa chỉ đích là "10.20.10.10" và gửi nó đi
+
+Trên Host 1, VTEP sẽ nhận được gói tin unicast và cũng học được vị trí của VM MAC 2 như hình sau:
+
+![](./images/OPS8_23.png)
+
+Host 1 VTEP - Forwarding table entry
+- Gói tin được chuyển tới Host 1
+- VTEP trên Host 1 nhận được gói tin. Dựa trên outer và inner header, nó tạo một entry trong bảng forwarding ánh xạ địa chỉ MAC 2 và VTEP trên Host 2. VTEP cũng check lại VNI và quyết định gửi frame vào các con VM bên trong
+- Gói tin được de-encapsulated và chuyển tới chính xác VM có MAC đích trùng và nằm trong VXLAN 5001
+
