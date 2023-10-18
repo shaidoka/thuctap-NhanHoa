@@ -66,3 +66,12 @@ Thêm thử dòng sau vào file ```policy.yaml``` để cho role ```test``` có 
 "identity:list_users" : "role:test"
 ```
 
+![](./images/OPS6_20.png)
+
+Thêm
+
+```sh
+"identity:list_users" : "role:vpc or role:admin"
+```
+
+![](./images/OPS6_21.png)
