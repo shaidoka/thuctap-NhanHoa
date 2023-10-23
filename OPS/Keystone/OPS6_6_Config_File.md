@@ -89,3 +89,35 @@ VD: ```ldap_dns_password='a password with spaces'```
 |:-|:-|:-|
 |```driver = sql```|string|Trình điều khiển phụ trợ (nơi lưu trữ phân công vai trò) trong Keystone assignment|
 |```prohibited_implied_role```|list|Danh sách các role bị cấm trở thành implied role|
+
+## IV. Authorization configuration options
+
+### Section ```[auth]```
+
+|Option|Type|Description|
+|:-|:-|:-|
+|```external = <None>```|string|Điểm vào cho auth plugin module, mặc định sẽ là Default Domain|
+|```methods = external,password,token,oauth1,mapped,application_credential```|list|Các phương thức xác thực được phép sử dụng|
+|```oauth1 = <None>```|string|Điểm vào cho OAuth 1.0 auth plugin module|
+|```password = <None>```|string|Điểm vào cho module xác thực mật khẩu|
+|```token = <None>```|string|Điểm vào cho module xác thực bằng token|
+
+## V. Catalog configuration
+
+### Section ```[catalog]```
+
+|Option|Type|Description|
+|:-|:-|:-|
+|```cache_time = <None>```|integer|Thời gian để cache dữ liệu catalog (đơn vị giây). Tùy chọn này sẽ không có hiệu lực cho đến khi global và catalog caching được kích hoạt|
+|```caching = true```|boolean|Kích hoạt catalog caching, nó sẽ không có tác dụng cho tới khi global caching được kích hoạt|
+|```driver = sql```|string|Điểm vào cho catalog backend driver|
+|```list_limit = <None>```|integer|Số lượng thực thể tối đa được trả về trong catalog. Thông thường không có lý do để đặt điều này, vì sẽ là bất thường khi 1 triển khai lại đặt giới hạn số lượng services hay endpoints|
+|```template_file = default_catalog.templates```|string|Catalog template file name để sử dụng với template catalog backend|
+
+## VI. Common configuration options
+
+### Section ```[DEFAULT]```
+
+|Option|Type|Description|
+|:-|:-|:-|
+|```executor_thread_pool_size = 64```|integer|Kích thước của nhóm luồng thực thi khi thuực thi là luồng hoặc sự kiện|
