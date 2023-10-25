@@ -1,0 +1,32 @@
+# Các trạng thái của Placement Group
+
+Khi kiểm tra trạng thái cluster trong cụm CEPH bằng câu lệnh ```ceph -w``` hoặc ```ceph -s```. Hệ thống CEPH sẽ báo lại trạng thái của ```placement groups```. Một placement group có 1 hoặc nhiều trạng thái. Trạng thái tuyệt vời nhất cho placement groups là ```active + clean```:
+- ```creating```: CEPH đang tạo placement group
+- ```activating```: Placement group được khởi động lên nhưng chưa ở trạng thái active
+- ```active```: CEPH xử lý thành công placement group
+- ```clean```: Đảm bảo tất cả objects trong các PG có đủ số lượng replicate tại thời điểm đó
+- ```down```: Bản replicate bị hỏng, nên trạng thái của placement group là offline
+- ```scrubbing```: CEPH check tính nhất quán của PG metadata
+- ```deep```: CEPH kiểm tra PH data dưới dạng mã checksum
+- ```degraded```: Không đủ số lượng objects replicate ở thời điểm hiện tại
+- ```inconsistent```: CEPH phát hiện sự không nhất quán 1 hoặc nhiều bản replicate của 1 objects trong PG
+- ```peering```: PG đang trong quá trình chuẩn bị thay đổi giữa các process
+- ```repair```: CEPH kiểm tra trạng thái của PG và sửa chữa nếu nó tìm thấy lỗi
+- ```recovering```: CEPH đang migrating/synchronizing objects và thực hiện replicate chúng
+- ```forced_recovery```: Phục hồi PG có độ ưu tiên cao được xử lý bởi người dùng
+- ```recovery_wait```: PG đang đợi để bắt đầu khôi phục
+- ```recovery_toofull```: Một tiến trình recovery đang chờ bởi vì tỷ lệ OSD đang quá ngưỡng ratio
+- ```recovery_unfound```: Dừng tiến trình recovery vì không tìm thấy objects
+- ```backfilling```: CEPH tìm và đồng bộ toàn bộ nội dung của một PG. Backfill là một trường hợp đặc biệt
+- ```forced_backfill```: Thực hiện san lấp đồng bộ với PG có độ ưu tiên cao
+- ```backfill_wait```: PG đợi để bắt đầu backfill
+- ```backfill_toofull```: Quá trình san lấp giữa các OSD phải đợi do OSD đích vượt quá ngưỡng ratio cho phép
+- ```backfill_unfound```: Quá trình san lấp dừng lại do không tìm thấy object(s)
+- ```incomplete```: CEPH phát hiện một PG miss thông tin trong quá trình ghi hoặc không có bất kỳ bản sao chép nào. Nếu thấy trạng thái này đánh fail OSD, nếu case này xảy ra có thể giảm min size để tiến hành recovery
+- ```stale```: PG không lấy được trạng thái
+- ```remapped```: PG được ánh xạ tới PG khác với những gì crush map chỉ định đặc biệt
+- ```undesired```: PG có ít hơn các bản copy so với mức replicate và những gì đã cấu hình pool
+- ```peered```: PG đã được peer nhưng không thể phục vụ các tiến trình đọc ghi IO do không đủ bản sao nhưng đã được cấu hình ở pool để phục hồi. Recovery có thể thực hiện trong trường hợp này
+- ```snaptrim```: Đang cắt snap
+- ```snaptrim_wait```: Đợi để cắt snap
+- ```snaptrim_error```: Dừng do lỗi cắt snaps
