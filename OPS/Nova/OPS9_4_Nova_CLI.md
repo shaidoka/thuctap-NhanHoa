@@ -32,12 +32,14 @@ VD:
 
 ```sh
 openstack flavor create --id auto \
---ram 2048 \
---disk 20 \
---vcpus 2 \
+--ram 1024 \
+--disk 5 \
+--vcpus 1 \
 --public \
-HaiDD-Test-A
+Flavor-Test-1
 ```
+
+![](./images/OPS9_10.png)
 
 ### Xóa flavor
 
@@ -65,7 +67,8 @@ openstack flavor set
 VD:
 
 ```sh
-openstack flavor set --project demo HaiDD-Test-B
+# Chỉ gán project được đối với flavor private
+openstack flavor set --project demo Flavor-Test-1
 ```
 
 ```access_project_ids```: ID của project được gán
@@ -80,9 +83,13 @@ openstack flavor unset
     <flavor>
 ```
 
-VD: ```openstack flavor unset --project demo HaiDD-Test-B```
+VD: 
 
-## Server (VM)
+```sh
+openstack flavor unset --project demo Flavor-Test-1
+```
+
+## Server (VM / Instance)
 
 ### Tạo VM từ image hoặc volume
 
@@ -116,7 +123,7 @@ VD: Ta tạo VM từ image với cloud-init config:
 cat cloudconfig
 
 #cloud-config
-password: hai1996
+password: Welcome123
 chpasswd: {expire: False}
 ssh_pwauth: True
 ```
@@ -124,13 +131,15 @@ ssh_pwauth: True
 Tạo VM với password truyền vào từ file cloud-config
 
 ```sh
-openstack server create --flavor HaiDD-Test-A \
+openstack server create --flavor Flavor-Test-1 \
 --image cirros \
---nic net-id=3650e62e-b6eb-4067-98e7-ff0fc7f90319 \
---security-group d2307a7d-f37d-404e-8270-d854aa5280dc \
+--nic net-id=89b16e6b-7c0c-4097-b050-484872c8dbba \
+--security-group 821ff602-1f8b-4f11-b949-8ce611d70d09 \
 --user-data cloudconfig \
-HaiDD-Test-VM01
+Test-VM01
 ```
+
+![](./images/OPS9_11.png)
 
 ### Show thông tin VM
 
@@ -160,7 +169,7 @@ openstack server delete [--wait] <tên hoặc ID server>
 openstack hypervisor list
 ```
 
-## Snapshot
+## Snapshot (xem ở bài Cinder CLI)
 
 ### Tạo snapshot
 
