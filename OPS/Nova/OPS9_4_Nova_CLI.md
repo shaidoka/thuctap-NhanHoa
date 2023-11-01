@@ -1,4 +1,4 @@
-# Các câu lệnh thường dùng trong Nova (lý thuyết)
+# Các câu lệnh thường dùng trong Nova
 
 ## Flavor
 
