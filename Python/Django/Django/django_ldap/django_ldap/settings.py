@@ -128,7 +128,7 @@ from django_auth_ldap.config import LDAPSearch, LDAPGroupQuery, GroupOfNamesType
 AUTH_LDAP_SERVER_URI = 'ldap://45.117.82.30'
 AUTH_LDAP_BIND_DN = 'cn=adduser_1,dc=nhanhoa,dc=local'
 AUTH_LDAP_BIND_PASSWORD = 'slapd'
-AUTH_LDAP_USER_SEARCH = LDAPSearch('dc=nhanhoa,dc=local',ldap.SCOPE.SUBTREE, '(uid=%(user)s)')
+AUTH_LDAP_USER_SEARCH = LDAPSearch('dc=nhanhoa,dc=local',ldap.SCOPE_SUBTREE, '(uid=%(user)s)')
 AUTH_LDAP_GROUP_SEARCH = LDAPSearch('dc=example,dc=com',ldap.SCOPE_SUBTREE, '(objectClass=top)')
 AUTH_LDAP_GROUP_TYPE = PosixGroupType(name_attr="cn")
 AUTH_LDAP_MIRROR_GROUPS = True
