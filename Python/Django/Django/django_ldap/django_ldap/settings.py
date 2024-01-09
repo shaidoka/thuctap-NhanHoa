@@ -150,6 +150,7 @@ AUTH_LDAP_PROFILE_ATTR_MAP = {
 
 AUTH_LDAP_USER_FLAGS_BY_GROUP = {
     "is_active": "cn=active,ou=Group,dc=nhanhoa,dc=local",
+    "is_disable": "cn=disabled,ou=Group,dc=nhanhoa,dc=local",
     "is_staff": "cn=staff,ou=Group,dc=nhanhoa,dc=local",
     "is_superuser": "cn=superuser,ou=Group,dc=nhanhoa,dc=local"
 }
