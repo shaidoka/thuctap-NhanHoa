@@ -26,7 +26,7 @@
             {% for client in clients %}
                 <div class="mb-2 lead">
                     <h3 class="font-semibold">{{client.name}}</h3>
-                    <a href="{% url 'client_detail' client.pk %}">Details</a>
+                    <a href="{% url 'clients:detail' client.pk %}">Details</a>
                 </div>
             {% endfor %}
         </div>

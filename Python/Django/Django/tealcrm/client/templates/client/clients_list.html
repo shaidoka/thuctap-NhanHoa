@@ -9,14 +9,14 @@
         {% for client in clients %}
                 <div class="flex justify-between"> 
                         <p class="py-4 px-2 w-full {% cycle 'bg-gray-100' '' %}">
-                                <a href="{% url 'client_detail' client.id %}">{{client.name}}</a>
+                                <a href="{% url 'clients:detail' client.id %}">{{client.name}}</a>
                         </p>
                 </div>
         
         {% empty %}
                 <p>There are no client in database yet...</p>
         {% endfor %}
-        <a href="{% url 'add_client' %}" class="inline-block py-4 px-6 bg-teal-600 rounded-xl text-white">Add Client</a>
+        <a href="{% url 'clients:add' %}" class="inline-block py-4 px-6 bg-teal-600 rounded-xl text-white">Add Client</a>
 
 </div>
 
