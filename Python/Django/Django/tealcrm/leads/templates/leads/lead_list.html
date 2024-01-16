@@ -11,10 +11,10 @@
                 <p class="py-4 px-2 bg-gray-200 font-semifold w-full">Priority</p>
                 <p class="py-4 px-2 bg-gray-200 font-semifold w-full">Status</p>
         </div>
-        {% for lead in leads %}
+        {% for lead in object_list %}
                 <div class="flex justify-between"> 
                         <p class="py-4 px-2 w-full {% cycle 'bg-gray-100' '' %}">
-                                <a href="{% url 'leads_detail' lead.id %}">{{lead.name}}</a>
+                                <a href="{% url 'leads:detail' lead.id %}">{{lead.name}}</a>
                         </p>
                         <p class="py-4 px-2 w-full {% cycle 'bg-gray-100' '' %}">{{lead.get_priority_display}}</p>
                         <p class="py-4 px-2 w-full {% cycle 'bg-gray-100' '' %}">{{lead.get_status_display}}</p>
@@ -23,7 +23,7 @@
         {% empty %}
                 <p>There are no lead in database yet...</p>
         {% endfor %}
-        <a href="{% url 'add_lead' %}" class="inline-block py-4 px-6 bg-teal-600 rounded-xl text-white">Add lead</a>
+        <a href="{% url 'leads:add' %}" class="inline-block py-4 px-6 bg-teal-600 rounded-xl text-white">Add lead</a>
 </div>
 
 {% endblock content %}
