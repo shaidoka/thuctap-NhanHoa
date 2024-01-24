@@ -8,7 +8,7 @@
     <h1 class="text-xl">Add lead</h1>
     
     {% if team.plan.max_leads > team.leads.all|length %}
-        <form method="post" action=".">
+        <form method="post" action="{% url 'leads:add' %}">
             {% csrf_token %}
             {{form.as_p}}
             <button class="py-4 px-8 bg-teal-500 text-white rounded-xl">Submit</button>

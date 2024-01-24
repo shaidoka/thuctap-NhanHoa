@@ -1,0 +1,9 @@
+exim -bpc  => xem số lượng
+
+exim -bp | awk '{print $4}' | sort | uniq -c | sort -nr | head -30    => tổng hợp theo user
+
+exim -Mvh  <ID mail spam>
+
+exim -bp | awk '/^ *[0-9]+[mhd]/{print "exim -Mrm " $3}' | bash   => clear mail queue
+
+exiqgrep -f user@compromised.tld -i | xargs exim -Mrm   => Remove queue của 1 account nào đó

@@ -16,7 +16,9 @@
         {% empty %}
                 <p>There are no client in database yet...</p>
         {% endfor %}
+        
         <a href="{% url 'clients:add' %}" class="inline-block py-4 px-6 bg-teal-600 rounded-xl text-white">Add Client</a>
+        <a href="{% url 'clients:export' %}" class="inline-block py-4 px-6 bg-teal-600 rounded-xl text-white">Export Clients</a>
 
 </div>
 

@@ -1,0 +1,25 @@
+netstat -ntu|awk '{print $5}'|cut -d: -f1 -s|sort|uniq -c|sort -nk1 -r
+
+---------------------------------------------------------------------
+cat /var/log/httpd/domains/*.log | grep "27/Jan/2023" | awk '{print $1}' | sort | uniq -c | sort -nr | head -30
+
+cat /var/log/httpd/domains/*.log | awk '{print $1}' | sort | uniq -c | sort -nr | head -30
+DA
+
+---------------------------------------------------------------------
+cat /var/log/apache2/domlogs/hason.eco-technology.vn | grep "17/Oct/2022" | awk '{print $1}' | sort | uniq -c | sort -nr | head -30
+Cpanel
+
+-----------------------
+awk '{ print $1}' /var/log/httpd/domains/eurogold.com.vn.log | sort | uniq -c | sort -nr | head -n 10
+
+---------------------------------------------------------------------
+ps aux | grep nhqashwd | grep -v grep | awk '{print $2}' | xargs kill -9
+
+---------------------------------------------------------------------
+# Check top memory usage
+ps -o pid,user,%mem,command ax | sort -b -k3 -r
+
+---------------------------------------------------------------------
+# Check memory usage of process
+pmap <pid>
