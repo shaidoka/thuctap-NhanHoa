@@ -7,6 +7,8 @@
 <div class="py-6 px-6">
     <h1 class="text-xl">{{team.name}}</h1>
 
+    <a href="{% url 'team:list' %}">Switch team</a>
+
     {% if team.created_by == request.user %}
         <a href="{% url 'team:edit' team.id %}">(Edit)</a>
     {% endif %}

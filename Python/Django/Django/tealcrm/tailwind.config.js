@@ -6,7 +6,8 @@ module.exports = {
     'team/templates/team/*.html',
     'leads/templates/leads/*.html',
     'dashboard/templates/dashboard/*.html',
-    'userprofile/templates/userprofile/*.html'
+    'userprofile/templates/userprofile/*.html',
+    'core/templates/core/partials/*.html',
   ],
   theme: {
     extend: {},

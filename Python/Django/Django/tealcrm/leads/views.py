@@ -77,13 +77,13 @@ class LeadCreateView(LoginRequiredMixin, CreateView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        team = Team.objects.filter(created_by=self.request.user)[0]
+        team = self.request.user.userprofile.active_team
         context['team'] = team
         context['title'] = 'Add Lead'
         return context
     
     def form_valid(self, form):
-        team = Team.objects.filter(created_by=self.request.user)[0]
+        team = self.request.user.userprofile.active_team
         self.object = form.save(commit=False)
         self.object.created_by = self.request.user
         self.object.team = team
@@ -94,7 +94,7 @@ class ConvertToClientView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         pk = self.kwargs.get('pk')
         lead = get_object_or_404(Lead, created_by=request.user, pk=pk)
-        team = Team.objects.filter(created_by=request.user)[0]
+        team = request.user.userprofile.active_team
         client = Client.objects.create(
             name = lead.name,
             email = lead.email,
@@ -129,7 +129,7 @@ class AddCommentView(LoginRequiredMixin, View):
         pk = kwargs.get('pk')
         form = AddcommentForm(request.POST)
         if form.is_valid():
-            team = Team.objects.filter(created_by=self.request.user)[0]
+            team = request.user.userprofile.active_team
             comment = form.save(commit=False)
             comment.team = team
             comment.created_by = request.user
@@ -144,7 +144,7 @@ class AddFileView(LoginRequiredMixin, View):
         form = AddFileForm(request.POST, request.FILES)
 
         if form.is_valid():
-            team = Team.objects.filter(created_by=self.request.user)[0]
+            team = request.user.userprofile.active_team
             file = form.save(commit=False)
             file.team = team
             file.lead_id = pk
