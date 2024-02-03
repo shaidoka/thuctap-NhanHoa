@@ -25,7 +25,7 @@ mkdir -p /data/harbor_data
 mkdir -p /home/sysadmin/open-sources/harbor_registry
 cd /home/sysadmin/open-sources/harbor_registry
 curl -s https://api.github.com/repos/goharbor/harbor/releases/latest | grep browser_download_url | cut -d '"' -f 4 | grep '\.tgz$' | wget -i -
-tar xvzf harbor-offline-installer*.tgz
+tar -xvzf harbor-offline-installer*.tgz
 cd harbor
 cp harbor.yml.tmpl harbor.yml
 ```
