@@ -53,7 +53,38 @@ git push gitlab --mirror
 
 *Phần này có thể thay thế bằng bất kỳ private registry nào cũng được*
 
-Các cài đặt Harbor Registry được đề cập ở [đây]
+Cách cài đặt Harbor Registry được đề cập ở [đây](https://github.com/shaidoka/thuctap-NhanHoa/blob/main/k8s/K8s_CICD/K8s_Harbor_Registry.md)
 
 Sau khi cài đặt thì thực hiện thêm 1 vài bước:
+
+- Tạo project mới để lưu các image. Ở đây mình tạo project **nodejs-demo** và để là public project. Khi push lên (từ Jenkins) thì cần user và password, còn pull về (từ k8s) thì không cần.
+- Tạo user trên Harbor để Jenkins kết nối và push image lên. Vào mục Users tạo user mới. Ở đây mình tạo user **jenkin_harbor** với password là **Admin@123**
+- Gán quyền cho user này có thể push lên repo: Vào mục Project -> chọn project **nodejs_demo** -> chọn Member -> Add member jenkin_harbor với role là **Developer**
+
+**Kết quả:**
+
+![](./images/K8s_CICD_1.png)
+
+## Cài đặt và cấu hình Jenkins
+
+Chi tiết các bước cài đặt Jenkins các bạn có thể tham khảo ở [đây](https://github.com/shaidoka/thuctap-NhanHoa/blob/main/k8s/K8s_CICD/K8s_Jenkins.md)
+
+Sau khi cài đặt thì thực hiện 1 vài bước:
+
+- Cài đặt các plugin cần thiết (nếu chưa cài): Git, Docker Pipeline. Đây là 2 plugin chính dùng cho việc pull code từ git về Jenkins, và cho việc build docker và push lên registry (Vào Manage Jenkins -> Manage Plugins -> Chọn Available -> Tìm các plugin theo tên, sau đó tick chọn và ấn Install without restart -> Chờ kết quả successful)
+- Tạo credential để kết nối vào Gitlab và Harbor: Vào ```Manage Jenkins``` -> ```Manage Credentials``` -> Click vào domain global màu xanh -> Add Credential -> Username with Password -> Điền user và password như đã tạo ở các bước trước. Lưu ý đặt ID trùng với Username, ID này cần dùng để khai báo trong pipeline ở bước sau
+- Cấu hình cho user jenkins có quyền chạy docker mà không cần sudo
+
+```sh
+sudo usermod -aG docker jenkins
+sudo service jenkins restart
+```
+
+- Cấu hình để Jenkins có thể pull/push image lên Harbor:
+
+Khai báo file host trên Jenkins:
+
+```sh
+103.101.162.5 harbor.baotrung.xyz
+```
 

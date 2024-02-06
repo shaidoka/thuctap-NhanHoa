@@ -288,7 +288,7 @@ Bạn có thể đăng nhập Jenkins bằng tài khoản ```Admin``` và passwo
 kubectl exec -it jenkins-56b6774bb6-958pg cat /var/jenkins_home/secrets/initialAdminPassword -n devops-tools
 ```
 
-**Lưu ý:** Thay ```jenkins-559d8cd85c-cfcgk``` bằng tên pod Jenkins của bạn
+**Lưu ý:** Thay ```jenkins-56b6774bb6-958pg``` bằng tên pod Jenkins của bạn
 
 Chọn ```Install suggested plugins```
 

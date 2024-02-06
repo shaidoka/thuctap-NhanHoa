@@ -71,9 +71,9 @@ basicConstraints = CA:FALSE
 keyUsage = nonRepudiation, digitalSignature, keyEncipherment
 subjectAltName = @alt_names
 [alt_names]
-DNS.1 = *.monitor.baotrung.xyz
+DNS.1 = *.baotrung.xyz
 DNS.2 = *.prod.baotrung.xyz
-DNS.3 = *.demo.baotrung.xyz
+DNS.3 = *.monitor.baotrung.xyz
 ```
 
 Tạo file key:
