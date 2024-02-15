@@ -88,3 +88,62 @@ Khai báo file host trên Jenkins:
 103.101.162.5 harbor.baotrung.xyz
 ```
 
+Tạo thư mục chứa cert trên Jenkins server
+
+```sh
+sudo -s
+mkdir -p /etc/docker/certs.d/harbor.baotrung.xyz/
+cd /etc/docker/certs.d/harbor.baotrung.xyz/
+vi harbor.baotrung.xyz.crt
+```
+
+Nội dung file ```harbor.baotrung.xyz.crt``` là cert đã dùng khi cài đặt harbor
+
+- Cấu hình kết nối tới K8s cho user jenkins, phục vụ cho việc deploy/upgrade ứng dụng trên K8s bằng lệnh kubectl/helm
+
+   - Cài đặt kubectl + helm trên server jenkins(xem lại các bài trước)
+   - Login vào user jenkins và tạo config ở đường dẫn ```~/.kube/config``` tương tự như cấu hình kubectl trên master node
+   - Từ user jenkins gõ thử ```kubectl get nodes``` để kiểm tra
+
+![](./images/K8s_CICD_2.png)
+
+## Tạo job trên Jenkins
+
+Tại giao diện dashboard chọn ```New item``` và tạo một folder mới có tên ```APP_DEMO```. Vào thư mục này và tạo 1 pipeline job mới với tên là ```my-app```
+
+![](./images/K8s_CICD_3.png)
+
+Trong mục General, cấu hình lưu thông tin các build cũ theo thời gian hoặc theo số lần build gần nhất
+
+![](./images/K8s_CICD_4.png)
+
+Tiếp đến là cấu hình pipeline, mình chọn Pipline script để viết script ở đây.
+
+Đầu tiên, tạo pipeline để kiểm tra khả năng pull code từ gitlab về, nếu có lỗi thì xử lý:
+
+```sh
+	// git repository info
+	def gitRepository = 'http://gitlab.baotrung.xyz/root/nodejs-test.git'
+	def gitBranch = 'master'
+
+	// gitlab credentials
+	def gitlabCredential = 'jenkin_gitlab'	
+
+	pipeline {
+		agent any
+				
+		stages {		
+			stage('Checkout project') 
+			{
+			  steps 
+			  {
+				echo "checkout project"
+				git branch: gitBranch,
+				   credentialsId: gitlabCredential,
+				   url: gitRepository
+				sh "git reset --hard"				
+			  }
+			}
+		}
+	}
+```
