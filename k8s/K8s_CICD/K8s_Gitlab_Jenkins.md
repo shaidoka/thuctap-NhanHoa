@@ -124,7 +124,7 @@ Tiếp đến là cấu hình pipeline, mình chọn Pipline script để viết
 ```sh
 	// git repository info
 	def gitRepository = 'http://gitlab.baotrung.xyz/root/nodejs-test.git'
-	def gitBranch = 'master'
+	def gitBranch = 'main'
 
 	// gitlab credentials
 	def gitlabCredential = 'jenkin_gitlab'	
@@ -144,6 +144,89 @@ Tiếp đến là cấu hình pipeline, mình chọn Pipline script để viết
 				sh "git reset --hard"				
 			  }
 			}
+		}
+	}
+```
+
+Trong pipeline bên trên, chúng ta khai báo thông tin kết nối gitlab gồm URL và branch cũng như thông tin credential ID của Gitlab. Các thông tin này sẽ được dùng cho plugin Git để pull source code. Lệnh "git reset --hard" để lấy commit mới nhất của branch này. Buid thành công trả về kết quả như sau:
+
+![](./images/K8s_CICD_5.png)
+
+Source code được pull về thư mục ```[jenkins-home-dir]/workspaces/[folder-name]/[job-name]```
+
+![](./images/K8s_CICD_6.png)
+
+Tiếp đến, ta build code, build image và push lên registry. Để làm được thì cần bổ sung:
+
+- Thông tin registry
+- Thông tin user/pass kết nối registry (chính là credential ID mà ta đã khai user/pass vào registry)
+- Thông tin repo/tag cho image
+
+Ta cập nhật lại job như sau:
+
+```sh
+	// git repository info
+	def gitRepository = 'http://gitlab.baotrung.xyz/root/nodejs-test.git'
+	def gitBranch = 'main'
+
+	// Image infor in registry
+	def imageGroup = 'nodejs_demo'
+	def appName = "my-app"
+	def namespace = "helm-demo"
+
+	// harbor-registry credentials
+	def registryCredential = 'jenkin_harbor'
+	// gitlab credentials
+	def gitlabCredential = 'jenkin_gitlab'
+	
+	dockerBuildCommand = './'
+	def version = "prod-0.${BUILD_NUMBER}"
+
+	pipeline {
+		agent any
+		
+		environment {
+			DOCKER_REGISTRY = 'https://harbor.baotrung.xyz'
+			DOCKER_IMAGE_NAME = "${imageGroup}/${appName}"
+			DOCKER_IMAGE = "harbor.baotrung.xyz/${DOCKER_IMAGE_NAME}"
+		}
+
+		stages {
+		
+			stage('Checkout project') 
+			{
+			  steps 
+			  {
+				echo "checkout project"
+				git branch: gitBranch,
+				   credentialsId: gitlabCredential,
+				   url: gitRepository
+				sh "git reset --hard"				
+			  }
+			}
+			stage('Build project')
+			{
+			  steps
+			  {
+				sh "npm install"
+			  }
+			}
+			stage('Build docker and push to registry') 
+			{
+			  steps 
+			  {
+				script {
+						app = docker.build(DOCKER_IMAGE_NAME, dockerBuildCommand)
+						docker.withRegistry(DOCKER_REGISTRY, registryCredential) 
+						{
+						   app.push(version)
+						}
+
+						sh "docker rmi ${DOCKER_IMAGE_NAME} -f"
+						sh "docker rmi ${DOCKER_IMAGE}:${version} -f"				
+					}
+			  }
+			}			
 		}
 	}
 ```
