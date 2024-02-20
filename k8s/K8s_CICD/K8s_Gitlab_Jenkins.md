@@ -230,3 +230,116 @@ Ta cập nhật lại job như sau:
 		}
 	}
 ```
+
+Buid thành công:
+
+![](./images/K8s_CICD_7.png)
+
+Image đã được upload lên Harbor:
+
+![](./images/K8s_CICD_8.png)
+
+Bước cuối cùng, ta sẽ deploy ứng dụng lên K8s sử dụng image mới. Trong pipeline script, thêm helm release, đường dẫn tới helmchart và file value:
+
+```sh
+//helm params
+def helmRelease="my-app"
+def helmValues = "/var/lib/jenkins/workspace/APP_DEMO/my-app/helmchart/app-demo-value.yaml"
+def helmChart = "/var/lib/jenkins/workspace/APP_DEMO/my-app/helmchart/app-demo"
+```
+
+Thêm stage để deploy ứng dụng lên k8s:
+
+```sh
+			stage('Apply k8s') {
+				steps {
+					script {
+						echo "Deploy to k8s"
+						sh "helm --namespace=$namespace upgrade $helmRelease -f $helmValues $helmChart  image.repository=${DOCKER_IMAGE},image.tag=prod-0.${BUILD_NUMBER}"
+					}
+				}
+			}
+```
+
+Pipeline hoàn chỉnh sẽ như sau:
+
+```sh
+	// git repository info
+	def gitRepository = 'http://gitlab.baotrung.xyz/root/nodejs-test.git'
+	def gitBranch = 'main'
+
+	// Image infor in registry
+	def imageGroup = 'nodejs_demo'
+	def appName = "my-app"
+	def namespace = "helm-demo"
+
+	// harbor-registry credentials
+	def registryCredential = 'jenkin_harbor'
+	// gitlab credentials
+	def gitlabCredential = 'jenkin_gitlab'
+
+	//helm param for upgrade
+	def helmRelease="my-app"
+	def helmValues = "/var/lib/jenkins/workspace/APP_DEMO/my-app/helmchart/app-demo-value.yaml"
+	def helmChart = "/var/lib/jenkins/workspace/APP_DEMO/my-app/helmchart/app-demo"
+	
+	dockerBuildCommand = './'
+	def version = "prod-0.${BUILD_NUMBER}"
+
+	pipeline {
+		agent any
+		
+		environment {
+			DOCKER_REGISTRY = 'https://harbor.baotrung.xyz'
+			DOCKER_IMAGE_NAME = "${imageGroup}/${appName}"
+			DOCKER_IMAGE = "harbor.baotrung.xyz/${DOCKER_IMAGE_NAME}"
+		}
+
+		stages {
+		
+			stage('Checkout project') 
+			{
+			  steps 
+			  {
+				echo "checkout project"
+				git branch: gitBranch,
+				   credentialsId: gitlabCredential,
+				   url: gitRepository
+				sh "git reset --hard"				
+			  }
+			}
+			stage('Build project')
+			{
+			  steps
+			  {
+				sh "npm install"
+			  }
+			}
+			stage('Build docker and push to registry') 
+			{
+			  steps 
+				{
+				script {
+						app = docker.build(DOCKER_IMAGE_NAME, dockerBuildCommand)
+						docker.withRegistry(DOCKER_REGISTRY, registryCredential) 
+						{
+						   app.push(version)
+						}
+
+						sh "docker rmi ${DOCKER_IMAGE_NAME} -f"
+						sh "docker rmi ${DOCKER_IMAGE}:${version} -f"				
+					}
+				}
+			}
+			stage('Apply k8s') {
+				steps {
+					script {
+						echo "Deploy to k8s"
+						sh "helm --namespace=$namespace upgrade $helmRelease -f $helmValues $helmChart --set image.repository=${DOCKER_IMAGE},image.tag=prod-0.${BUILD_NUMBER} --install --create-namespace"
+					}
+				}
+			}		
+		}
+	}
+```
+
