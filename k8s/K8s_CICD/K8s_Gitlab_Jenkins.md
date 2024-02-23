@@ -343,3 +343,7 @@ Pipeline hoàn chỉnh sẽ như sau:
 	}
 ```
 
+Build thành công:
+
+![](./images/K8s_CICD_9.png)
+
