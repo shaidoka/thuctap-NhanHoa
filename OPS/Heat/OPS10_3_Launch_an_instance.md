@@ -71,6 +71,8 @@ openstack stack create -t demo-template.yaml --parameter "NetID=$NET_ID" stack
 openstack stack list
 ```
 
+![](./images/Heat_1.png)
+
 6. Show tên và địa chỉ IP của instance và so sánh với output của OpenStack client:
 
 ```sh
@@ -80,6 +82,8 @@ openstack stack output show --all stack
 ```sh
 openstack server list
 ```
+
+![](./images/Heat_2.png)
 
 7. Delete stack
 

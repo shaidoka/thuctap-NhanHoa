@@ -117,18 +117,6 @@ openstack role create heat_stack_owner
 openstack role add --domain heat --user-domain heat --user heat_domain_admin admin
 ```
 
-- Tạo role **heat_stack_owner**:
-
-```sh
-openstack role create heat_stack_owner
-```
-
-- Thêm role **heat_stack_owner** vào **demo** project và user để có thể quản lý stack bằng **demo** user
-
-```sh
-openstack role add --project demo --user demo heat_stack_owner
-```
-
 - Tạo **heat_stack_user** role:
 
 ```sh
@@ -158,7 +146,7 @@ Trong phần ```[DEFAULT]```, cấu hình RabbitMQ message queue access:
 ```sh
 [DEFAULT]
 ...
-transport_url = rabbit://openstack:RABBIT_PASS@controller
+transport_url = rabbit://openstack:RABBIT_PASS@controller:5672
 ```
 
 - Trong ```[keystone_authtoken]```, ```[trustee]```, và ```[clients_keystone]```, cấu hình Identity service access:

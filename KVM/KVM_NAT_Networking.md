@@ -40,11 +40,7 @@ KVM guest muốn sử dụng NAT bridge mặc định sẽ cần thêm hoặc ch
 vi ~/new-kvm-network.xml
 <network>
   <name>newnatnetwork</name>
-  <forward mode='nat'>
-    <nat>
-      <port start='1024' end='65535'/>
-    </nat>
-  </forward>
+  <forward mode='nat' dev='br0' />
   <bridge name='nat-bridge' stp='on' delay='0'/>
   <ip address='192.168.0.1' netmask='255.255.255.0'>
     <dhcp>
@@ -59,12 +55,13 @@ Lưu ý là tên và IP addres của bridge có thể tùy chỉnh được, nh�
 2. Thêm network mới bằng cách định nghĩa file XML vừa tạo:
 
 ```sh
-virsh net-create ~/net-nat-network.xml
+virsh net-define ~/new-kvm-network.xml
 ```
 
 3. Thiết lập khởi động cùng hệ thống:
 
 ```sh
+virsh net-start nat-bridge
 virsh net-autostart nat-bridge
 ```
 
