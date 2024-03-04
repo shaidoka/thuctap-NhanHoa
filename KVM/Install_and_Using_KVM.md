@@ -45,7 +45,7 @@ yum install "@X Window System" xorg-x11-xauth xorg-x11-fonts-* xorg-x11-utils -y
 ```sh
 X11Forwarding yes
 X11DisplayOffset 10
-X11UseLocalhost yes
+X11UseLocalhost no
 ```
 
 - Sau đó restart lại dịch vụ sshd
