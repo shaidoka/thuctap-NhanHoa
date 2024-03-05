@@ -50,13 +50,13 @@ vi /etc/hosts
 103.170.123.26 mail.tubui.xyz mail
 ```
 
-- Tải zimbra về máy tại [đây](https://s3.beezim.fr/beebot/upload/09830127-c2f1-43cb-b3fa-c35fc514e539/zcs-9.0.0_GA_1.RHEL7_64.20200411070311.tgz) rồi chuyển qua VPS (hoặc sử dụng wget ở VPS)
+- Tải zimbra về máy tại [đây](https://files.zimbra.com/downloads/8.8.15_GA/zcs-8.8.15_GA_3869.RHEL7_64.20190918004220.tgz) rồi chuyển qua VPS (hoặc sử dụng wget ở VPS)
 
 - Giải nén và cài đặt file vừa tải
 
 ```sh
-tar -xzvf zcs-9.0.0_GA_1.RHEL7_64.20200411070311.tgz
-cd zcs-9.0.0_GA_1.RHEL7_64.20200411070311
+tar -xzvf zcs-8.8.15_GA_3869.RHEL7_64.20190918004220.tgz
+cd zcs-8.8.15_GA_3869.RHEL7_64.20190918004220.tgz
 ./install.sh
 ```
 
