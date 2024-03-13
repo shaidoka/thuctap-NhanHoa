@@ -15,12 +15,11 @@ yum -y update
 Cấu hình các mode sysctl: chỉnh sửa trong file ```/etc/sysctl.conf```
 
 ```sh
-echo 'net.ipv4.conf.all.arp_ignore = 1'  >> /etc/sysctl.conf
-echo 'net.ipv4.conf.all.arp_announce = 2'  >> /etc/sysctl.conf
-echo 'net.ipv4.conf.all.rp_filter = 2'  >> /etc/sysctl.conf
-echo 'net.netfilter.nf_conntrack_tcp_be_liberal = 1'  >> /etc/sysctl.conf
-
 cat << EOF >> /etc/sysctl.conf
+net.ipv4.conf.all.arp_ignore = 1
+net.ipv4.conf.all.arp_announce = 2
+net.ipv4.conf.all.rp_filter = 2
+net.netfilter.nf_conntrack_tcp_be_liberal = 1
 net.ipv4.ip_nonlocal_bind = 1
 net.ipv4.tcp_keepalive_time = 6
 net.ipv4.tcp_keepalive_intvl = 3
