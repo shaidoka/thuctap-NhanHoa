@@ -1,4 +1,4 @@
-# Cài đặt OpenStack Zed
+# Cài đặt OpenStack Zed (Phần 2)
 
 Mô hình tổng quan của bài lab này sẽ như sau:
 
@@ -7,7 +7,7 @@ Mô hình tổng quan của bài lab này sẽ như sau:
             |                             |                             |
     eth0|172.16.10.11             eth0|172.16.10.13             eth0|172.16.11.12
 +-----------+-----------+     +-----------+-----------+     +-----------+-----------+
-|   [ 172.16.10.11 ]   |     | [ network.srv.world ] |     |  [ node01.srv.world ] |
+| openstack.baotrung.xyz|     | network.baotrung.xyz  |     |  [       com1       ] |
 |     (Control Node)    |     |     (Network Node)    |     |     (Compute Node)    |
 |                       |     |                       |     |                       |
 |  MariaDB    RabbitMQ  |     |      Open vSwitch     |     |        Libvirt        |
@@ -15,7 +15,7 @@ Mô hình tổng quan của bài lab này sẽ như sau:
 |  Keystone   httpd     |     |      OVN-Northd       |     |      Open vSwitch     |
 |  Glance     Nova API  |     |         Nginx         |     |   OVN Metadata Agent  |
 |                       |     |                       |     |     OVN-Controller    |
-+-----------------------+     +------------+----------+     +------------+----------+
++-----------------------+     +-----------------------+     +-----------------------+
                                 eth1|(UP with no IP)          eth1|(UP with no IP)
 ```
 
@@ -26,12 +26,13 @@ Cài đặt các thành phần cơ bản của network node: chrony, tắt firew
 Cấu hình user, endpoints, database cho Neutron trên Control Node
 
 ```sh
+export netnode=network.baotrung.xyz
 openstack user create --domain default --project service --password Welcome123 neutron
 openstack role add --project service --user neutron admin
 openstack service create --name neutron --description "OpenStack Networking service" network
-openstack endpoint create --region RegionOne network public https://172.16.10.13:9696
-openstack endpoint create --region RegionOne network internal https://172.16.10.13:9696
-openstack endpoint create --region RegionOne network admin https://172.16.10.13:9696
+openstack endpoint create --region RegionOne network public https://$netnode:9696
+openstack endpoint create --region RegionOne network internal https://$netnode:9696
+openstack endpoint create --region RegionOne network admin https://$netnode:9696
 ```
 
 ```sh
@@ -445,7 +446,7 @@ prjID=$(openstack project list | grep tula_project | awk '{ print $2 }')
 openstack network rbac create --target-project $prjID --type network --action access_as_shared $netID
 ```
 
-Tạo 1 sshkey để connect đến instance (**cẩn thận không ghi đè mất sshkey có sẵn**)
+Tạo 1 sshkey để connect đến instance (**cẩn thận không ghi đè mất ssh-key có sẵn**)
 
 ```sh
 ssh-keygen -q -N ""
@@ -461,7 +462,7 @@ Tạo instance
 openstack server create --flavor m1.small --image Ubuntu2204 --security-group secgroup01 --nic net-id=$netID --key-name mykey Ubuntu-2204
 ```
 
-Thêm floating IP vào instance
+Tạo floating IP
 
 ```sh
 openstack floating ip create public
@@ -469,6 +470,19 @@ openstack floating ip create public
 
 ![](./images/Zed_2.png)
 
+Thêm floating IP vào license
+
+```sh
+openstack server add floating ip <server-name-or-id> <floating-ip-address>
+```
+
+![](./images/Zed_3.png)
+
+```sh
+ssh -i ~/.ssh/mykey ubuntu@<floating-ip-address>
+```
+
+![](./images/Zed_4.png)
 
 ### 14. Cài đặt Horizon
 
@@ -529,7 +543,9 @@ a2ensite default-ssl
 systemctl restart apache2 nova-api
 ```
 
-### 15. Cài đặt và cấu hình Cinder
+![](./images/Zed_5.png)
+
+### 15. Cài đặt và cấu hình Cinder (Control Node)
 
 Trên Control Node, thêm user và endpoint cho Cinder
 
@@ -537,7 +553,7 @@ Trên Control Node, thêm user và endpoint cho Cinder
 openstack user create --domain default --project service --password Welcome123 cinder
 openstack role add --project service --user cinder admin
 openstack service create --name cinderv3 --description "OpenStack Block Storage" volumev3
-export controller=172.16.10.11
+export controller=openstack.baotrung.xyz
 openstack endpoint create --region RegionOne volumev3 public https://$controller:8776/v3/%\(tenant_id\)s
 openstack endpoint create --region RegionOne volumev3 internal https://$controller:8776/v3/%\(tenant_id\)s
 openstack endpoint create --region RegionOne volumev3 admin https://$controller:8776/v3/%\(tenant_id\)s
@@ -574,18 +590,18 @@ api_paste_confg = /etc/cinder/api-paste.ini
 state_path = /var/lib/cinder
 auth_strategy = keystone
 # RabbitMQ connection info
-transport_url = rabbit://openstack:Welcome123@192.168.0.94
+transport_url = rabbit://openstack:Welcome123@openstack.baotrung.xyz
 enable_v3_api = True
 
 # MariaDB connection info
 [database]
-connection = mysql+pymysql://cinder:Welcome123@192.168.0.94/cinder
+connection = mysql+pymysql://cinder:Welcome123@openstack.baotrung.xyz/cinder
 
 # Keystone auth info
 [keystone_authtoken]
-www_authenticate_uri = https://192.168.0.94:5000
-auth_url = https://192.168.0.94:5000
-memcached_servers = 192.168.0.94:11211
+www_authenticate_uri = https://openstack.baotrung.xyz:5000
+auth_url = https://openstack.baotrung.xyz:5000
+memcached_servers = openstack.baotrung.xyz:11211
 auth_type = password
 project_domain_name = default
 user_domain_name = default
@@ -597,6 +613,7 @@ insecure = true
 
 [oslo_concurrency]
 lock_path = $state_path/tmp
+EOF
 ```
 
 ```sh
@@ -628,3 +645,120 @@ echo "export OS_VOLUME_API_VERSION=3" >> ~/keystonerc
 source ~/keystonerc
 ```
 
+### 16. Cài đặt và cấu hình Cinder (Storage Node)
+
+Cài đặt Cinder Volume service
+
+```sh
+apt -y install cinder-volume python3-mysqldb
+```
+
+```sh
+mv /etc/cinder/cinder.conf /etc/cinder/cinder.conf.org
+
+cat << EOF >> /etc/cinder/cinder.conf
+# create new
+[DEFAULT]
+# define IP address
+my_ip = 172.16.11.13
+rootwrap_config = /etc/cinder/rootwrap.conf
+api_paste_confg = /etc/cinder/api-paste.ini
+state_path = /var/lib/cinder
+auth_strategy = keystone
+# RabbitMQ connection info
+transport_url = rabbit://openstack:Welcome123@openstack.baotrung.xyz
+enable_v3_api = True
+# Glance connection info
+glance_api_servers = https://openstack.baotrung.xyz:9292
+# OK with empty value now
+enabled_backends =
+
+# MariaDB connection info
+[database]
+connection = mysql+pymysql://cinder:Welcome123@openstack.baotrung.xyz/cinder
+
+# Keystone auth info
+[keystone_authtoken]
+www_authenticate_uri = https://openstack.baotrung.xyz:5000
+auth_url = https://openstack.baotrung.xyz:5000
+memcached_servers = openstack.baotrung.xyz:11211
+auth_type = password
+project_domain_name = default
+user_domain_name = default
+project_name = service
+username = cinder
+password = Welcome123
+# if using self-signed certs on Apache2 Keystone, turn to [true]
+insecure = true
+
+[oslo_concurrency]
+lock_path = $state_path/tmp
+EOF
+```
+
+```sh
+chmod 640 /etc/cinder/cinder.conf
+chgrp cinder /etc/cinder/cinder.conf
+systemctl restart cinder-volume
+systemctl enable cinder-volume
+```
+
+### 17. Cấu hình Storage sử dụng LVM (Storage Node)
+
+Tạo 1 volume group cho Cinder
+
+```sh
+pvcreate /dev/sdb1
+vgcreate -s 32M vg_volume01 /dev/sdb1
+```
+
+Cấu hình Cinder volume
+
+```sh
+apt -y install targetcli-fb python3-rtslib-fb
+vi /etc/cinder/cinder.conf
+
+# Chỉnh sửa giá trị dựa trên loại storage backend sử dụng
+enabled_backends = lvm
+
+# Thêm vào cuối
+[lvm]
+target_helper = lioadm
+target_protocol = iscsi
+target_ip_address = $my_ip
+# volume group name created on [1]
+volume_group = vg_volume01
+volume_driver = cinder.volume.drivers.lvm.LVMVolumeDriver
+volumes_dir = $state_path/volumes
+```
+
+```sh
+systemctl restart cinder-volume
+```
+
+Cấu hình Nova trên **Compute Node**
+
+```sh
+cat << EOF >> /etc/nova/nova.conf
+[cinder]
+os_region_name = RegionOne
+EOF
+```
+
+```sh
+systemctl restart nova-compute
+```
+
+Tạo thử volume
+
+```sh
+echo "export OS_VOLUME_API_VERSION=3" >> ~/keystonerc
+source ~/keystonerc
+openstack volume create --size 5 disk01
+```
+
+Để add volume vào instance, hãy sử dụng lệnh
+
+```sh
+openstack server add volume Ubuntu-2204 disk01
+```

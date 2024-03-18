@@ -7,7 +7,7 @@ Mô hình tổng quan của bài lab này sẽ như sau:
             |                             |                             |
     eth0|172.16.10.11             eth0|172.16.10.13             eth0|172.16.11.12
 +-----------+-----------+     +-----------+-----------+     +-----------+-----------+
-|   [ dlp.srv.world ]   |     | [ network.srv.world ] |     |  [ node01.srv.world ] |
+| openstack.baotrung.xyz|     | network.baotrung.xyz  |     |  [       com1       ] |
 |     (Control Node)    |     |     (Network Node)    |     |     (Compute Node)    |
 |                       |     |                       |     |                       |
 |  MariaDB    RabbitMQ  |     |      Open vSwitch     |     |        Libvirt        |
@@ -16,6 +16,7 @@ Mô hình tổng quan của bài lab này sẽ như sau:
 |  Glance     Nova API  |     |         Nginx         |     |   OVN Metadata Agent  |
 |                       |     |                       |     |     OVN-Controller    |
 +-----------------------+     +-----------------------+     +-----------------------+
+                                eth1|(UP with no IP)          eth1|(UP with no IP)
 ```
 
 
@@ -84,7 +85,7 @@ apt-get -y install chrony
 
 ```sh
 systemctl enable chronyd.service
-systemctl start chronyd.service
+systemctl restart chronyd.service
 chronyc sources
 ```
 
@@ -325,6 +326,7 @@ Listen 5000
     SSLHonorCipherOrder on
     SSLCertificateFile /root/ssl/app.crt
     SSLCertificateKeyFile /root/ssl/app.key
+    SSLCertificateChainFile /root/ssl/app.chained.crt
     WSGIScriptAlias / /usr/bin/keystone-wsgi-public
 
 ```
@@ -332,7 +334,7 @@ Listen 5000
 ```sh
 a2enmod ssl
 a2dissite 000-default.conf
-sed -i '70s/Include ports.conf/#Include ports.conf/g' /etc/apache2/apache2.conf
+#sed -i '70s/Include ports.conf/#Include ports.conf/g' /etc/apache2/apache2.conf
 systemctl restart apache2
 ```
 
@@ -458,9 +460,14 @@ stream {
         listen 172.16.10.11:9292 ssl;
         proxy_pass glance-api;
     }
-    ssl_certificate "/root/ssl/app.crt";
+    ssl_certificate "/root/ssl/app.chained.crt";
     ssl_certificate_key "/root/ssl/app.key";
 }
+EOF
+```
+
+```sh
+systemctl restart nginx
 ```
 
 Để kiểm tra, ta thử tạo 1 VM image ubuntu
@@ -520,6 +527,9 @@ Thêm database và user database cho Nova
 
 ```sh
 mysql
+```
+
+```sh
 create database nova;
 grant all privileges on nova.* to nova@'localhost' identified by 'Welcome123';
 grant all privileges on nova.* to nova@'%' identified by 'Welcome123';
@@ -584,7 +594,7 @@ connection = mysql+pymysql://nova:Welcome123@openstack.baotrung.xyz/nova
 
 # Keystone auth info
 [keystone_authtoken]
-www_authenticate_uri = https://openstack.baotrung.xyz5000
+www_authenticate_uri = https://openstack.baotrung.xyz:5000
 auth_url = https://openstack.baotrung.xyz:5000
 memcached_servers = openstack.baotrung.xyz:11211
 auth_type = password
@@ -696,7 +706,7 @@ stream {
         listen 172.16.10.11:6080 ssl;
         proxy_pass novncproxy;
     }
-    ssl_certificate "/root/ssl/app.crt";
+    ssl_certificate "/root/ssl/app.chained.crt";
     ssl_certificate_key "/root/ssl/app.key";
 }
 ```
@@ -851,234 +861,7 @@ flush privileges;
 exit
 ```
 
-Cài đặt Neutron
-
-```sh
-apt-get -y install neutron-server neutron-metadata-agent neutron-plugin-ml2 python3-neutronclient
-```
-
-Cấu hình Neutron
-
-```sh
-mv /etc/neutron/neutron.conf /etc/neutron/neutron.conf.bk
-
-cat << EOF >> /etc/neutron/neutron.conf
-[DEFAULT]
-bind_host = 127.0.0.1
-bind_port = 9696
-core_plugin = ml2
-service_plugins = ovn-router
-auth_strategy = keystone
-state_path = /var/lib/neutron
-allow_overlapping_ips = True
-notify_nova_on_port_status_changes = True
-notify_nova_on_port_data_changes = True
-# RabbitMQ connection info
-transport_url = rabbit://openstack:Welcome123@openstack.baotrung.xyz
-
-[agent]
-root_helper = sudo /usr/bin/neutron-rootwrap /etc/neutron/rootwrap.conf
-
-# Keystone auth info
-[keystone_authtoken]
-www_authenticate_uri = https://openstack.baotrung.xyz:5000
-auth_url = https://openstack.baotrung.xyz:5000
-memcached_servers = openstack.baotrung.xyz:11211
-auth_type = password
-project_domain_name = default
-user_domain_name = default
-project_name = service
-username = neutron
-password = Welcome123
-# if using self-signed certs on Apache2 Keystone, turn to [true]
-insecure = true
-
-[database]
-connection = mysql+pymysql://neutron:Welcome123@openstack.baotrung.xyz/neutron_ml2
-
-[nova]
-auth_url = https://openstack.baotrung.xyz:5000
-auth_type = password
-project_domain_name = default
-user_domain_name = default
-region_name = RegionOne
-project_name = service
-username = nova
-password = Welcome123
-# if using self-signed certs on Apache2 Keystone, turn to [true]
-insecure = true
-
-[oslo_concurrency]
-lock_path = $state_path/tmp
-EOF
-```
-
-```sh
-chmod 640 /etc/neutron/neutron.conf
-chgrp neutron /etc/neutron/neutron.conf
-mv /etc/neutron/plugins/ml2/ml2_conf.ini /etc/neutron/plugins/ml2/ml2_conf.ini.bk
-
-cat << EOF >> /etc/neutron/plugins/ml2/ml2_conf.ini
-[DEFAULT]
-debug = false
-
-[ml2]
-type_drivers = flat,geneve
-tenant_network_types = geneve
-mechanism_drivers = ovn
-extension_drivers = port_security
-overlay_ip_version = 4
-
-[ml2_type_geneve]
-vni_ranges = 1:65536
-max_header_size = 38
-
-[ml2_type_flat]
-flat_networks = *
-
-[securitygroup]
-enable_security_group = True
-firewall_driver = neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
-
-[ovn]
-ovn_nb_connection = tcp:172.16.10.11:6641
-ovn_sb_connection = tcp:172.16.10.11:6642
-ovn_l3_scheduler = leastloaded
-ovn_metadata_enabled = True
-EOF
-```
-
-```sh
-chmod 640 /etc/neutron/plugins/ml2/ml2_conf.ini
-chgrp neutron /etc/neutron/plugins/ml2/ml2_conf.ini
-vi /etc/neutron/neutron_ovn_metadata_agent.ini
-```
-
-```sh
-# Dòng 2: Thêm Nova API host
-nova_metadata_host = 172.16.10.11
-nova_metadata_protocol = https
-metadata_proxy_shared_secret = Welcome123
-# Tại dòng 231, đổi thành
-[ovs]
-ovsdb_connection = tcp:127.0.0.1:6640
-# Thêm vào cuối
-[agent]
-root_helper = sudo neutron-rootwrap /etc/neutron/rootwrap.conf
-[ovn]
-ovn_sb_connection = tcp:172.16.10.11:6642
-```
-
-```sh
-vi /etc/default/openvswitch-switch
-```
-
-```sh
-# Dòng 8: Bỏ comment và chỉnh sửa như sau
-OVS_CTL_OPTS="--ovsdb-server-options='--remote=ptcp:6640:127.0.0.1'"
-```
-
-```sh
-vi /etc/nova/nova.conf
-```
-
-```sh
-# Thêm đoạn sau vào phần [DEFAULT]
-vif_plugging_is_fatal = True
-vif_plugging_timeout = 300
-
-# Thêm đoạn sau vào cuối : Neutron auth info
-[neutron]
-auth_url = https://172.16.10.11:5000
-auth_type = password
-project_domain_name = default
-user_domain_name = default
-region_name = RegionOne
-project_name = service
-username = neutron
-password = Welcome123
-service_metadata_proxy = True
-metadata_proxy_shared_secret = Welcome123
-insecure = true
-```
-
-Chỉnh sửa cấu hình Nginx proxy
-
-```sh
-vi /etc/nginx/nginx.conf
-```
-
-```sh
-# Thêm 2 đoạn cấu hình sau cho neutron vào phần [stream]
-    upstream neutron-api {
-        server 127.0.0.1:9696;
-    }
-    server {
-        listen 172.16.10.11:9696 ssl;
-        proxy_pass neutron-api;
-    }
-```
-
-Khởi động Neutron
-
-```sh
-systemctl restart openvswitch-switch
-ovs-vsctl add-br br-int
-ln -s /etc/neutron/plugins/ml2/ml2_conf.ini /etc/neutron/plugin.ini
-su -s /bin/bash neutron -c "neutron-db-manage --config-file /etc/neutron/neutron.conf --config-file /etc/neutron/plugin.ini upgrade head"
-systemctl restart ovn-central ovn-northd ovn-controller ovn-host
-ovn-nbctl set-connection ptcp:6641:172.16.10.11 -- set connection . inactivity_probe=60000
-ovn-sbctl set-connection ptcp:6642:172.16.10.11 -- set connection . inactivity_probe=60000
-ovs-vsctl set open . external-ids:ovn-remote=tcp:172.16.10.11:6642
-ovs-vsctl set open . external-ids:ovn-encap-type=geneve
-ovs-vsctl set open . external-ids:ovn-encap-ip=172.16.10.11
-systemctl restart neutron-server neutron-ovn-metadata-agent nova-api nova-compute nginx
-```
-
-Kiểm tra trạng thái dịch vụ
-
-```sh
-openstack network agent list
-```
-
-```sh
-cat << EOF >> /etc/systemd/network/ens8.network
-[Match]
-Name=ens8
-
-[Network]
-LinkLocalAddressing=no
-IPv6AcceptRA=no
-EOF
-```
-
-```sh
-ip link set ens8 up
-ovs-vsctl add-br br-ens8
-ovs-vsctl add-port br-ens8 ens8
-ovs-vsctl set open . external-ids:ovn-bridge-mappings=physnet1:br-ens8
-```
-
-Tạo virtual network
-
-```sh
-projectID=$(openstack project list | grep service | awk '{print $2}')
-openstack network create --project $projectID \
-  --share --provider-network-type flat --provider-physical-network physnet1 sharednet1
-openstack subnet create subnet1 --network sharednet1 \
-  --project $projectID --subnet-range 103.28.37.0/24 \
-  --allocation-pool start=103.28.37.172,end=103.28.37.175 \
-  --gateway 103.28.37.1 --dns-nameserver 8.8.8.8
-```
-
-Kiểm tra
-
-```sh
-openstack network list
-openstack subnet list
-```
-
-### 10. Test tạo instance
+### 10. Test tạo instance (BỎ QUA BƯỚC NÀY)
 
 Tạo project
 
