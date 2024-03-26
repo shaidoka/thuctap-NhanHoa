@@ -645,7 +645,7 @@ echo "export OS_VOLUME_API_VERSION=3" >> ~/keystonerc
 source ~/keystonerc
 ```
 
-### 16. Cài đặt và cấu hình Cinder (Storage Node)
+### 16. Cài đặt và cấu hình Cinder (Network Node)
 
 Cài đặt Cinder Volume service
 

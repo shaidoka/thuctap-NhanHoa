@@ -5,7 +5,7 @@ Mô hình tổng quan của bài lab này sẽ như sau:
 ```sh
 ------------+-----------------------------+-----------------------------+------------
             |                             |                             |
-    eth0|172.16.10.11             eth0|172.16.10.13             eth0|172.16.11.12
+    eth0|172.16.10.11             eth0|172.16.10.13             eth0|172.16.10.12
 +-----------+-----------+     +-----------+-----------+     +-----------+-----------+
 | openstack.baotrung.xyz|     | network.baotrung.xyz  |     |  [       com1       ] |
 |     (Control Node)    |     |     (Network Node)    |     |     (Compute Node)    |
@@ -349,7 +349,7 @@ su -s /bin/bash octavia -c "octavia-db-manage --config-file /etc/octavia/octavia
 systemctl restart octavia-api octavia-health-manager octavia-housekeeping octavia-worker nginx
 ```
 
-### 23. Tạo Amphora image
+### 24. Tạo Amphora image
 
 Tạo 1 LoadBalancer image và thêm nó vào Glance
 
@@ -398,7 +398,7 @@ octavia-housekeeping \
 octavia-worker
 ```
 
-### 24. Sử dụng Octavia cơ bản
+### 25. Sử dụng Octavia cơ bản
 
 Đầu tiên, hãy tạo loadbalancer
 
@@ -417,6 +417,8 @@ Kiểm tra lại
 openstack loadbalancer list
 ```
 
+![](./images/Zed_7.png)
+
 Thêm listener và pool cho LB và cấu hình LB sử dụng 2 backend là 2 webserver
 
 ```sh
@@ -424,5 +426,349 @@ openstack loadbalancer listener create --name listener01 --protocol TCP --protoc
 openstack loadbalancer pool create --name pool01 --lb-algorithm ROUND_ROBIN --listener listener01 --protocol TCP
 openstack server list --all
 openstack loadbalancer member create --subnet-id private-subnet --address 192.168.100.21 --protocol-port 80 pool01
+openstack loadbalancer member create --subnet-id private-subnet --address 192.168.100.153 --protocol-port 80 pool01
+openstack loadbalancer member list pool01
+```
+
+Cấp IP cho LB
+
+```sh
+openstack floating ip create public
+VIPPORT=$(openstack loadbalancer show lb01 | grep vip_port_id | awk {'print $4'})
+openstack floating ip set --port $VIPPORT <floating-ip>
+```
+
+Kiểm tra:
+
+```sh
+curl <floating-ip>
+```
+
+![](./images/Zed_8.png)
+
+### 26. Cài đặt và cấu hình Barbican (Control node)
+
+Thêm user và endpoint cho Barbican
+
+```sh
+openstack user create --domain default --project service --password Welcome123 barbican
+openstack role add --project service --user barbican admin
+openstack service create --name barbican --description "OpenStack Key Manager" key-manager
+export controller=openstack.baotrung.xyz
+openstack endpoint create --region RegionOne key-manager public https://$controller:9311
+openstack endpoint create --region RegionOne key-manager internal https://$controller:9311
+openstack endpoint create --region RegionOne key-manager admin https://$controller:9311
+```
+
+Thêm user và database cho Barbican
+
+```sh
+mysql
+```
+
+```sh
+create database barbican;
+grant all privileges on barbican.* to barbican@'localhost' identified by 'Welcome123';
+grant all privileges on barbican.* to barbican@'%' identified by 'Welcome123';
+flush privileges;
+exit
+```
+
+Cài đặt Barbican
+
+```sh
+apt -y install barbican-api
+```
+
+Cấu hình Barbican
+
+```sh
+mv /etc/barbican/barbican.conf /etc/barbican/barbican.conf.bk
+cat << EOF >> /etc/barbican/barbican.conf
+[DEFAULT]
+bind_host = 127.0.0.1
+bind_port = 9311
+host_href = https://openstack.baotrung.xyz:9311
+log_file = /var/log/barbican/api.log
+# MariaDB connection info
+sql_connection = mysql+pymysql://barbican:Welcome123@openstack.baotrung.xyz/barbican
+# RabbitMQ connection info
+transport_url = rabbit://openstack:Welcome123@openstack.baotrung.xyz
+
+[oslo_policy]
+policy_file = /etc/barbican/policy.json
+policy_default_rule = default
+
+[secretstore]
+namespace = barbican.secretstore.plugin
+enabled_secretstore_plugins = store_crypto
+
+[crypto]
+namespace = barbican.crypto.plugin
+enabled_crypto_plugins = simple_crypto
+
+[simple_crypto_plugin]
+kek = 'YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY='
+
+# Keystone auth info
+[keystone_authtoken]
+www_authenticate_uri = https://openstack.baotrung.xyz:5000
+auth_url = https://openstack.baotrung.xyz:5000
+memcached_servers = openstack.baotrung.xyz:11211
+auth_type = password
+project_domain_name = default
+user_domain_name = default
+project_name = service
+username = barbican
+password = Welcome123
+# if using self-signed certs on Apache2 Keystone, turn to [true]
+insecure = true
+EOF
+```
+
+```sh
+chmod 640 /etc/barbican/barbican.conf
+chgrp barbican /etc/barbican/barbican.conf
+vi /etc/apache2/conf-available/barbican-api.conf
+```
+
+```sh
+# dòng 1,2 đổi thành
+Listen 127.0.0.1:9311
+Listen 127.0.0.1:9312
+```
+
+Chỉnh sửa nginx proxy
+
+```sh
+vi /etc/nginx/nginx.conf
+```
+
+```sh
+# Thêm vào phần stream như mọi khi
+    upstream barbican-api {
+        server 127.0.0.1:9311;
+    }
+    server {
+        listen 172.16.10.11:9311 ssl;
+        proxy_pass barbican-api;
+    }
+    upstream barbican-api-2 {
+        server 127.0.0.1:9312;
+    }
+    server {
+        listen 172.16.10.11:9312 ssl;
+        proxy_pass barbican-api-2;
+    }
+```
+
+Sync DB và khởi động dịch vụ
+
+```sh
+su -s /bin/bash barbican -c "barbican-manage db upgrade"
+systemctl restart apache2 nginx
+```
+
+Kiểm tra bằng cách tạo thử 1 secret key
+
+```sh
+openstack secret store --name secret01 --payload secretkey
+```
+
+![](./images/Zed_9.png)
+
+### 27. Cài đặt và cấu hình Magnum (Control Node)
+
+Thêm user và endpoint cho Magnum
+
+```sh
+openstack user create --domain default --project service --password Welcome123 magnum
+openstack role add --project service --user magnum admin
+openstack service create --name magnum --description "OpenStack Containers Orchestration" container-infra
+export magnum_api=network.baotrung.xyz
+openstack endpoint create --region RegionOne container-infra public https://$magnum_api:9511/v1
+openstack endpoint create --region RegionOne container-infra internal https://$magnum_api:9511/v1
+openstack endpoint create --region RegionOne container-infra admin https://$magnum_api:9511/v1
+openstack domain create --description "Containers projects and users" magnum
+openstack user create --domain magnum --password Welcome123 magnum_domain_admin
+openstack role add --domain magnum --user-domain magnum --user magnum_domain_admin admin
+```
+
+Tạo database và user database
+
+```sh
+mysql
+```
+
+```sh
+create database magnum;
+grant all privileges on magnum.* to magnum@'localhost' identified by 'Welcome123';
+grant all privileges on magnum.* to magnum@'%' identified by 'Welcome123';
+flush privileges;
+exit
+```
+
+### 28. Cài đặt và cấu hình Magnum (Network Node)
+
+Cài đặt Magnum service trên Network node (nếu có câu hỏi nào trong khi cài đặt, hãy trả lời ```No```)
+
+```sh
+apt-get -y install magnum-api magnum-conductor python3-magnumclient
+```
+
+Cấu hình Magnum
+
+```sh
+mv /etc/magnum/magnum.conf /etc/magnum/magnum.conf.bk
+cat << EOF >> /etc/magnum/magnum.conf
+# create new
+[DEFAULT]
+state_path = /var/lib/magnum
+log_dir = /var/log/magnum
+# RabbitMQ connection info
+transport_url = rabbit://openstack:Welcome123@openstack.baotrung.xyz
+
+[api]
+host = 127.0.0.1
+port = 9511
+enabled_ssl = false
+
+[database]
+# MariaDB connection info
+connection = mysql+pymysql://magnum:Welcome123@openstack.baotrung.xyz/magnum
+
+[certificates]
+cert_manager_type = barbican
+
+[cinder]
+default_docker_volume_type = lvm-magnum
+
+[cinder_client]
+region_name = RegionOne
+
+[magnum_client]
+region_name = RegionOne
+
+# Keystone auth info
+[keystone_authtoken]
+www_authenticate_uri = https://openstack.baotrung.xyz:5000
+auth_url = https://openstack.baotrung.xyz:5000
+memcached_servers = openstack.baotrung.xyz:11211
+auth_type = password
+auth_version = v3
+project_domain_name = default
+user_domain_name = default
+project_name = service
+username = magnum
+password = Welcome123
+admin_user = magnum
+admin_password = Welcome123
+admin_tenant_name = service
+
+[oslo_policy]
+enforce_scope = false
+enforce_new_defaults = false
+policy_file = /etc/magnum/policy.json
+
+[oslo_messaging_notifications]
+driver = messagingv2
+
+[trust]
+trustee_domain_name = magnum
+trustee_domain_admin_name = magnum_domain_admin
+trustee_domain_admin_password = Welcome123
+trustee_keystone_interface = public
+EOF
+```
+
+```sh
+chmod 640 /etc/magnum/magnum.conf
+chgrp magnum /etc/magnum/magnum.conf
+mkdir /var/lib/magnum/{tmp,certificates}
+chown magnum. /var/lib/magnum/{tmp,certificates}
+```
+
+Cấu hình nginx proxy
+
+```sh
+vi /etc/nginx/nginx.conf
+```
+
+```sh
+# Thêm phần sau vào [stream]
+stream {
+    upstream magnum-api {
+        server 127.0.0.1:9511;
+    }
+    server {
+        listen 172.16.10.13:9511 ssl;
+        proxy_pass magnum-api;
+    }
+}
+```
+
+Sync DB và khởi động dịch vụ Magnum
+
+```sh
+su -s /bin/bash magnum -c "magnum-db-manage upgrade"
+systemctl restart magnum-api magnum-conductor nginx
+```
+
+Kiểm tra Magnum status trên Control Node và tạo volume type cho Magnum
+
+```sh
+apt -y install python3-magnumclient
+openstack coe service list
+openstack volume type create lvm-magnum --public
+```
+
+### 29. Cách sử dụng Magnum cơ bản
+
+Trên Control Node, tải về 1 VM image cho containers (image này sử dụng Fedora CoreOS) và thêm nó vào Glance
+
+```sh
+wget https://builds.coreos.fedoraproject.org/prod/streams/stable/builds/35.20220424.3.0/x86_64/fedora-coreos-35.20220424.3.0-openstack.x86_64.qcow2.xz
+xz -dv fedora-coreos-35.20220424.3.0-openstack.x86_64.qcow2.xz
+openstack image create Fedora-CoreOS --file=fedora-coreos-35.20220424.3.0-openstack.x86_64.qcow2 --disk-format=qcow2 --container-format=bare --property os_distro='fedora-coreos' --public
+```
+
+Tạo cluster template
+
+```sh
+openstack coe cluster template create k8s-cluster-template \
+--image Fedora-CoreOS \
+--external-network public \
+--fixed-network private \
+--fixed-subnet private-subnet \
+--network-driver calico \
+--docker-storage-driver overlay2 \
+--docker-volume-size 5 \
+--master-flavor m1.medium \
+--flavor m1.medium \
+--dns-nameserver 8.8.8.8 \
+--coe kubernetes
+```
+
+![](./images/Zed_10.png)
+
+Tạo K8s cluster với 2 node:
+
+```sh
+openstack coe cluster create k8s-cluster \
+--cluster-template k8s-cluster-template \
+--master-count 1 \
+--node-count 1 \
+--keypair mykey
+```
+
+```sh
+# Kiểm tra trạng thái cluster
+openstack coe cluster list
+# Kiểm tra trạng thái stack của Heat
+openstack stack list
+# Kiểm tra trạng thái khởi tạo của từng thành phần
+openstack stack list --nested | grep k8s-cluster
+# Kiểm tra các node instance sau khi cluster khởi tạo thành công
+openstack server list
 ```
 
