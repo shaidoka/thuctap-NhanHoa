@@ -215,7 +215,7 @@ vi /etc/keystone/keystone.conf
 ```
 
 ```sh
-# Tại dòng 444: chỉnh sửa memcached server
+# Tại dòng 443: chỉnh sửa memcached server
 memcache_servers = 172.16.10.11:11211
 # Tại dòng 661: chỉnh sửa thông tin mariadb
 connection = mysql+pymysql://keystone:Welcome123@172.16.10.11/keystone
@@ -834,7 +834,7 @@ su -s /bin/bash nova -c "nova-manage cell_v2 discover_hosts"
 openstack compute service list
 ```
 
-### 9. Cấu hình Neutron
+### 9. Cấu hình Neutron (BỎ QUA BƯỚC NÀY)
 
 Thêm user và service cho Neutron
 

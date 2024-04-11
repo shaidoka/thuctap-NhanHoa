@@ -96,13 +96,13 @@ connection = mysql+pymysql://heat:Welcome123@openstack.baotrung.xyz/heat
 auth_uri = https://openstack.baotrung.xyz:5000
 
 [heat_api]
-bind_host = 172.16.11.13
+bind_host = 172.16.10.13
 bind_port = 8004
 cert_file = /etc/heat/network.chained.crt
 key_file = /etc/heat/network.private.key
 
 [heat_api_cfn]
-bind_host = 172.16.11.13
+bind_host = 172.16.10.13
 bind_port = 8000
 cert_file = /etc/heat/network.chained.crt
 key_file = /etc/heat/network.private.key
@@ -260,7 +260,7 @@ api_base_uri = https://network.baotrung.xyz:9876
 connection = mysql+pymysql://octavia:Welcome123@openstack.baotrung.xyz/octavia
 
 [health_manager]
-bind_ip = 172.16.11.13
+bind_ip = 172.16.10.13
 bind_port = 5555
 
 # Keystone auth info

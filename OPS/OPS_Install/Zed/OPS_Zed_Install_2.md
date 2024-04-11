@@ -5,7 +5,7 @@ Mô hình tổng quan của bài lab này sẽ như sau:
 ```sh
 ------------+-----------------------------+-----------------------------+------------
             |                             |                             |
-    eth0|172.16.10.11             eth0|172.16.10.13             eth0|172.16.11.12
+    eth0|172.16.10.11             eth0|172.16.10.13             eth0|172.16.10.12
 +-----------+-----------+     +-----------+-----------+     +-----------+-----------+
 | openstack.baotrung.xyz|     | network.baotrung.xyz  |     |  [       com1       ] |
 |     (Control Node)    |     |     (Network Node)    |     |     (Compute Node)    |
@@ -91,7 +91,7 @@ password = Welcome123
 insecure = true
 
 [database]
-connection = mysql+pymysql://neutron:password@openstack.baotrung.xyz/neutron_ml2
+connection = mysql+pymysql://neutron:Welcome123@openstack.baotrung.xyz/neutron_ml2
 
 [nova]
 auth_url = https://openstack.baotrung.xyz:5000
@@ -692,7 +692,7 @@ password = Welcome123
 insecure = true
 
 [oslo_concurrency]
-lock_path = $state_path/tmp
+lock_path = \$state_path/tmp
 EOF
 ```
 
@@ -752,8 +752,6 @@ systemctl restart nova-compute
 Tạo thử volume
 
 ```sh
-echo "export OS_VOLUME_API_VERSION=3" >> ~/keystonerc
-source ~/keystonerc
 openstack volume create --size 5 disk01
 ```
 
