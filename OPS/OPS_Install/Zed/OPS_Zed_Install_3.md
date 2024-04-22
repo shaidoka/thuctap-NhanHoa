@@ -758,6 +758,7 @@ openstack coe cluster create k8s-cluster \
 --cluster-template k8s-cluster-template \
 --master-count 1 \
 --node-count 1 \
+--timeout 120 \
 --keypair mykey
 ```
 
@@ -772,3 +773,51 @@ openstack stack list --nested | grep k8s-cluster
 openstack server list
 ```
 
+![](./images/Zed_11.png)
+
+Để truy nhập vào K8s Cluster, hãy thực hiện các bước sau
+
+```sh
+snap install kubectl --classic
+openstack coe cluster config k8s-cluster
+export KUBECONFIG=/root/config
+kubectl get nodes
+kubectl get pods -n kube-system
+```
+
+![](./images/Zed_12.png)
+
+Thử deploy 1 deployment nginx
+
+```sh
+kubectl create deployment test-nginx --image=nginx --replicas=2
+kubectl get pods -o wide
+kubectl expose deployment test-nginx --type="NodePort" --port 80
+kubectl get service test-nginx
+```
+
+![](./images/Zed_13.png)
+
+Để người dùng bình thường có thể sử dụng được Magnum, ta sẽ phải cấp cho họ role ```heat_stack_owner```
+
+```sh
+openstack role add --project <project_name> --user <username> heat_stack_owner
+```
+
+Đồng thời, chỉnh sửa 1 chút trên node Network
+
+```sh
+vi /etc/neutron/policy.json
+```
+
+```sh
+{
+  "create_port:fixed_ips:subnet_id": "",
+  "create_port:allowed_address_pairs": "",
+  "create_port:allowed_address_pairs:ip_address": "",
+}
+```
+
+```sh
+systemctl restart neutron-server
+```

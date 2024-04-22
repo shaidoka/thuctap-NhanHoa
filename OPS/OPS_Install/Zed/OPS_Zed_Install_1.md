@@ -760,7 +760,6 @@ Cấu hình Nova
 mv /etc/nova/nova.conf /etc/nova/nova.conf.bk
 
 cat << EOF >> /etc/nova/nova.conf
-
 [DEFAULT]
 state_path = /var/lib/nova
 enabled_apis = osapi_compute,metadata
@@ -784,7 +783,7 @@ novncproxy_base_url = https://openstack.baotrung.xyz:6080/vnc_auto.html
 api_servers = https://openstack.baotrung.xyz:9292
 
 [oslo_concurrency]
-lock_path = $state_path/tmp
+lock_path = \$state_path/tmp
 
 # Keystone auth info
 [keystone_authtoken]
