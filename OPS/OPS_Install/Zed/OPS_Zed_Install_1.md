@@ -19,6 +19,8 @@ Mô hình tổng quan của bài lab này sẽ như sau:
                                 eth1|(UP with no IP)          eth1|(UP with no IP)
 ```
 
+## Lưu ý trong bài lab này có sử dụng Domain và SSL thật, do đó hãy cân nhắc khi làm theo nhé! 
+
 
 ### 1. Cài đặt các thành phần cơ bản
 
