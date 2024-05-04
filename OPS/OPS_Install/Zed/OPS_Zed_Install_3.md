@@ -821,3 +821,17 @@ vi /etc/neutron/policy.json
 ```sh
 systemctl restart neutron-server
 ```
+
+### 30. Cài đặt magnum-ui và enable trên horizon
+
+Tải source code của Magnum UI
+
+```sh
+git clone https://github.com/openstack/magnum-ui
+```
+
+Tạo 1 môi trường ảo và cài đặt các phụ thuộc của Horizon
+
+```sh
+
+```
