@@ -585,7 +585,7 @@ novncproxy_base_url = https://openstack.baotrung.xyz:6080/vnc_auto.html
 api_servers = https://openstack.baotrung.xyz:9292
 
 [oslo_concurrency]
-lock_path = $state_path/tmp
+lock_path = \$state_path/tmp
 
 # MariaDB connection info
 [api_database]

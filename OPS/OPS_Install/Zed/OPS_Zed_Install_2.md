@@ -106,7 +106,7 @@ password = Welcome123
 insecure = true
 
 [oslo_concurrency]
-lock_path = $state_path/tmp
+lock_path = \$state_path/tmp
 EOF
 ```
 
@@ -179,7 +179,7 @@ stream {
         listen 172.16.10.13:9696 ssl;
         proxy_pass neutron-api;
     }
-    ssl_certificate "/root/ssl/app.crt";
+    ssl_certificate "/root/ssl/app.chained.crt";
     ssl_certificate_key "/root/ssl/app.key";
 }
 ```
@@ -235,7 +235,7 @@ password = Welcome123
 insecure = true
 
 [oslo_concurrency]
-lock_path = $state_path/lock
+lock_path = \$state_path/lock
 EOF
 ```
 
@@ -612,7 +612,7 @@ password = Welcome123
 insecure = true
 
 [oslo_concurrency]
-lock_path = $state_path/tmp
+lock_path = \$state_path/tmp
 EOF
 ```
 
