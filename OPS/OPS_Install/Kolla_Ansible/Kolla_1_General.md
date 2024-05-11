@@ -35,7 +35,10 @@ sudo dnf install git python3-devel libffi-devel gcc openssl-devel python3-libsel
 Với Debian và Ubuntu:
 
 ```sh
-sudo apt install git python3-dev libffi-dev gcc libssl-dev -y
+sudo apt install git python3-dev python-pip libffi-dev gcc libssl-dev -y
+sudo apt install software-properties-common
+sudo add-apt-repository --yes --update ppa:ansible/ansible
+sudo apt install ansible
 ```
 
 ## Cài đặt Kolla-Ansible
@@ -56,13 +59,13 @@ chown $USER:$USER /etc/kolla
 3. Copy ```globals.yml``` và ```passswords.yml``` vào ```/etc/kolla```:
 
 ```sh
-cp -r kolla-ansible/etc_examples/kolla/* /etc/kolla
+cp -r /usr/local/share/kolla-ansible/etc_examples/kolla/* /etc/kolla
 ```
 
 4. Copy ```all-in-one``` inventory file vào đường dẫn hiện tại
 
 ```sh
-cp kolla-ansible/ansible/inventory/all-in-one .
+cp /usr/local/share/kolla-ansible/ansible/inventory/all-in-one .
 ```
 
 ## Cài đặt phụ thuộc của Ansible Galaxy 
@@ -131,7 +134,7 @@ Bạn có thể tìm hiểu thêm các cấu hình khác tại [Network overview
 Tiếp theo, chúng ta sẽ cung cấp floating IP cho các traffic management. IP này sẽ được quản lý bởi keepalived để cung cấp HA, và nên được thiết lập để sẽ không bị sử dụng trong management network mà chúng ta đã kết nối ở ```network_interface```. Nếu bạn sử dụng 1 triển khai Openstack đã có sẵn, hãy chắc chắn rằng IP này được allow trong cấu hình của VM
 
 ```sh
-koll_interval_vip_address: "10.1.0.250"
+kolla_internal_vip_address: "10.1.0.250"
 ```
 
 - **Enable addtional services**
@@ -163,7 +166,7 @@ Các lệnh sau đây giả định bạn sử dụng ```all-in-one``` trong inv
 1. Boostrap servers với kolla deploy dependencies
 
 ```sh
-kolla-ansible -i ./all-in-one boostrap-servers
+kolla-ansible -i ./all-in-one bootstrap-servers
 ```
 
 2. Thực hiện pre-deployment check
