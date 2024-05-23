@@ -337,7 +337,7 @@ Cấu hình Nginx proxy:
         server 127.0.0.1:9876;
     }
     server {
-        listen 172.16.11.13:9876 ssl;
+        listen 172.16.10.13:9876 ssl;
         proxy_pass octavia-api;
     }
 ```
@@ -386,7 +386,7 @@ amp_secgroup_list = <loadbalancer-security-group-id>
 amp_boot_network_list = <public-network-id>
 network_driver = allowed_address_pairs_driver
 compute_driver = compute_nova_driver
-amphora_driver = amphora_haproxy_rest_driver 
+amphora_driver = amphora_haproxy_rest_driver
 ```
 
 Khởi động lại dịch vụ
@@ -740,7 +740,7 @@ openstack coe cluster template create k8s-cluster-template \
 --external-network public \
 --fixed-network private \
 --fixed-subnet private-subnet \
---network-driver calico \
+--network-driver flannel \
 --docker-storage-driver overlay2 \
 --docker-volume-size 5 \
 --master-flavor m1.medium \

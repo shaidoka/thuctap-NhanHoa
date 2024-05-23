@@ -74,6 +74,12 @@ cp /usr/local/share/kolla-ansible/ansible/inventory/all-in-one .
 kolla-ansible install-deps
 ```
 
+*Nếu gặp lỗi ```CollectionDependencyProvider.find_matches() got an unexpected keyword argument 'identifier'``` thì chạy lệnh sau:*
+
+```sh
+sudo -H pip install -Iv 'resolvelib<0.6.0'
+```
+
 ### Bước chuẩn bị
 
 #### Inventory

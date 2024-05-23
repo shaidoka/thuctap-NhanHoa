@@ -41,4 +41,33 @@ Container ```nova_libvirt``` có vài Docker volumes kèm theo là: ```libvirtd`
 
 ## Libvirt TLS
 
-Cấu hình mặc định của Kolla Ansible là chạy libvirt thông qua TCP, với SASL authentication. 
+Cấu hình mặc định của Kolla Ansible là chạy libvirt thông qua TCP, với SASL authentication. Điều này có thể bảo vệ người dùng bằng cách kiểm soát ai có thể truy cập vào network. Tuy vậy, trong những môi trường đòi hỏi những quy định nghiêm ngặt về bảo mật thì ta sẽ muốn mã hóa đường truyền khi truy cập libvirt API. Để làm điều này, chúng ta có thể kích hoạt TLS cho libvirt và để nova sử dụng nó. 
+
+### Sử dụng libvirt TLS
+
+Libvirt TLS có thể được kích hoạt trong Kolla Ansible bằng cách thiết lập tùy chọn sau trong ```globals.yml```
+
+```sh
+libvirt_tls: "yes"
+```
+
+Creation of production-ready TLS certificates is currently out-of-scope for Kolla Ansible. Ta sẽ cần sử dụng Internal CA hoặc generate CA offline của bạn. Để TLS communication làm việc 1 cách chính xác, ta sẽ phải cung cấp cho Kolla Ansible các thông tin sau:
+
+- ```cacert.pem```: Đây là public certificate của CA mà tất cả client và server certificates được ký. Libvirt và nova-compute sẽ cần file này để xác thực rằng tất cả certificate được sử dụng đã được ký bởi CA đó và có thể tin tưởng được
+- ```serverkey.pem``` (không sử dụng khi dùng 1 host libvirt daemon): Đây là private key cho server, và là private key của cặp khóa đối xứng. Do đó, nó nên được bảo mật cẩn thận
+- ```servercert.pem``` (không sử dụng khi dùng 1 host libvirt daemon): Đây là public certificate cho server. Libvirt sẽ đưa ra certificate này với bất kỳ kết nối tạo được tạo trên TLS port. Đây đồng thời cũng là public certificate của 1 cặp TLS certificate/key bundle tiêu chuẩn
+- ```clientkey.pem```: Đây là private key cho client, thứ mà nova/libvirt sẽ sử dụng khi kết nối với libvirt. Hãy nghĩ đây là 1 SSH private key và bảo mật nó tương tự
+- ```clientcert.pem```: Đây là client certificate mà nova/libvirt sẽ đưa ra khi kết nối với libvirt. Có thể hiểu đây là public key của 1 cặp SSH key
+
+Kolla Ansible sẽ tìm kiếm những file này cho mỗi compute node trong các vị trí sau (theo thứ tự từ trên xuống) trên host mà Kolla Ansible được chạy:
+
+- ```/etc/kolla/config/nova/nova-libvirt/<hostname>/```
+- ```/etc/kolla/config/nova/nova-libvirt/```
+
+Trong đa phần trường hợp bạn sẽ muốn có 1 tập certificate và key độc nhất cho server và client với mỗi hypervisor và với 1 CA certificate chung. Trong trường hợp này bạn nên đặt mỗi certificate và key PEM files của server/client bên dưới ```/etc/kolla/config/nova/nova-libvirt/<hostname>/``` và CA certificate thì đặt ở ```/etc/kolla/config/nova/nova-libvirt/```
+
+Tuy vậy, ta có thể tận dụng wildcard server certificate và 1 client certificate mà share trên toàn server. Điều này cho phép ta khởi tạo 1 client certificate và 1 server certificate mà chia sẻ trên toàn hypervisor. Trong trường hợp này ta nên lưu trữ mọi thứ ở ```/etc/kolla/config/nova/nova-libvirt/```
+
+### Generating certificates for test and development
+
+Từ bản phát hành Yoga, lệnh ```kolla-ansible certificates``` sẽ giúp chúng ta sinh các certificate cho libvirt TLS. 1 key và certificate được sử dụng cho tất cả host, với 1 Subject Alternative Name (SAN) entry cho mỗi compute host hostname
