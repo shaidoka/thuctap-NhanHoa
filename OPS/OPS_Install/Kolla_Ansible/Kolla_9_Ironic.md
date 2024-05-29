@@ -74,5 +74,9 @@ ironic_inspector_kernel_cmdline_extras: ['ipa-lldp-timeout=90.0', 'ipa-collect-l
 
 ## Configure conductor's HTTP server port (optional)
 
-Port được sử dụng cho conductor's HTTP server được quản lý thông qua ```ironic_http_port```
+Port được sử dụng cho conductor's HTTP server được quản lý thông qua ```ironic_http_port``` trong ```globals.yml```
+
+```sh
+ironic_http_port: "8089"
+```
 

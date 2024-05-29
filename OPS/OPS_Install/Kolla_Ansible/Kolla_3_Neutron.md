@@ -59,7 +59,7 @@ Networking service cho phép người dùng quản lý tên gọi được cấp
 |Networks|No|Yes|
 |Floating IPs|Yes|Yes|
 
-Để kích hoạt tính năng nafym ta cần đặt các tham số sau trong ```globals.yml```:
+Để kích hoạt tính năng này ta cần đặt các tham số sau trong ```globals.yml```:
 
 ```sh
 neutron_dns_integration: "yes"
