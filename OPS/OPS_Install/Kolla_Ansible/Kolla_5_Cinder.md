@@ -113,7 +113,7 @@ Cấu hình Cinder-Backup cho S3 với các bước sau:
 1. Enable Cinder-Backup S3 backend trong ```globals.yml```
 
 ```sh
-cinder_backup-driver: "s3"
+cinder_backup_driver: "s3"
 ```
 
 2. Cấu hình S3 connection trong ```globals.yml```

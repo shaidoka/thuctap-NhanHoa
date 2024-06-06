@@ -216,7 +216,7 @@ kubectl apply -f /etc/kubernetes/octavia-ingress-controller/deployment.yaml
 Tạo 1 web service đơn giản mà lắng nghe trên port HTTP 8080:
 
 ```sh
-$ cat <<EOF | kubectl apply -f -
+cat <<EOF | kubectl apply -f -
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -258,7 +258,7 @@ webserver-58fcfb75fb-dz5kn
 Lệnh sau định nghĩa 1 Ingress resource mà forwards traffic mà request tới ```http://foo.bar.com/ping``` đến webserver:
 
 ```sh
-$ cat <<EOF | kubectl apply -f -
+cat <<EOF | kubectl apply -f -
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
