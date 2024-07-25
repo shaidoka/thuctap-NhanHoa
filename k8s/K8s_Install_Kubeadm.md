@@ -69,11 +69,9 @@ Cài đặt các thành phần của K8s trên tất cả các node
 ```sh
 apt-get update && apt-get install -y apt-transport-https
 
-curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add
+echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes.list
 
-cat <<EOF >/etc/apt/sources.list.d/kubernetes.list
-deb http://apt.kubernetes.io/ kubernetes-xenial main
-EOF
+curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 
 apt-get update  -y
 apt-get install -y kubelet kubeadm kubectl
