@@ -360,13 +360,3 @@ kubectl delete pod -l app=mongo
 Deployment sẽ tự động tạo lại 1 pod mongodb mới, sau đó chúng ta có thể thực hiện lại các bước bên trên để kiểm tra dữ liệu trong database.
 
 Như vậy là bạn đã hoàn tất thiết lập 1 cụm Rook-Ceph trên K8s giúp bạn lưu trữ dữ liệu của ứng dụng và chia sẻ chúng giữa các pods mà không phải sử dụng external storage hay cung cấp storage 1 cách thủ công.
-
-## Tổng kết
-
-Sau bài viết này, bạn có thể đã biết thêm những thuật ngữ hữu ích và trở nên quen thuộc hơn với mô hình hoạt động của rook, ceph, hay cả k8s nữa. Nếu bạn có hứng thú với Rook, hãy xem qua [Rook documentation](https://rook.github.io/docs/rook/latest/Getting-Started/intro/) chính thức của họ để hiểu hơn về cách cấu hình cũng như những công cụ xoay quanh.
-
-Ceph không chỉ cung cấp block storage, bạn cũng có thể tìm hiểu thêm về cách về [shared file systems](https://github.com/rook/rook/blob/master/Documentation/Storage-Configuration/Shared-Filesystem-CephFS/filesystem-storage.md) nếu bạn muốn mount cùng 1 volume cho nhiều pods khác nhau.
-
-Cuối cùng, đừng quên ghé thăm [Wiki Nhân Hòa](wiki.nhanhoa.com) để đón đọc nhiều bài viết thú vị hơn nữa.
-
-Chúc bạn luôn may mắn và thành công trong công việc!
