@@ -136,7 +136,190 @@ Copy các tệp Ceph keyrings vào:
 
 Để cấu hình ```multiple Ceph backends``` với Cinder, thứ mà sẽ hữu dụng cho việc sử dụng với nhiều availability zones:
 
+Copy các tệp cấu hình Ceph vào ```/etc/kolla/config/cinder/``` sử dụng các tên khác nhau 
 
+```/etc/kolla/config/cinder/ceph.conf```
+
+```sh
+[global]
+fsid = 1d89fec3-325a-4963-a950-c4afedd37fe3
+mon_initial_members = ceph-0
+mon_host = 192.168.0.56
+auth_cluster_required = cephx
+auth_service_required = cephx
+auth_client_required = cephx
+```
+
+```/etc/kolla/config/cinder/rbd2.conf```
+
+```sh
+[global]
+fsid = dbfea068-89ca-4d04-bba0-1b8a56c3abc8
+mon_initial_members = ceph-0
+mon_host = 192.10.0.100
+auth_cluster_required = cephx
+auth_service_required = cephx
+auth_client_required = cephx
+```
+
+Định nghĩa các Ceph backends trong ```globals.yml```
+
+```sh
+cinder_ceph_backends:
+  - name: "rbd-1"
+    cluster: "ceph"
+    enabled: "{{ cinder_backend_ceph | bool }}"
+  - name: "rbd-2"
+    cluster: "rbd2"
+    availability_zone: "az2"
+    enabled: "{{ cinder_backend_ceph | bool }}"
+```
+
+Copy Ceph keyring files cho tất cả các Ceph backends:
+
+- ```/etc/kolla/config/cinder/cinder-volume/ceph.<ceph_cinder_keyring>```
+- ```/etc/kolla/config/cinder/cinder-backup/ceph.<ceph_cinder_keyring>```
+- ```/etc/kolla/config/cinder/cinder-backup/ceph. <ceph_cinder_backup_keyring>```
+- ```/etc/kolla/config/cinder/cinder-volume/rbd2.<ceph_cinder_keyring>```
+- ```/etc/kolla/config/cinder/cinder-backup/rbd2.<ceph_cinder_keyring>```
+- ```/etc/kolla/config/cinder/cinder-backup/rbd2. <ceph_cinder_backup_keyring>```
+
+Nova cũng phải được cấu hình để cho phép truy nhập đến Cinder volumes:
+
+- Cấu hình Ceph authentication trong ```/etc/kolla/globals.yml```: ```ceph_cinder_keyring``` (mặc định: ```client.cinder.keyring```)
+- Copy Ceph keyring file vào ```/etc/kolla/config/nova/ceph.<ceph_cinder_keyring>```
+
+Để cấu hình Ceph backend khác cho nova-compute host, thứ mà sẽ hữu dụng cho nhiều availability zones:
+
+- Copy Ceph keyring file vào ```/etc/kolla/config/nova/<hostname>/ceph.<ceph_cinder_keyring>```
+
+Nếu ```zun``` được bật, và bạn muốn sử dụng cinder volumes với zun, bạn cũng phải cho phép nó truy cập vào Cinder volumes:
+
+- Bật cinder ceph backend cho Zun trong ```globals.yml```:
+
+```sh
+zun_configure_for_cinder_ceph: "yes"
+```
+
+- Copy Ceph configuration file vào ```/etc/kolla/config/zun/zun-compute/ceph.conf```
+
+- Copy các tệp Ceph keyring vào ```/etc/kolla/config/zun/zun-compute/ceph.<ceph_cinder_keyring>```
+
+### Nova
+
+Ceph RBD có thể được sử dụng như 1 storage backend cho Nova instance ephemeral disks. Điều này tránh yêu cầu về local storage cho instances trên compute nodes. Nó cải thiện hiệu năng của migration, vì ephemeral disks của instances không cần phải copy giữa các hypervisors.
+
+Cấu hình Nova cho Ceph theo các bước sau:
+
+- Enable Nova Ceph backend trong ```globals.yml```:
+
+```sh
+nova_backend_ceph: "yes"
+```
+
+- Cấu hình Ceph authentication trong ```/etc/kolla/globals.yml```:
+
+   - ```ceph_nova_keyring``` (mặc định sẽ tương đồng với ```ceph_cinder_keyring```)
+   - ```ceph_nova_user``` (mặc định là giống với ```ceph_cinder_user```)
+   - ```ceph_nova_pool_name``` (mặc định là ```vms```)
+
+- Copy Ceph configuration file vào ```/etc/kolla/config/nova/ceph.conf```
+
+- Copy Ceph keyring files vào ```/etc/kolla/config/nova/ceph.<ceph_nova_keyring>```
+
+### Manila
+
+CephFS có thể được sử dụng như 1 storage backend cho Manila shares. Cấu hình Manila cho Ceph bao gồm các bước sau:
+
+- Bật Manila Ceph backend trong ```globals.yml```:
+
+```sh
+enable_manila_backend_cephfs_native: "yes"
+```
+
+- Cấu hình Ceph authentication trong ```globals.yml```:
+
+   - ```ceph_manila_keyring``` (mặc định là ```client.manila.keyring```)
+   - ```ceph_manila_user``` (mặc định là ```manila```)
+
+- Copy Ceph configuration file vào ```/etc/kolla/config/manila/ceph.conf```
+
+- Copy Ceph keyring vào ```/etc/kolla/config/manila/ceph.<ceph_manila_keyring>```
+
+Để cấu hình nhiều Ceph backends cho Manila, thứ mà sẽ hữu dụng cho nhiều availability zones:
+
+- Copy các tệp cấu hình của Ceph vào ```/etc/kolla/config/manila``` sử dụng các tên khác nhau:
+
+```/etc/kolla/config/manila/ceph.conf```
+
+```sh
+[global]
+fsid = 1d89fec3-325a-4963-a950-c4afedd37fe3
+mon_initial_members = ceph-0
+mon_host = 192.168.0.56
+auth_cluster_required = cephx
+auth_service_required = cephx
+auth_client_required = cephx
+```
+
+```/etc/kolla/config/manila/rbd2.conf```
+
+```sh
+[global]
+fsid = dbfea068-89ca-4d04-bba0-1b8a56c3abc8
+mon_initial_members = ceph-0
+mon_host = 192.10.0.100
+auth_cluster_required = cephx
+auth_service_required = cephx
+auth_client_required = cephx
+```
+
+Định nghĩa Ceph backends trong ```globals.yml```
+
+```sh
+manila_ceph_backends:
+  - name: "cephfsnative1"
+    share_name: "CEPHFS1"
+    driver: "cephfsnative"
+    cluster: "ceph"
+    enabled: "{{ enable_manila_backend_cephfs_native | bool }}"
+    protocols:
+      - "CEPHFS"
+  - name: "cephfsnative2"
+    share_name: "CEPHFS2"
+    driver: "cephfsnative"
+    cluster: "rbd2"
+    enabled: "{{ enable_manila_backend_cephfs_native | bool }}"
+    protocols:
+      - "CEPHFS"
+  - name: "cephfsnfs1"
+    share_name: "CEPHFSNFS1"
+    driver: "cephfsnfs"
+    cluster: "ceph1"
+    enabled: "{{ enable_manila_backend_cephfs_nfs | bool }}"
+    protocols:
+      - "NFS"
+      - "CIFS"
+  - name: "cephfsnfs2"
+    share_name: "CEPHFSNFS2"
+    driver: "cephfsnfs"
+    cluster: "rbd2"
+    enabled: "{{ enable_manila_backend_cephfs_nfs | bool }}"
+    protocols:
+      - "NFS"
+      - "CIFS"
+```
+
+- Copy Ceph keyring files cho tất cả các Ceph backends:
+
+   - ```/etc/kolla/config/manila/manila-share/ceph.<ceph_manila_keyring>```
+   - ```/etc/kolla/config/manila/manila-share/rbd2.<ceph_manila_keyring>```
+
+- Nếu sử dụng nhiều filesystem (Ceph Pacific+), đặt ```manila_cephfs_filesystem_name``` trong ```/etc/kolla/globals.yml``` thành tên của Ceph filesystem mà Manila sẽ sử dụng. Mặc định, Manila sẽ sử dụng filesystem đầu tiên được trả về bởi ```cephfs volume ls``` command
+
+- Setup Manila như thông thường
+
+Để biết thêm thông tin về phần còn lại cho việc setup Manila, như việc tạo share type ```default_share_type```, hãy xem [Manila in Kolla](https://docs.openstack.org/kolla-ansible/latest/reference/storage/manila-guide.html)
 
 ### RadosGW
 
@@ -176,3 +359,4 @@ HAProxy frontend port được định nghĩa thông qua ```ceph_rgw_port```, v�
 #### Cephadm và Ceph Client version
 
 Khi cấu hình Zun với Cinder volumes, kolla-ansible cài đặt 1 vài Ceph client packages trên zun-compute hosts. Bạn có thể đặt phiên bản của Ceph packages bằng cách cấu hình Ceph version trong ```/etc/kolla/globals.yml```, tham số ```ceph_version``` (mặc định ```pacific```).
+
