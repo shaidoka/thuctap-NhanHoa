@@ -13,7 +13,7 @@ nova service-list
 ```sh
 for i in `openstack server list --all-project --host <failed_compute> | tail -n +4 | awk '{print $2}'`; do echo -e "$i" >> <filename>; done
  
-for i in `openstack server list --all-project --host sgn09wld01com02 | tail -n +4 | awk '{print $2}'`; do echo -e "$i" >> evacuate-sgn09wld01com02; done
+for i in `openstack server list --all-project --host compute01 | tail -n +4 | awk '{print $2}'`; do echo -e "$i" >> evacuate-compute01; done
 ```
 
 4. Thực hiện list các vm đang chạy trên compute bị lỗi và xuất ra file excel để kiểm soát --> thông báo cho sale
@@ -25,7 +25,7 @@ Truy cập Dashboard > Project admin > Tab Admin > Compute > Instances > Filter 
 ```sh
 nova host-evacuate <failed_compute>
  
-nova host-evacuate sgn09stag01com02
+nova host-evacuate compute01
 ```
 
 6. Script mỗi 30s lấy trạng thái vm list 1 lần kèm thời gian --> lưu tên file theo tgian
