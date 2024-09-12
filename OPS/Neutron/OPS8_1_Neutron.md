@@ -184,7 +184,7 @@ Cung cấp kết nối ra mạng ngoài (internet) cho các VM trên các tenant
 - L3
 - DHCP
 
-**Misscellaneous**
+**Miscellaneous**
 - Metadata
 
 ### Services
