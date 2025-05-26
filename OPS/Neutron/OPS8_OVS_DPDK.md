@@ -128,3 +128,19 @@ openstack flavor set m1.large --property hw:mem_page_size=large
 ```
 
 vhost-user yêu cầu bộ nhớ chia sẻ dựa trên file descriptor, chỉ có thể thực hiện qua huge pages. Huge pages giảm overhead bộ nhớ và tăng hiệu suất, đặc biệt trong môi trường mạng cao tải.
+
+## Tài liệu tham khảo
+
+https://www.intel.com/content/www/us/en/developer/articles/technical/open-vswitch-with-dpdk-overview.html
+
+https://docs.openvswitch.org/en/stable/intro/install/dpdk/
+
+https://docs.openvswitch.org/en/stable/topics/dpdk/bridge/
+
+https://docs.openvswitch.org/en/stable/topics/dpdk/vhost-user/#dpdk-vhost-user-xml
+
+https://doc.dpdk.org/guides/linux_gsg/sys_reqs.html
+
+https://docs.openstack.org/ocata/networking-guide/config-ovs-dpdk.html
+
+https://doc.dpdk.org/guides/linux_gsg/linux_drivers.html
