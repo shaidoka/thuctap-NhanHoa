@@ -121,6 +121,18 @@ user = "root"
 group = "root"
 ```
 
+Cấu hình ```ml2_conf.ini```
+
+```sh
+[ovs]
+bridge_mappings = physnet2:br_dpdk
+datapath = netdev
+vhostuser_socket_dir = /var/run/openvswitch
+
+[dpdk]
+vhost_user_mode = server
+```
+
 **HugePages Flavor**: Máy ảo phải yêu cầu huge pages thông qua flavor, ví dụ:
 
 ```sh
